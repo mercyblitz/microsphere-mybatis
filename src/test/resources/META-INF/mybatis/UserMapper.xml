@@ -10,4 +10,15 @@
     <select id="getUserById" resultType="User">
         SELECT id,name FROM users WHERE id = #{id}
     </select>
+
+    <select id="getUserByName" resultType="User" useCache="true">
+        SELECT id,name FROM users WHERE name = #{name}
+    </select>
+
+    <cache
+            eviction="FIFO"
+            flushInterval="60000"
+            size="512"
+            readOnly="true"/>
+
 </mapper>
