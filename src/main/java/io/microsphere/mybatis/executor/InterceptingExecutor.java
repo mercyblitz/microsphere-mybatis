@@ -63,7 +63,7 @@ public class InterceptingExecutor implements Executor {
 
     private final int executorInterceptorsCount;
 
-    public InterceptingExecutor(Executor executor, ExecutorInterceptor... executorInterceptors) {
+    public InterceptingExecutor(Executor delegate, ExecutorInterceptor... executorInterceptors) {
         assertNotNull(delegate, () -> "The Executor executor must not be null");
         assertNotEmpty(executorInterceptors, () -> "The ExecutorInterceptor array must not be empty");
         this.delegate = delegate;
