@@ -30,6 +30,9 @@ dependencies {
     // MyBatis
     "optionalApi"(libs.mybatis)
 
+    // JSR305
+    "optionalApi"(libs.jsr305)
+
     // Testing
     testImplementation(libs.junit.jupiter.engine)
 
