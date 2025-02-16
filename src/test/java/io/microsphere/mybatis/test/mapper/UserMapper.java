@@ -30,4 +30,6 @@ public interface UserMapper {
     void saveUser(User user);
 
     User getUserById(int id);
+
+    User getUserByName(String name);
 }
