@@ -140,7 +140,7 @@ public interface ExecutorInterceptor {
      *
      * @param executor   the underlying {@link Executor} instance
      * @param properties the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
-     * @param required   <code>true</code> means {@link Transaction#commit() the transaction will be committed} really,
+     * @param required   <code>true</code> means the transaction will be {@link Transaction#commit() committed} really,
      *                   otherwise ignored
      */
     default void beforeCommit(Executor executor, Map<String, String> properties, boolean required) {
@@ -151,7 +151,7 @@ public interface ExecutorInterceptor {
      *
      * @param executor   the underlying {@link Executor} instance
      * @param properties the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
-     * @param required   <code>true</code> means {@link Transaction#commit() the transaction will be committed} really,
+     * @param required   <code>true</code> means the transaction will be {@link Transaction#commit() committed} really,
      *                   otherwise ignored
      */
     default void afterCommit(Executor executor, Map<String, String> properties, boolean required, @Nullable SQLException failure) {
@@ -162,7 +162,7 @@ public interface ExecutorInterceptor {
      *
      * @param executor   the underlying {@link Executor} instance
      * @param properties the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
-     * @param required   <code>true</code> means {@link Transaction#rollback() the transaction will be rollback}, otherwise ignored
+     * @param required   <code>true</code> means the transaction will be {@link Transaction#rollback() rollback}, otherwise ignored
      */
     default void beforeRollback(Executor executor, Map<String, String> properties, boolean required) {
     }
@@ -172,7 +172,7 @@ public interface ExecutorInterceptor {
      *
      * @param executor   the underlying {@link Executor} instance
      * @param properties the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
-     * @param required   <code>true</code> means {@link Transaction#rollback() the transaction will be rollback}, otherwise ignored
+     * @param required   <code>true</code> means the transaction will be {@link Transaction#rollback() rollback}, otherwise ignored
      */
     default void afterRollback(Executor executor, Map<String, String> properties, boolean required, @Nullable SQLException failure) {
     }
@@ -257,8 +257,7 @@ public interface ExecutorInterceptor {
      *
      * @param executor      the underlying {@link Executor} instance
      * @param properties    the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
-     * @param forceRollback <code>true</code> means {@link Transaction#close() the transaction will be closed} and
-     *                      cache will be cleared, otherwise ignored
+     * @param forceRollback <code>true</code> means the transaction will be {@link Transaction#rollback() rollback}
      */
     default void beforeClose(Executor executor, Map<String, String> properties, boolean forceRollback) {
     }
@@ -268,8 +267,7 @@ public interface ExecutorInterceptor {
      *
      * @param executor      the underlying {@link Executor} instance
      * @param properties    the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
-     * @param forceRollback <code>true</code> means {@link Transaction#close() the transaction will be closed} and
-     *                      cache will be cleared, otherwise ignored
+     * @param forceRollback <code>true</code> means the transaction will be {@link Transaction#rollback() rollback}
      */
     default void afterClose(Executor executor, Map<String, String> properties, boolean forceRollback) {
     }

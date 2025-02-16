@@ -231,7 +231,14 @@ public class InterceptingExecutor implements Executor {
 
     @Override
     public void setExecutorWrapper(Executor executor) {
-        delegate.setExecutorWrapper(executor);
+        if (executor instanceof InterceptingExecutor) {
+            return;
+        }
+        InterceptingExecutor interceptingExecutor = new InterceptingExecutor(executor, this.executorInterceptors);
+        Properties properties = new Properties();
+        properties.putAll(this.properties);
+        interceptingExecutor.setProperties(properties);
+        delegate.setExecutorWrapper(interceptingExecutor);
     }
 
     public void setProperties(Properties properties) {
