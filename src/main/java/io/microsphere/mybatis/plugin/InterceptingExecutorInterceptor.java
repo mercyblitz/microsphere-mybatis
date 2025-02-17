@@ -67,7 +67,7 @@ public class InterceptingExecutorInterceptor implements Interceptor {
             return interceptingExecutor;
         }
         if (logger.isTraceEnabled()) {
-            logger.trace("The non-executor [{}] instance simply return without any dynamic proxy interception", target.getClass());
+            logger.trace("The non-executor [{}] instance simply returns without any dynamic proxy interception", target.getClass());
         }
         return target;
     }
