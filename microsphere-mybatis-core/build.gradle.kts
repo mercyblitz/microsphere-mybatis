@@ -22,11 +22,5 @@ dependencies {
     "optionalApi"(libs.jsr305)
 
     // Testing
-    testImplementation(libs.junit.jupiter.engine)
-
-    // H2 DataBase
-    testImplementation(libs.h2)
-
-    // Logback
-    testImplementation(libs.logback.classic)
+    testImplementation(project(":microsphere-mybatis-test"))
 }
