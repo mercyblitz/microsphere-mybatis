@@ -66,17 +66,22 @@ public abstract class AbstractMyBatisTest {
 
     @BeforeEach
     public void init() throws Throwable {
-        this.sqlSessionFactory = buildSqlSessionFactory();
+        this.sqlSessionFactory = createSqlSessionFactory();
         initData();
     }
 
-    private SqlSessionFactory buildSqlSessionFactory() throws IOException {
+    private SqlSessionFactory createSqlSessionFactory() throws IOException {
+        SqlSessionFactory factory = buildSqlSessionFactory();
+        customize(factory);
+        customize(factory.getConfiguration());
+        return factory;
+    }
+
+    public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
         String resource = "META-INF/mybatis/config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
         SqlSessionFactory factory = builder.build(inputStream);
-        customize(factory);
-        customize(factory.getConfiguration());
         return factory;
     }
 
