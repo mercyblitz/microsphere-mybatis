@@ -18,15 +18,12 @@ dependencies {
     // MyBatis
     "optionalApi"(libs.mybatis)
 
-    // JSR305
-    "optionalApi"(libs.jsr305)
-
     // Testing
-    testImplementation(libs.junit.jupiter.engine)
+    api(libs.junit.jupiter.engine)
 
     // H2 DataBase
-    testImplementation(libs.h2)
+    api(libs.h2)
 
     // Logback
-    testImplementation(libs.logback.classic)
+    api(libs.logback.classic)
 }
