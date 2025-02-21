@@ -16,39 +16,13 @@
  */
 package io.microsphere.mybatis.plugin;
 
-import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.test.AbstractMyBatisTest;
-import io.microsphere.mybatis.test.entity.User;
-import io.microsphere.mybatis.test.mapper.UserMapper;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.transaction.Transaction;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.List;
 import java.util.Properties;
 
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * {@link InterceptingExecutorInterceptor} Test
