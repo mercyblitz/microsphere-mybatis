@@ -1,7 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
 
 name: Gradle Build
 
@@ -35,4 +31,4 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: microsphere-projects/microsphere-alibaba-druid
+          slug: microsphere-projects/microsphere-mybatis
