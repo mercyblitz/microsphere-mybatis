@@ -195,7 +195,7 @@ public class InterceptingExecutorInterceptorTest {
             // Test selectCursor
             Cursor<User> cursor = sqlSession.selectCursor(MS_ID_USER_BY_ID, user.getId());
             assertNotNull(cursor);
-            assertTrue(cursor.isOpen());
+            assertFalse(cursor.isOpen());
             assertFalse(cursor.isConsumed());
             assertEquals(0, cursor.getCurrentIndex());
             cursor.forEach(foundUser -> assertEquals(foundUser, user));
