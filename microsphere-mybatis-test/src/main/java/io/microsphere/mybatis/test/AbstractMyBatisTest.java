@@ -76,6 +76,7 @@ public abstract class AbstractMyBatisTest {
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
         SqlSessionFactory factory = builder.build(inputStream);
         customize(factory);
+        customize(factory.getConfiguration());
         return factory;
     }
 
@@ -85,6 +86,14 @@ public abstract class AbstractMyBatisTest {
      * @param sqlSessionFactory {@link SqlSessionFactory}
      */
     protected void customize(SqlSessionFactory sqlSessionFactory) {
+    }
+
+    /**
+     * Customize the {@link Configuration}
+     *
+     * @param configuration {@link Configuration}
+     */
+    protected void customize(Configuration configuration) {
     }
 
     private SqlSession openSqlSession() {
