@@ -22,8 +22,6 @@ import org.apache.ibatis.session.Configuration;
 
 import java.util.Properties;
 
-import static java.util.Arrays.asList;
-
 /**
  * {@link InterceptingExecutorInterceptor} Test
  *
@@ -40,7 +38,7 @@ public class InterceptingExecutorInterceptorTest extends AbstractMyBatisTest {
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
         LogggingExecutorInterceptor loggingExecutorInterceptor = new LogggingExecutorInterceptor();
-        InterceptingExecutorInterceptor interceptingExecutorInterceptor = new InterceptingExecutorInterceptor(asList(loggingExecutorInterceptor));
+        InterceptingExecutorInterceptor interceptingExecutorInterceptor = new InterceptingExecutorInterceptor(loggingExecutorInterceptor);
         Properties properties = new Properties();
         properties.setProperty("test.class", this.getClass().getName());
         interceptingExecutorInterceptor.setProperties(properties);
