@@ -187,8 +187,7 @@ public interface ExecutorInterceptor {
     /**
      * Callback before execute {@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}
      *
-     * @param executor        the underlying {@link Executor} instance
-     * @param properties      the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context   {@link InterceptorContext}
      * @param ms              {@link MappedStatement}
      * @param parameterObject the parameter object
      * @param rowBounds       {@link RowBounds}
@@ -201,8 +200,7 @@ public interface ExecutorInterceptor {
     /**
      * Callback after execute {@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}
      *
-     * @param executor        the underlying {@link Executor} instance
-     * @param properties      the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context   {@link InterceptorContext}
      * @param ms              {@link MappedStatement}
      * @param parameterObject the parameter object
      * @param rowBounds       {@link RowBounds}
@@ -216,8 +214,7 @@ public interface ExecutorInterceptor {
     /**
      * Callback before execute {@link Executor#deferLoad(MappedStatement, MetaObject, String, CacheKey, Class)}
      *
-     * @param executor     the underlying {@link Executor} instance
-     * @param properties   the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context   {@link InterceptorContext}
      * @param ms           {@link MappedStatement}
      * @param resultObject {@link MetaObject}
      * @param property     {@link RowBounds}
@@ -230,8 +227,7 @@ public interface ExecutorInterceptor {
     /**
      * Callback after execute {@link Executor#deferLoad(MappedStatement, MetaObject, String, CacheKey, Class)}
      *
-     * @param executor     the underlying {@link Executor} instance
-     * @param properties   the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context   {@link InterceptorContext}
      * @param ms           {@link MappedStatement}
      * @param resultObject {@link MetaObject}
      * @param property     {@link RowBounds}
