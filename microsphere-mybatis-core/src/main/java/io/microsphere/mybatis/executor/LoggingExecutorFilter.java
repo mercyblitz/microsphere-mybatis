@@ -44,61 +44,61 @@ public class LoggingExecutorFilter implements ExecutorFilter {
 
     @Override
     public int update(MappedStatement ms, Object parameter, ExecutorFilterChain chain) throws SQLException {
-        logger.debug("filterUpdate() : {} , {} , {}", ms, parameter, chain);
+        logger.debug("update() : {} , {} , {}", ms, parameter, chain);
         return ExecutorFilter.super.update(ms, parameter, chain);
     }
 
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql, ExecutorFilterChain chain) throws SQLException {
-        logger.debug("filterQuery() : {} , {} , {} , {} , {} , {} , {}", ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, chain);
+        logger.debug("query() : {} , {} , {} , {} , {} , {} , {}", ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, chain);
         return ExecutorFilter.super.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, chain);
     }
 
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, ExecutorFilterChain chain) throws SQLException {
-        logger.debug("filterQuery() : {} , {} , {} , {} , {}", ms, parameter, rowBounds, resultHandler, chain);
+        logger.debug("query() : {} , {} , {} , {} , {}", ms, parameter, rowBounds, resultHandler, chain);
         return ExecutorFilter.super.query(ms, parameter, rowBounds, resultHandler, chain);
     }
 
     @Override
     public <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds, ExecutorFilterChain chain) throws SQLException {
-        logger.debug("filterQueryCursor() : {} , {} , {} , {}", ms, parameter, rowBounds, chain);
+        logger.debug("queryCursor() : {} , {} , {} , {}", ms, parameter, rowBounds, chain);
         return ExecutorFilter.super.queryCursor(ms, parameter, rowBounds, chain);
     }
 
     @Override
     public void commit(boolean required, ExecutorFilterChain chain) throws SQLException {
-        logger.debug("filterCommit() : {} , {}", required, chain);
+        logger.debug("commit() : {} , {}", required, chain);
         ExecutorFilter.super.commit(required, chain);
     }
 
     @Override
     public void rollback(boolean required, ExecutorFilterChain chain) throws SQLException {
-        logger.debug("filterRollback() : {} , {}", required, chain);
+        logger.debug("rollback() : {} , {}", required, chain);
         ExecutorFilter.super.rollback(required, chain);
     }
 
     @Override
     public CacheKey createCacheKey(MappedStatement ms, Object parameter, RowBounds rowBounds, BoundSql boundSql, ExecutorFilterChain chain) {
-        logger.debug("filterCreateCacheKey() : {} , {} , {} , {}", ms, parameter, rowBounds, chain);
+        logger.debug("createCacheKey() : {} , {} , {} , {}", ms, parameter, rowBounds, chain);
         return ExecutorFilter.super.createCacheKey(ms, parameter, rowBounds, boundSql, chain);
     }
 
     @Override
     public void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType, ExecutorFilterChain chain) {
-        logger.debug("filterDeferLoad() : {} , {} , {} , {} , {} , {}", ms, resultObject, property, key, targetType, chain);
+        logger.debug("deferLoad() : {} , {} , {} , {} , {} , {}", ms, resultObject, property, key, targetType, chain);
         ExecutorFilter.super.deferLoad(ms, resultObject, property, key, targetType, chain);
     }
 
     @Override
     public Transaction getTransaction(ExecutorFilterChain chain) {
-        logger.debug("filterGetTransaction() : {}", chain);
+        logger.debug("getTransaction() : {}", chain);
         return ExecutorFilter.super.getTransaction(chain);
     }
 
     @Override
     public void close(boolean forceRollback, ExecutorFilterChain chain) {
-        logger.debug("filterClose() : {} , {}", forceRollback, chain);
+        logger.debug("close() : {} , {}", forceRollback, chain);
         ExecutorFilter.super.close(forceRollback, chain);
     }
 }
