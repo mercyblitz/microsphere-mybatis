@@ -17,6 +17,7 @@
 package io.microsphere.mybatis.executor;
 
 import io.microsphere.logging.Logger;
+import io.microsphere.mybatis.plugin.InterceptorContext;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
@@ -72,7 +73,8 @@ public class InterceptingExecutor implements Executor {
 
     @Override
     public int update(MappedStatement ms, Object parameter) throws SQLException {
-        beforeUpdate(ms, parameter);
+        InterceptorContext<Executor> context = buildContext();
+        beforeUpdate(context, ms, parameter);
         Integer result = null;
         SQLException failure = null;
         try {
@@ -81,7 +83,7 @@ public class InterceptingExecutor implements Executor {
             failure = e;
             throw e;
         } finally {
-            afterUpdate(ms, parameter, result, failure);
+            afterUpdate(context, ms, parameter, result, failure);
         }
         return result;
     }
@@ -89,7 +91,8 @@ public class InterceptingExecutor implements Executor {
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
                              CacheKey cacheKey, BoundSql boundSql) throws SQLException {
-        beforeQuery(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
+        InterceptorContext<Executor> context = buildContext();
+        beforeQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
         List<E> result = null;
         SQLException failure = null;
         try {
@@ -98,14 +101,15 @@ public class InterceptingExecutor implements Executor {
             failure = e;
             throw e;
         } finally {
-            afterQuery(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
+            afterQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
         }
         return result;
     }
 
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
-        beforeQuery(ms, parameter, rowBounds, resultHandler, null, null);
+        InterceptorContext<Executor> context = buildContext();
+        beforeQuery(context, ms, parameter, rowBounds, resultHandler, null, null);
         List<E> result = null;
         SQLException failure = null;
         try {
@@ -114,14 +118,16 @@ public class InterceptingExecutor implements Executor {
             failure = e;
             throw e;
         } finally {
-            afterQuery(ms, parameter, rowBounds, resultHandler, null, null, result, failure);
+            afterQuery(context, ms, parameter, rowBounds, resultHandler, null, null, result, failure);
         }
         return result;
     }
 
     @Override
     public <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException {
-        beforeQueryCursor(ms, parameter, rowBounds);
+        InterceptorContext<Executor> context = buildContext();
+
+        beforeQueryCursor(context, ms, parameter, rowBounds);
         Cursor<E> result = null;
         SQLException failure = null;
         try {
@@ -130,7 +136,7 @@ public class InterceptingExecutor implements Executor {
             failure = e;
             throw e;
         } finally {
-            afterQueryCursor(ms, parameter, rowBounds, result, failure);
+            afterQueryCursor(context, ms, parameter, rowBounds, result, failure);
         }
         return result;
     }
@@ -143,7 +149,8 @@ public class InterceptingExecutor implements Executor {
 
     @Override
     public void commit(boolean required) throws SQLException {
-        beforeCommit(required);
+        InterceptorContext<Executor> context = buildContext();
+        beforeCommit(context, required);
         SQLException failure = null;
         try {
             delegate.commit(required);
@@ -151,13 +158,14 @@ public class InterceptingExecutor implements Executor {
             failure = e;
             throw e;
         } finally {
-            afterCommit(required, failure);
+            afterCommit(context, required, failure);
         }
     }
 
     @Override
     public void rollback(boolean required) throws SQLException {
-        beforeRollback(required);
+        InterceptorContext<Executor> context = buildContext();
+        beforeRollback(context, required);
         SQLException failure = null;
         try {
             delegate.rollback(required);
@@ -165,18 +173,19 @@ public class InterceptingExecutor implements Executor {
             failure = e;
             throw e;
         } finally {
-            afterRollback(required, failure);
+            afterRollback(context, required, failure);
         }
     }
 
     @Override
     public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
-        beforeCreateCacheKey(ms, parameterObject, rowBounds, boundSql);
+        InterceptorContext<Executor> context = buildContext();
+        beforeCreateCacheKey(context, ms, parameterObject, rowBounds, boundSql);
         CacheKey result = null;
         try {
             result = delegate.createCacheKey(ms, parameterObject, rowBounds, boundSql);
         } finally {
-            afterCreateCacheKey(ms, parameterObject, rowBounds, boundSql, result);
+            afterCreateCacheKey(context, ms, parameterObject, rowBounds, boundSql, result);
         }
         return result;
     }
@@ -193,33 +202,36 @@ public class InterceptingExecutor implements Executor {
 
     @Override
     public void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
-        beforeDeferLoad(ms, resultObject, property, key, targetType);
+        InterceptorContext<Executor> context = buildContext();
+        beforeDeferLoad(context, ms, resultObject, property, key, targetType);
         try {
             delegate.deferLoad(ms, resultObject, property, key, targetType);
         } finally {
-            afterDeferLoad(ms, resultObject, property, key, targetType);
+            afterDeferLoad(context, ms, resultObject, property, key, targetType);
         }
     }
 
     @Override
     public Transaction getTransaction() {
-        beforeGetTransaction(this.delegate, this.properties);
+        InterceptorContext<Executor> context = buildContext();
+        beforeGetTransaction(context);
         Transaction transaction = null;
         try {
             transaction = delegate.getTransaction();
         } finally {
-            afterGetTransaction(this.delegate, this.properties);
+            afterGetTransaction(context);
         }
         return transaction;
     }
 
     @Override
     public void close(boolean forceRollback) {
-        beforeClose(forceRollback);
+        InterceptorContext<Executor> context = buildContext();
+        beforeClose(context, forceRollback);
         try {
             delegate.close(forceRollback);
         } finally {
-            afterClose(forceRollback);
+            afterClose(context, forceRollback);
         }
     }
 
@@ -246,94 +258,93 @@ public class InterceptingExecutor implements Executor {
         }
     }
 
-    void beforeUpdate(MappedStatement ms, Object parameter) {
-        iterate(executorInterceptor -> executorInterceptor.beforeUpdate(this.delegate, this.properties, ms, parameter));
+    void beforeUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter) {
+        iterate(executorInterceptor -> executorInterceptor.beforeUpdate(context, ms, parameter));
     }
 
-    void afterUpdate(MappedStatement ms, Object parameter,
+    void afterUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                      @Nullable Integer result, @Nullable SQLException failure) {
-        iterate(executorInterceptor ->
-                executorInterceptor.afterUpdate(this.delegate, this.properties, ms, parameter, result, failure));
-
+        iterate(executorInterceptor -> executorInterceptor.afterUpdate(context, ms, parameter, result, failure));
     }
 
-    void beforeQuery(MappedStatement ms, Object parameter,
+    void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                      RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
         iterate(executorInterceptor ->
-                executorInterceptor.beforeQuery(this.delegate, this.properties, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql));
+                executorInterceptor.beforeQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql));
     }
 
-    <E> void afterQuery(MappedStatement ms, Object parameter,
+    <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                         RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql,
                         @Nullable List<E> result, @Nullable SQLException failure) {
         iterate(executorInterceptor ->
-                executorInterceptor.afterQuery(this.delegate, this.properties, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure));
+                executorInterceptor.afterQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure));
     }
 
-    void beforeQueryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) {
+    void beforeQueryCursor(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds) {
         iterate(executorInterceptor ->
-                executorInterceptor.beforeQueryCursor(this.delegate, this.properties, ms, parameter, rowBounds));
+                executorInterceptor.beforeQueryCursor(context, ms, parameter, rowBounds));
     }
 
-    <E> void afterQueryCursor(MappedStatement ms, Object parameter,
+    <E> void afterQueryCursor(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                               RowBounds rowBounds, @Nullable Cursor<E> result, @Nullable SQLException failure) {
         iterate(executorInterceptor ->
-                executorInterceptor.afterQueryCursor(this.delegate, this.properties, ms, parameter, rowBounds, result, failure));
+                executorInterceptor.afterQueryCursor(context, ms, parameter, rowBounds, result, failure));
     }
 
-    void beforeCommit(boolean required) {
-        iterate(executorInterceptor -> executorInterceptor.beforeCommit(this.delegate, this.properties, required));
+    void beforeCommit(InterceptorContext<Executor> context, boolean required) {
+        iterate(executorInterceptor -> executorInterceptor.beforeCommit(context, required));
     }
 
-    void afterCommit(boolean required, @Nullable SQLException failure) {
-        iterate(executorInterceptor -> executorInterceptor.afterCommit(this.delegate, this.properties, required, failure));
+    void afterCommit(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
+        iterate(executorInterceptor -> executorInterceptor.afterCommit(context, required, failure));
     }
 
-    void beforeRollback(boolean required) {
-        iterate(executorInterceptor -> executorInterceptor.beforeRollback(this.delegate, this.properties, required));
+    void beforeRollback(InterceptorContext<Executor> context, boolean required) {
+        iterate(executorInterceptor -> executorInterceptor.beforeRollback(context, required));
     }
 
-    void afterRollback(boolean required, @Nullable SQLException failure) {
-        iterate(executorInterceptor -> executorInterceptor.afterRollback(this.delegate, this.properties, required, failure));
+    void afterRollback(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
+        iterate(executorInterceptor -> executorInterceptor.afterRollback(context, required, failure));
     }
 
-    void beforeGetTransaction(Executor executor, Map<String, String> properties) {
-        iterate(executorInterceptor -> executorInterceptor.beforeGetTransaction(executor, properties));
+    void beforeGetTransaction(InterceptorContext<Executor> context) {
+        iterate(executorInterceptor -> executorInterceptor.beforeGetTransaction(context));
     }
 
-    void afterGetTransaction(Executor executor, Map<String, String> properties) {
-        iterate(executorInterceptor -> executorInterceptor.afterGetTransaction(executor, properties));
+    void afterGetTransaction(InterceptorContext<Executor> context) {
+        iterate(executorInterceptor -> executorInterceptor.afterGetTransaction(context));
     }
 
-    void beforeCreateCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
+    void beforeCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject,
+                              RowBounds rowBounds, BoundSql boundSql) {
         iterate(executorInterceptor ->
-                executorInterceptor.beforeCreateCacheKey(this.delegate, this.properties, ms, parameterObject, rowBounds, boundSql));
+                executorInterceptor.beforeCreateCacheKey(context, ms, parameterObject, rowBounds, boundSql));
     }
 
-    void afterCreateCacheKey(MappedStatement ms,
-                             Object parameterObject, RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey result) {
+    void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject,
+                             RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey result) {
         iterate(executorInterceptor ->
-                executorInterceptor.afterCreateCacheKey(this.delegate, this.properties, ms, parameterObject, rowBounds, boundSql, result));
+                executorInterceptor.afterCreateCacheKey(context, ms, parameterObject, rowBounds, boundSql, result));
     }
 
-    void beforeDeferLoad(MappedStatement ms, MetaObject resultObject,
-                         String property, CacheKey key, Class<?> targetType) {
+    void beforeDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property,
+                         CacheKey key, Class<?> targetType) {
         iterate(executorInterceptor ->
-                executorInterceptor.beforeDeferLoad(this.delegate, this.properties, ms, resultObject, property, key, targetType));
+                executorInterceptor.beforeDeferLoad(context, ms, resultObject, property, key, targetType));
     }
 
-    void afterDeferLoad(MappedStatement ms, MetaObject resultObject,
+    void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject,
                         String property, CacheKey key, Class<?> targetType) {
         iterate(executorInterceptor ->
-                executorInterceptor.afterDeferLoad(this.delegate, this.properties, ms, resultObject, property, key, targetType));
+                executorInterceptor.afterDeferLoad(context, ms, resultObject, property, key, targetType));
     }
 
-    void beforeClose(boolean forceRollback) {
-        iterate(executorInterceptor -> executorInterceptor.beforeClose(this.delegate, this.properties, forceRollback));
+    void beforeClose(InterceptorContext<Executor> context, boolean forceRollback) {
+        iterate(executorInterceptor -> executorInterceptor.beforeClose(context, forceRollback));
     }
 
-    void afterClose(boolean forceRollback) {
-        iterate(executorInterceptor -> executorInterceptor.afterClose(this.delegate, this.properties, forceRollback));
+    void afterClose(InterceptorContext<Executor> context, boolean forceRollback) {
+        iterate(executorInterceptor -> executorInterceptor.afterClose(context, forceRollback));
     }
 
     void iterate(Consumer<ExecutorInterceptor> executorInterceptorConsumer) {
@@ -348,6 +359,10 @@ public class InterceptingExecutor implements Executor {
                 }
             }
         }
+    }
+
+    private InterceptorContext<Executor> buildContext() {
+        return new InterceptorContext<>(delegate, properties);
     }
 
 }

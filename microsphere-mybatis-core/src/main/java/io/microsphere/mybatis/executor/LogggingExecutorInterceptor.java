@@ -17,6 +17,7 @@
 package io.microsphere.mybatis.executor;
 
 import io.microsphere.logging.Logger;
+import io.microsphere.mybatis.plugin.InterceptorContext;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
@@ -45,92 +46,93 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
     private final static Logger logger = getLogger(LogggingExecutorInterceptor.class);
 
     @Override
-    public void beforeUpdate(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameter) {
-        logger.debug("beforeUpdate() : {} , {} , {} , {}", executor, properties, parameter, ms, parameter);
+    public void beforeUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter) {
+        logger.debug("beforeUpdate() : {} , {} , {}", context, parameter, ms, parameter);
     }
 
     @Override
-    public void afterUpdate(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameter, @Nullable Integer result, @Nullable SQLException failure) {
-        logger.debug("afterUpdate() : {} , {} , {} , {} , {} , {}", executor, properties, ms, parameter, result, failure);
+    public void afterUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, @Nullable Integer result, @Nullable SQLException failure) {
+        logger.debug("afterUpdate() : {} , {} , {} , {} , {}", context, ms, parameter, result, failure);
     }
 
     @Override
-    public void beforeQuery(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
-        logger.debug("beforeQuery() : {} , {} , {} , {} , {} , {} , {} , {}", executor, properties, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
+    public void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
+        logger.debug("beforeQuery() : {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
     }
 
     @Override
-    public <E> void afterQuery(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
-        logger.debug("afterQuery() : {} , {} , {} , {} , {} , {} , {} , {} , {} , {}", executor, properties, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
+    public <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
+        logger.debug("afterQuery() : {} , {} , {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
     }
 
     @Override
-    public void beforeQueryCursor(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameter, RowBounds rowBounds) {
-        logger.debug("beforeQueryCursor() : {} , {} , {} , {} , {}", executor, properties, ms, parameter, rowBounds);
+    public void beforeQueryCursor(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds) {
+        logger.debug("beforeQueryCursor() : {} , {} , {} , {}", context, ms, parameter, rowBounds);
     }
 
     @Override
-    public <E> void afterQueryCursor(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameter, RowBounds rowBounds, @Nullable Cursor<E> result, @Nullable SQLException failure) {
-        logger.debug("afterQueryCursor() : {} , {} , {} , {} , {} , {} , {}", executor, properties, parameter, ms, parameter, rowBounds, result, failure);
+    public <E> void afterQueryCursor(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds,
+                                     @Nullable Cursor<E> result, @Nullable SQLException failure) {
+        logger.debug("afterQueryCursor() : {} , {} , {} , {} , {} , {}", context, parameter, ms, parameter, rowBounds, result, failure);
     }
 
     @Override
-    public void beforeCommit(Executor executor, Map<String, String> properties, boolean required) {
-        logger.debug("beforeCommit() : {} , {} , {}", executor, properties, required);
+    public void beforeCommit(InterceptorContext<Executor> context, boolean required) {
+        logger.debug("beforeCommit() : {} , {}", context, required);
     }
 
     @Override
-    public void afterCommit(Executor executor, Map<String, String> properties, boolean required, @Nullable SQLException failure) {
-        logger.debug("afterCommit() : {} , {} , {} , {}", executor, properties, required, failure);
+    public void afterCommit(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
+        logger.debug("afterCommit() : {} , {} , {}", context, required, failure);
     }
 
     @Override
-    public void beforeRollback(Executor executor, Map<String, String> properties, boolean required) {
-        logger.debug("beforeRollback() : {} , {} , {}", executor, properties, required);
+    public void beforeRollback(InterceptorContext<Executor> context, boolean required) {
+        logger.debug("beforeRollback() : {} , {}", context, required);
     }
 
     @Override
-    public void afterRollback(Executor executor, Map<String, String> properties, boolean required, @Nullable SQLException failure) {
-        logger.debug("afterRollback() : {} , {} , {} , {}", executor, properties, required, failure);
+    public void afterRollback(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
+        logger.debug("afterRollback() : {} , {} , {}", context, required, failure);
     }
 
     @Override
-    public void beforeGetTransaction(Executor executor, Map<String, String> properties) {
-        logger.debug("beforeGetTransaction() : {} , {}", executor, properties);
+    public void beforeGetTransaction(InterceptorContext<Executor> context) {
+        logger.debug("beforeGetTransaction() : {}", context);
     }
 
     @Override
-    public void afterGetTransaction(Executor executor, Map<String, String> properties) {
-        logger.debug("afterGetTransaction() : {} , {}", executor, properties);
+    public void afterGetTransaction(InterceptorContext<Executor> context) {
+        logger.debug("afterGetTransaction() : {}", context);
     }
 
     @Override
-    public void beforeCreateCacheKey(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
-        logger.debug("beforeCreateCacheKey() : {} , {} , {} , {} , {} , {}", executor, properties, ms, parameterObject, rowBounds, boundSql);
+    public void beforeCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
+        logger.debug("beforeCreateCacheKey() : {} , {} , {} , {} , {}", context, ms, parameterObject, rowBounds, boundSql);
     }
 
     @Override
-    public void afterCreateCacheKey(Executor executor, Map<String, String> properties, MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key) {
-        logger.debug("afterCreateCacheKey() : {} , {} , {} , {} , {} , {} , {}", executor, properties, ms, parameterObject, rowBounds, boundSql, key);
+    public void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key) {
+        logger.debug("afterCreateCacheKey() : {} , {} , {} , {} , {} , {}", context, ms, parameterObject, rowBounds, boundSql, key);
     }
 
     @Override
-    public void beforeDeferLoad(Executor executor, Map<String, String> properties, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
-        logger.debug("beforeDeferLoad() : {} , {} , {} , {} , {} , {} , {}", executor, properties, ms, resultObject, property, key, targetType);
+    public void beforeDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
+        logger.debug("beforeDeferLoad() : {} , {} , {} , {} , {} , {}", context, ms, resultObject, property, key, targetType);
     }
 
     @Override
-    public void afterDeferLoad(Executor executor, Map<String, String> properties, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
-        logger.debug("afterDeferLoad() : {} , {} , {} , {} , {} , {} , {}", executor, resultObject, property, key, targetType);
+    public void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
+        logger.debug("afterDeferLoad() : {} , {} , {} , {} , {} , {}", context, resultObject, property, key, targetType);
     }
 
     @Override
-    public void beforeClose(Executor executor, Map<String, String> properties, boolean forceRollback) {
-        logger.debug("beforeClose() : {} , {} , {}", executor, forceRollback);
+    public void beforeClose(InterceptorContext<Executor> context, boolean forceRollback) {
+        logger.debug("beforeClose() : {} , {}", context, forceRollback);
     }
 
     @Override
-    public void afterClose(Executor executor, Map<String, String> properties, boolean forceRollback) {
-        logger.debug("afterClose() : {} , {} , {}", executor, forceRollback);
+    public void afterClose(InterceptorContext<Executor> context, boolean forceRollback) {
+        logger.debug("afterClose() : {} , {}", context, forceRollback);
     }
 }
