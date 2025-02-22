@@ -67,10 +67,11 @@ public class InterceptorContext<T> {
      * @param target     The intercepted target, e.g: {@link Executor}
      * @param properties the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
      */
-    public InterceptorContext(@Nonnull T target, @Nullable Map<String, String> properties) {
+    public InterceptorContext(@Nonnull T target, @Nonnull Map<String, String> properties) {
         assertNotNull(target, () -> "The 'target' argument must not be null!");
+        assertNotNull(properties, () -> "The 'properties' argument must not be null!");
         this.target = target;
-        this.properties = properties == null ? emptyMap() : unmodifiableMap(properties);
+        this.properties = properties;
     }
 
     /**
