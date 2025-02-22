@@ -17,10 +17,13 @@
 package io.microsphere.mybatis.plugin;
 
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
+import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.test.AbstractMyBatisTest;
 import org.apache.ibatis.session.Configuration;
 
 import java.util.Properties;
+
+import static io.microsphere.util.ArrayUtils.of;
 
 /**
  * {@link InterceptingExecutorInterceptor} Test
@@ -37,11 +40,10 @@ public class InterceptingExecutorInterceptorTest extends AbstractMyBatisTest {
     }
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        LogggingExecutorInterceptor loggingExecutorInterceptor = new LogggingExecutorInterceptor();
-        InterceptingExecutorInterceptor interceptingExecutorInterceptor = new InterceptingExecutorInterceptor(loggingExecutorInterceptor);
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter()), new LogggingExecutorInterceptor());
         Properties properties = new Properties();
         properties.setProperty("test.class", this.getClass().getName());
-        interceptingExecutorInterceptor.setProperties(properties);
-        return interceptingExecutorInterceptor;
+        interceptor.setProperties(properties);
+        return interceptor;
     }
 }
