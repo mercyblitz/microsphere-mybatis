@@ -17,16 +17,20 @@
 package io.microsphere.mybatis.plugin;
 
 import io.microsphere.logging.Logger;
+import io.microsphere.mybatis.executor.ExecutorFilter;
 import io.microsphere.mybatis.executor.ExecutorInterceptor;
 import io.microsphere.mybatis.executor.InterceptingExecutor;
+import io.microsphere.mybatis.executor.InterceptorsExecutorFilterAdapter;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Invocation;
 
-import java.util.Collection;
 import java.util.Properties;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.util.ArrayUtils.length;
+import static io.microsphere.util.Assert.assertNoNullElements;
+import static io.microsphere.util.Assert.assertTrue;
 
 /**
  * {@link Interceptor} class for {@link Executor} delegates to {@link ExecutorInterceptor} instances
@@ -39,16 +43,28 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     private static final Logger logger = getLogger(InterceptingExecutorInterceptor.class);
 
-    private final ExecutorInterceptor[] executorInterceptors;
+    private final ExecutorFilter[] executorFilters;
+
+    private final int executorFiltersCount;
 
     private Properties properties;
 
-    public InterceptingExecutorInterceptor(Collection<ExecutorInterceptor> executorInterceptors) {
-        this(executorInterceptors.toArray(new ExecutorInterceptor[0]));
-    }
-
-    public InterceptingExecutorInterceptor(ExecutorInterceptor[] executorInterceptors) {
-        this.executorInterceptors = executorInterceptors;
+    public InterceptingExecutorInterceptor(ExecutorFilter[] executorFilters, ExecutorInterceptor... executorInterceptors) {
+        int executorFiltersCount = length(executorFilters);
+        int executorInterceptorsCount = length(executorInterceptors);
+        assertTrue(executorFiltersCount > 0 || executorInterceptorsCount > 0, () -> "No filter or interceptor for Executor");
+        assertNoNullElements(executorFilters, () -> "Any element of filters must not be null!");
+        if (executorInterceptorsCount > 0) {
+            int newExecutorFiltersCount = executorFiltersCount + 1;
+            ExecutorFilter[] newExecutorFilters = new ExecutorFilter[newExecutorFiltersCount];
+            System.arraycopy(executorFilters, 0, newExecutorFilters, 0, executorFiltersCount);
+            newExecutorFilters[executorFiltersCount] = new InterceptorsExecutorFilterAdapter(executorInterceptors);
+            this.executorFilters = newExecutorFilters;
+            this.executorFiltersCount = newExecutorFiltersCount;
+        } else {
+            this.executorFilters = executorFilters;
+            this.executorFiltersCount = executorFiltersCount;
+        }
     }
 
     @Override
@@ -61,8 +77,10 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     @Override
     public Object plugin(Object target) {
-        if (target instanceof Executor && !(target instanceof InterceptingExecutor)) {
-            InterceptingExecutor interceptingExecutor = new InterceptingExecutor((Executor) target, executorInterceptors);
+        if (executorFiltersCount > 0
+                && target instanceof Executor
+                && !(target instanceof InterceptingExecutor)) {
+            InterceptingExecutor interceptingExecutor = new InterceptingExecutor((Executor) target, this.executorFilters);
             interceptingExecutor.setProperties(this.properties);
             return interceptingExecutor;
         }

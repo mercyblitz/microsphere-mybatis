@@ -22,7 +22,6 @@ import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -31,11 +30,21 @@ import org.apache.ibatis.transaction.Transaction;
 import javax.annotation.Nullable;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
- * The Interceptor of {@link Executor}
+ * The Interceptor of {@link Executor}, these methods will be intercepted:
+ * <ul>
+ *     <li>{@link Executor#update(MappedStatement, Object)}</li>
+ *     <li>{@link Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql)}</li>
+ *     <li>{@link Executor#query(MappedStatement, Object, RowBounds, ResultHandler)}</li>
+ *     <li>{@link Executor#queryCursor(MappedStatement, Object, RowBounds)}</li>
+ *     <li>{@link Executor#commit(boolean)}</li>
+ *     <li>{@link Executor#rollback(boolean)}</li>
+ *     <li>{@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}</li>
+ *     <li>{@link Executor#deferLoad(MappedStatement, MetaObject, String, CacheKey, Class)}</li>
+ *     <li>{@link Executor#getTransaction()}</li>
+ *     <li>{@link Executor#close(boolean)}</li>
+ * </ul>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @see Executor
@@ -187,37 +196,34 @@ public interface ExecutorInterceptor {
     /**
      * Callback before execute {@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}
      *
-     * @param executor        the underlying {@link Executor} instance
-     * @param properties      the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context         {@link InterceptorContext}
      * @param ms              {@link MappedStatement}
-     * @param parameterObject the parameter object
+     * @param parameter the parameter object
      * @param rowBounds       {@link RowBounds}
      * @param boundSql        {@link BoundSql}
      */
-    default void beforeCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject,
+    default void beforeCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                                       RowBounds rowBounds, BoundSql boundSql) {
     }
 
     /**
      * Callback after execute {@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}
      *
-     * @param executor        the underlying {@link Executor} instance
-     * @param properties      the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context         {@link InterceptorContext}
      * @param ms              {@link MappedStatement}
-     * @param parameterObject the parameter object
+     * @param parameter the parameter object
      * @param rowBounds       {@link RowBounds}
      * @param boundSql        {@link BoundSql}
      * @param key             {@link CacheKey}
      */
-    default void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject,
+    default void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                                      RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key) {
     }
 
     /**
      * Callback before execute {@link Executor#deferLoad(MappedStatement, MetaObject, String, CacheKey, Class)}
      *
-     * @param executor     the underlying {@link Executor} instance
-     * @param properties   the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context      {@link InterceptorContext}
      * @param ms           {@link MappedStatement}
      * @param resultObject {@link MetaObject}
      * @param property     {@link RowBounds}
@@ -230,8 +236,7 @@ public interface ExecutorInterceptor {
     /**
      * Callback after execute {@link Executor#deferLoad(MappedStatement, MetaObject, String, CacheKey, Class)}
      *
-     * @param executor     the underlying {@link Executor} instance
-     * @param properties   the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param context      {@link InterceptorContext}
      * @param ms           {@link MappedStatement}
      * @param resultObject {@link MetaObject}
      * @param property     {@link RowBounds}
