@@ -69,6 +69,7 @@ public class ExecutorFilterChain {
         this.properties = properties;
         this.filters = executorFilters;
         this.size = length(executorFilters);
+        this.position = 0;
     }
 
     public int update(MappedStatement ms, Object parameter) throws SQLException {
