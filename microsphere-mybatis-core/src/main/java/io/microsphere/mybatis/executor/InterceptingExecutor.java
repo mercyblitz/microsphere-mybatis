@@ -104,7 +104,7 @@ public class InterceptingExecutor implements Executor {
     @Override
     public void rollback(boolean required) throws SQLException {
         ExecutorFilterChain chain = buildChain();
-        chain.rollback(true);
+        chain.rollback(required);
     }
 
     @Override
