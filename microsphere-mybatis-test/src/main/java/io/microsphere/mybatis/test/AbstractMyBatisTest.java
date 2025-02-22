@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.plugin;
+package io.microsphere.mybatis.test;
 
 import io.microsphere.lang.function.ThrowableConsumer;
-import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.test.entity.User;
 import io.microsphere.mybatis.test.mapper.UserMapper;
 import org.apache.ibatis.cursor.Cursor;
@@ -41,22 +40,21 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Properties;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * {@link InterceptingExecutorInterceptor} Test
+ * Abstract Test for MyBatis
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see InterceptingExecutorInterceptor
+ * @see #testMapper()
+ * @see #testExecutor()
+ * @see #testSqlSession()
  * @since 1.0.0
  */
-public class InterceptingExecutorInterceptorTest {
+public abstract class AbstractMyBatisTest {
 
     public static final String MS_ID_SAVE_USER = "io.microsphere.mybatis.test.mapper.UserMapper.saveUser";
 
@@ -64,33 +62,43 @@ public class InterceptingExecutorInterceptorTest {
 
     public static final String MS_ID_USER_BY_NAME = "io.microsphere.mybatis.test.mapper.UserMapper.getUserByName";
 
-    private InterceptingExecutorInterceptor interceptor;
-
     private SqlSessionFactory sqlSessionFactory;
 
     @BeforeEach
     public void init() throws Throwable {
-        this.interceptor = createInterceptingExecutorInterceptor();
-        this.sqlSessionFactory = buildSqlSessionFactory();
+        this.sqlSessionFactory = createSqlSessionFactory();
         initData();
     }
 
-    private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        LogggingExecutorInterceptor loggingExecutorInterceptor = new LogggingExecutorInterceptor();
-        InterceptingExecutorInterceptor interceptingExecutorInterceptor = new InterceptingExecutorInterceptor(asList(loggingExecutorInterceptor));
-        Properties properties = new Properties();
-        properties.setProperty("test.class", this.getClass().getName());
-        interceptingExecutorInterceptor.setProperties(properties);
-        return interceptingExecutorInterceptor;
+    private SqlSessionFactory createSqlSessionFactory() throws IOException {
+        SqlSessionFactory factory = buildSqlSessionFactory();
+        customize(factory);
+        customize(factory.getConfiguration());
+        return factory;
     }
 
-    private SqlSessionFactory buildSqlSessionFactory() throws IOException {
+    public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
         String resource = "META-INF/mybatis/config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
         SqlSessionFactory factory = builder.build(inputStream);
-        factory.getConfiguration().addInterceptor(this.interceptor);
         return factory;
+    }
+
+    /**
+     * Customize the {@link SqlSessionFactory}
+     *
+     * @param sqlSessionFactory {@link SqlSessionFactory}
+     */
+    protected void customize(SqlSessionFactory sqlSessionFactory) {
+    }
+
+    /**
+     * Customize the {@link Configuration}
+     *
+     * @param configuration {@link Configuration}
+     */
+    protected void customize(Configuration configuration) {
     }
 
     private SqlSession openSqlSession() {
@@ -118,11 +126,11 @@ public class InterceptingExecutorInterceptorTest {
         });
     }
 
-    private void doInConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
+    protected void doInConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
         doInSqlSession(sqlSession -> consumer.accept(sqlSession.getConnection()));
     }
 
-    private void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
+    protected void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
         SqlSession sqlSession = openSqlSession();
         try {
             consumer.accept(sqlSession);
@@ -131,7 +139,7 @@ public class InterceptingExecutorInterceptorTest {
         }
     }
 
-    private void doInExecutor(ThrowableConsumer<Executor> consumer) throws Throwable {
+    protected void doInExecutor(ThrowableConsumer<Executor> consumer) throws Throwable {
         doInConnection(connection -> {
             Configuration configuration = this.sqlSessionFactory.getConfiguration();
             Environment environment = configuration.getEnvironment();
@@ -158,7 +166,7 @@ public class InterceptingExecutorInterceptorTest {
         });
     }
 
-    private User createUser() {
+    protected User createUser() {
         int id = 1;
         String name = "Mercy";
         return new User(id, name);
@@ -195,9 +203,9 @@ public class InterceptingExecutorInterceptorTest {
             // Test selectCursor
             Cursor<User> cursor = sqlSession.selectCursor(MS_ID_USER_BY_ID, user.getId());
             assertNotNull(cursor);
-            assertTrue(cursor.isOpen());
+            assertFalse(cursor.isOpen());
             assertFalse(cursor.isConsumed());
-            assertEquals(0, cursor.getCurrentIndex());
+            assertEquals(-1, cursor.getCurrentIndex());
             cursor.forEach(foundUser -> assertEquals(foundUser, user));
 
             // Test selectOne
@@ -243,5 +251,4 @@ public class InterceptingExecutorInterceptorTest {
             assertEquals(users.get(0), user);
         });
     }
-
 }
