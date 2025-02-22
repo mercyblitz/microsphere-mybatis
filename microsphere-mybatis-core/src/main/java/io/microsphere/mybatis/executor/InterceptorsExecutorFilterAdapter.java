@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ArrayUtils.length;
+import static io.microsphere.util.Assert.assertNoNullElements;
 import static io.microsphere.util.Assert.assertNotEmpty;
 
 /**
@@ -55,6 +56,7 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
 
     public InterceptorsExecutorFilterAdapter(ExecutorInterceptor[] executorInterceptors) {
         assertNotEmpty(executorInterceptors, () -> "The ExecutorInterceptor array must not be empty");
+        assertNoNullElements(executorInterceptors, () -> "Any element of interceptors must not be null!");
         this.executorInterceptors = executorInterceptors;
         this.executorInterceptorsCount = length(executorInterceptors);
     }
