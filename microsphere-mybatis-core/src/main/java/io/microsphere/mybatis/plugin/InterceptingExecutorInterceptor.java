@@ -29,7 +29,8 @@ import java.util.Properties;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ArrayUtils.length;
-import static java.util.Arrays.copyOf;
+import static io.microsphere.util.Assert.assertNoNullElements;
+import static io.microsphere.util.Assert.assertTrue;
 
 /**
  * {@link Interceptor} class for {@link Executor} delegates to {@link ExecutorInterceptor} instances
@@ -48,22 +49,22 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     private Properties properties;
 
-    protected InterceptingExecutorInterceptor(ExecutorInterceptor... executorInterceptors) {
-        this(new ExecutorFilter[0], executorInterceptors);
-    }
-
     public InterceptingExecutorInterceptor(ExecutorFilter[] executorFilters, ExecutorInterceptor... executorInterceptors) {
         int executorFiltersCount = length(executorFilters);
         int executorInterceptorsCount = length(executorInterceptors);
+        assertTrue(executorFiltersCount > 0 || executorInterceptorsCount > 0, () -> "No filter or interceptor for Executor");
+        assertNoNullElements(executorFilters, () -> "Any element of filters must not be null!");
         if (executorInterceptorsCount > 0) {
-            executorFiltersCount += 1;
-            ExecutorFilter[] newExecutorFilters = copyOf(executorFilters, executorFiltersCount);
-            newExecutorFilters[executorFiltersCount - 1] = new InterceptorsExecutorFilterAdapter(executorInterceptors);
+            int newExecutorFiltersCount = executorFiltersCount + 1;
+            ExecutorFilter[] newExecutorFilters = new ExecutorFilter[newExecutorFiltersCount];
+            System.arraycopy(executorFilters, 0, newExecutorFilters, 0, executorFiltersCount);
+            newExecutorFilters[executorFiltersCount] = new InterceptorsExecutorFilterAdapter(executorInterceptors);
             this.executorFilters = newExecutorFilters;
+            this.executorFiltersCount = newExecutorFiltersCount;
         } else {
             this.executorFilters = executorFilters;
+            this.executorFiltersCount = executorFiltersCount;
         }
-        this.executorFiltersCount = executorFiltersCount;
     }
 
     @Override
