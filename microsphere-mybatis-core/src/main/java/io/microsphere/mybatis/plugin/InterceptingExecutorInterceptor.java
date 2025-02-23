@@ -16,18 +16,25 @@
  */
 package io.microsphere.mybatis.plugin;
 
+import io.microsphere.lang.function.ThrowableSupplier;
 import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.executor.ExecutorFilter;
 import io.microsphere.mybatis.executor.ExecutorInterceptor;
 import io.microsphere.mybatis.executor.InterceptingExecutor;
 import io.microsphere.mybatis.executor.InterceptorsExecutorFilterAdapter;
+import io.microsphere.reflect.FieldUtils;
+import org.apache.ibatis.executor.CachingExecutor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Invocation;
 
+import java.lang.reflect.Field;
 import java.util.Properties;
 
+import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.reflect.FieldUtils.findField;
+import static io.microsphere.reflect.FieldUtils.getFieldValue;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertNoNullElements;
 import static io.microsphere.util.Assert.assertTrue;
@@ -80,14 +87,35 @@ public class InterceptingExecutorInterceptor implements Interceptor {
         if (executorFiltersCount > 0
                 && target instanceof Executor
                 && !(target instanceof InterceptingExecutor)) {
-            InterceptingExecutor interceptingExecutor = new InterceptingExecutor((Executor) target, this.executorFilters);
+            Executor executor = ((Executor) target);
+            final Executor targetExecutor;
+            if (executor instanceof CachingExecutor) {
+                CachingExecutor cachingExecutor = (CachingExecutor) executor;
+                targetExecutor = getDelegate(cachingExecutor);
+            } else {
+                targetExecutor = executor;
+            }
+
+            InterceptingExecutor interceptingExecutor = new InterceptingExecutor(targetExecutor, this.executorFilters);
             interceptingExecutor.setProperties(this.properties);
-            return interceptingExecutor;
+            try {
+                targetExecutor.setExecutorWrapper(interceptingExecutor);
+            } catch (Throwable e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("{} can't be a wrapper for Executor[{}]", interceptingExecutor, targetExecutor);
+                }
+            }
         }
         if (logger.isTraceEnabled()) {
             logger.trace("The non-executor [{}] instance simply returns without any dynamic proxy interception", target.getClass());
         }
         return target;
+    }
+
+    private Executor getDelegate(CachingExecutor cachingExecutor) {
+        Field field = findField(cachingExecutor, "delegate");
+        field.setAccessible(true);
+        return (Executor) execute(() -> field.get(cachingExecutor));
     }
 
     @Override

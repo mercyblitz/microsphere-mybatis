@@ -17,14 +17,18 @@
 package io.microsphere.mybatis.test;
 
 import io.microsphere.lang.function.ThrowableConsumer;
+import io.microsphere.mybatis.test.entity.Child;
 import io.microsphere.mybatis.test.entity.User;
 import io.microsphere.mybatis.test.mapper.UserMapper;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -35,10 +39,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,9 +118,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     private void initData() throws Throwable {
-        doInStatement(statement -> {
-            statement.execute("CREATE TABLE users (id INT, name VARCHAR(50))");
-        });
+        runScript("META-INF/sql/create-db.sql");
     }
 
     private void doInStatement(ThrowableConsumer<Statement> consumer) throws Throwable {
@@ -161,9 +167,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     private void destroyData() throws Throwable {
-        doInStatement(statement -> {
-            statement.execute("DROP TABLE users");
-        });
+        runScript("META-INF/sql/destroy-db.sql");
     }
 
     protected User createUser() {
@@ -188,6 +192,23 @@ public abstract class AbstractMyBatisTest {
             foundUser = userMapper.getUserByName(user.getName());
             assertEquals(foundUser, user);
         });
+    }
+
+    void deferLoadAfterResultHandler(SqlSession sqlSession) {
+        class MyResultHandler implements ResultHandler {
+            private final List<Child> children = new ArrayList<>();
+
+            @Override
+            public void handleResult(ResultContext context) {
+                Child child = (Child) context.getResultObject();
+                children.add(child);
+            }
+        }
+        MyResultHandler myResultHandler = new MyResultHandler();
+        sqlSession.select("io.microsphere.mybatis.test.mapper.ChildMapper.selectAll", myResultHandler);
+        for (Child child : myResultHandler.children) {
+            assertNotNull(child.getFather());
+        }
     }
 
 
@@ -217,8 +238,12 @@ public abstract class AbstractMyBatisTest {
             assertEquals(1, users.size());
             assertEquals(users.get(0), user);
 
+            // Test deferLoad
+            deferLoadAfterResultHandler(sqlSession);
+
             // Test flushStatements
             assertNotNull(sqlSession.flushStatements());
+
 
             // Test commit
             sqlSession.commit();
@@ -250,5 +275,39 @@ public abstract class AbstractMyBatisTest {
             assertEquals(1, users.size());
             assertEquals(users.get(0), user);
         });
+    }
+
+    protected void runScript(String resource) throws IOException, SQLException {
+        DataSource dataSource = this.getDataSource();
+        runScript(dataSource, resource);
+    }
+
+    protected DataSource getDataSource() {
+        return this.getEnvironment().getDataSource();
+    }
+
+    protected Environment getEnvironment() {
+        return this.getConfiguration().getEnvironment();
+    }
+
+    protected Configuration getConfiguration() {
+        return this.sqlSessionFactory.getConfiguration();
+    }
+
+    public static void runScript(DataSource ds, String resource) throws IOException, SQLException {
+        try (Connection connection = ds.getConnection()) {
+            ScriptRunner runner = new ScriptRunner(connection);
+            runner.setAutoCommit(true);
+            runner.setStopOnError(false);
+            runner.setLogWriter(null);
+            runner.setErrorLogWriter(null);
+            runScript(runner, resource);
+        }
+    }
+
+    public static void runScript(ScriptRunner runner, String resource) throws IOException, SQLException {
+        try (Reader reader = Resources.getResourceAsReader(resource)) {
+            runner.runScript(reader);
+        }
     }
 }
