@@ -19,11 +19,9 @@ package io.microsphere.mybatis.executor;
 import org.apache.ibatis.mapping.MappedStatement;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import static io.microsphere.mybatis.plugin.InterceptingExecutorInterceptorTest.TEST_PROPERTY_KEY;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.binarySearch;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
