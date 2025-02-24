@@ -51,17 +51,19 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
 
     @Override
     public void afterUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, @Nullable Integer result, @Nullable SQLException failure) {
-        logger.debug("afterUpdate() : {} , {} , {} , {} , {}", context, ms, parameter, result, failure);
+        logger.debug("afterUpdate() : {} , {} , {} , {}", context, ms, parameter, result, failure);
     }
 
     @Override
-    public void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
+    public void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds,
+                            ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
         logger.debug("beforeQuery() : {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
     }
 
     @Override
-    public <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
-        logger.debug("afterQuery() : {} , {} , {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
+    public <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds,
+                               ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
+        logger.debug("afterQuery() : {} , {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
     }
 
     @Override
@@ -72,7 +74,7 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
     @Override
     public <E> void afterQueryCursor(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds,
                                      @Nullable Cursor<E> result, @Nullable SQLException failure) {
-        logger.debug("afterQueryCursor() : {} , {} , {} , {} , {} , {}", context, parameter, ms, parameter, rowBounds, result, failure);
+        logger.debug("afterQueryCursor() : {} , {} , {} , {} , {}", context, parameter, ms, parameter, rowBounds, result, failure);
     }
 
     @Override
@@ -82,7 +84,7 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
 
     @Override
     public void afterCommit(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
-        logger.debug("afterCommit() : {} , {} , {}", context, required, failure);
+        logger.debug("afterCommit() : {} , {}", context, required, failure);
     }
 
     @Override
@@ -92,7 +94,7 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
 
     @Override
     public void afterRollback(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
-        logger.debug("afterRollback() : {} , {} , {}", context, required, failure);
+        logger.debug("afterRollback() : {} , {}", context, required, failure);
     }
 
     @Override
@@ -101,8 +103,8 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
     }
 
     @Override
-    public void afterGetTransaction(InterceptorContext<Executor> context) {
-        logger.debug("afterGetTransaction() : {}", context);
+    public void afterGetTransaction(InterceptorContext<Executor> context, @Nullable Throwable failure) {
+        logger.debug("afterGetTransaction() : {}", context, failure);
     }
 
     @Override
@@ -111,8 +113,8 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
     }
 
     @Override
-    public void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key) {
-        logger.debug("afterCreateCacheKey() : {} , {} , {} , {} , {} , {}", context, ms, parameterObject, rowBounds, boundSql, key);
+    public void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key, @Nullable Throwable failure) {
+        logger.debug("afterCreateCacheKey() : {} , {} , {} , {} , {}", context, ms, parameterObject, rowBounds, boundSql, key, failure);
     }
 
     @Override
@@ -121,8 +123,8 @@ public class LogggingExecutorInterceptor implements ExecutorInterceptor {
     }
 
     @Override
-    public void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
-        logger.debug("afterDeferLoad() : {} , {} , {} , {} , {} , {}", context, resultObject, property, key, targetType);
+    public void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType, @Nullable Throwable failure) {
+        logger.debug("afterDeferLoad() : {} , {} , {} , {} , {} , {}", context, resultObject, property, key, targetType, failure);
     }
 
     @Override

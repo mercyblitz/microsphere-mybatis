@@ -21,6 +21,7 @@ import io.microsphere.mybatis.executor.ExecutorFilter;
 import io.microsphere.mybatis.executor.ExecutorInterceptor;
 import io.microsphere.mybatis.executor.InterceptingExecutor;
 import io.microsphere.mybatis.executor.InterceptorsExecutorFilterAdapter;
+import io.microsphere.util.PriorityComparator;
 import org.apache.ibatis.executor.CachingExecutor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.plugin.Interceptor;
@@ -35,6 +36,7 @@ import static io.microsphere.reflect.FieldUtils.findField;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertNoNullElements;
 import static io.microsphere.util.Assert.assertTrue;
+import static java.util.Arrays.sort;
 
 /**
  * {@link Interceptor} class for {@link Executor} delegates to {@link ExecutorInterceptor} instances
@@ -69,6 +71,8 @@ public class InterceptingExecutorInterceptor implements Interceptor {
             this.executorFilters = executorFilters;
             this.executorFiltersCount = executorFiltersCount;
         }
+        // sort by its priority
+        sort(this.executorFilters, PriorityComparator.INSTANCE);
     }
 
     @Override

@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.executor;
 
+import io.microsphere.lang.Prioritized;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
@@ -48,7 +49,7 @@ import java.util.List;
  * @see Executor
  * @since 1.0.0
  */
-public interface ExecutorFilter {
+public interface ExecutorFilter extends Prioritized {
 
     /**
      * Filter {@link Executor#update(MappedStatement, Object)}

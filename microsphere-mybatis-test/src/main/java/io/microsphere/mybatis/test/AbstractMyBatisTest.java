@@ -16,7 +16,9 @@
  */
 package io.microsphere.mybatis.test;
 
+import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableConsumer;
+import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.test.entity.Child;
 import io.microsphere.mybatis.test.entity.User;
 import io.microsphere.mybatis.test.mapper.UserMapper;
@@ -45,10 +47,10 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -69,6 +71,8 @@ public abstract class AbstractMyBatisTest {
     public static final String MS_ID_USER_BY_ID = "io.microsphere.mybatis.test.mapper.UserMapper.getUserById";
 
     public static final String MS_ID_USER_BY_NAME = "io.microsphere.mybatis.test.mapper.UserMapper.getUserByName";
+
+    protected final Logger logger = getLogger(this.getClass());
 
     private SqlSessionFactory sqlSessionFactory;
 
@@ -121,17 +125,6 @@ public abstract class AbstractMyBatisTest {
         runScript("META-INF/sql/create-db.sql");
     }
 
-    private void doInStatement(ThrowableConsumer<Statement> consumer) throws Throwable {
-        doInConnection(connection -> {
-            Statement statement = connection.createStatement();
-            try {
-                consumer.accept(statement);
-            } finally {
-                statement.close();
-            }
-        });
-    }
-
     protected void doInConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
         doInSqlSession(sqlSession -> consumer.accept(sqlSession.getConnection()));
     }
@@ -147,7 +140,7 @@ public abstract class AbstractMyBatisTest {
 
     protected void doInExecutor(ThrowableConsumer<Executor> consumer) throws Throwable {
         doInConnection(connection -> {
-            Configuration configuration = this.sqlSessionFactory.getConfiguration();
+            Configuration configuration = getConfiguration();
             Environment environment = configuration.getEnvironment();
             TransactionFactory transactionFactory = environment.getTransactionFactory();
             Transaction transaction = transactionFactory.newTransaction(connection);
@@ -276,6 +269,22 @@ public abstract class AbstractMyBatisTest {
             assertEquals(users.get(0), user);
         });
     }
+
+    @Test
+    public void testOnFailed() throws Throwable {
+        doInSqlSession(sqlSession -> {
+            runSafely(() -> sqlSession.insert(MS_ID_SAVE_USER));
+        });
+    }
+
+    protected void runSafely(ThrowableAction action) {
+        try {
+            action.execute();
+        } catch (Throwable e) {
+            logger.warn("error message : {}", e.getMessage());
+        }
+    }
+
 
     protected void runScript(String resource) throws IOException, SQLException {
         DataSource dataSource = this.getDataSource();

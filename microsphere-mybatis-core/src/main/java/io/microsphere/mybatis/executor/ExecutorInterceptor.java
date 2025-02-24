@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.executor;
 
+import io.microsphere.lang.Prioritized;
 import io.microsphere.mybatis.plugin.InterceptorContext;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
@@ -50,7 +51,7 @@ import java.util.List;
  * @see Executor
  * @since 1.0.0
  */
-public interface ExecutorInterceptor {
+public interface ExecutorInterceptor extends Prioritized {
 
     /**
      * Callback before execute {@link Executor#update(MappedStatement, Object)}
@@ -155,6 +156,7 @@ public interface ExecutorInterceptor {
      * @param context  {@link InterceptorContext}
      * @param required <code>true</code> means the transaction will be {@link Transaction#commit() committed} really,
      *                 otherwise ignored
+     * @param failure  (optional) the {@link SQLException} if occurred
      */
     default void afterCommit(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
     }
@@ -173,6 +175,7 @@ public interface ExecutorInterceptor {
      *
      * @param context  {@link InterceptorContext}
      * @param required <code>true</code> means the transaction will be {@link Transaction#rollback() rollback}, otherwise ignored
+     * @param failure  (optional) the {@link SQLException} if occurred
      */
     default void afterRollback(InterceptorContext<Executor> context, boolean required, @Nullable SQLException failure) {
     }
@@ -189,18 +192,19 @@ public interface ExecutorInterceptor {
      * Callback after execute {@link Executor#getTransaction()}
      *
      * @param context {@link InterceptorContext}
+     * @param failure (optional) the {@link Throwable} occurred when the transaction was gotten
      */
-    default void afterGetTransaction(InterceptorContext<Executor> context) {
+    default void afterGetTransaction(InterceptorContext<Executor> context, @Nullable Throwable failure) {
     }
 
     /**
      * Callback before execute {@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}
      *
-     * @param context         {@link InterceptorContext}
-     * @param ms              {@link MappedStatement}
+     * @param context   {@link InterceptorContext}
+     * @param ms        {@link MappedStatement}
      * @param parameter the parameter object
-     * @param rowBounds       {@link RowBounds}
-     * @param boundSql        {@link BoundSql}
+     * @param rowBounds {@link RowBounds}
+     * @param boundSql  {@link BoundSql}
      */
     default void beforeCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
                                       RowBounds rowBounds, BoundSql boundSql) {
@@ -209,15 +213,16 @@ public interface ExecutorInterceptor {
     /**
      * Callback after execute {@link Executor#createCacheKey(MappedStatement, Object, RowBounds, BoundSql)}
      *
-     * @param context         {@link InterceptorContext}
-     * @param ms              {@link MappedStatement}
+     * @param context   {@link InterceptorContext}
+     * @param ms        {@link MappedStatement}
      * @param parameter the parameter object
-     * @param rowBounds       {@link RowBounds}
-     * @param boundSql        {@link BoundSql}
-     * @param key             {@link CacheKey}
+     * @param rowBounds {@link RowBounds}
+     * @param boundSql  {@link BoundSql}
+     * @param key       {@link CacheKey}
+     * @param failure   (optional) the {@link Throwable} occurred when the cache key was created
      */
     default void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                                     RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key) {
+                                     RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey key, @Nullable Throwable failure) {
     }
 
     /**
@@ -242,8 +247,10 @@ public interface ExecutorInterceptor {
      * @param property     {@link RowBounds}
      * @param key          {@link CacheKey}
      * @param targetType   the target type
+     * @param failure      (optional) the {@link Throwable} occurred if the cache key was created
      */
-    default void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType) {
+    default void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject,
+                                String property, CacheKey key, Class<?> targetType, @Nullable Throwable failure) {
     }
 
     /**
