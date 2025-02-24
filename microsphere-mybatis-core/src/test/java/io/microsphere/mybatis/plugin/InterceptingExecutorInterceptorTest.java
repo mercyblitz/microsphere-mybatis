@@ -40,7 +40,8 @@ public class InterceptingExecutorInterceptorTest extends AbstractMyBatisTest {
     }
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter()), new LogggingExecutorInterceptor());
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter()),
+                new LogggingExecutorInterceptor(),new TestInterceptorContextExecutorInterceptor());
         Properties properties = new Properties();
         properties.setProperty("test.class", this.getClass().getName());
         interceptor.setProperties(properties);

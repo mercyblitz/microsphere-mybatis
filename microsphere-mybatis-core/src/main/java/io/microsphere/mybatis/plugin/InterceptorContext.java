@@ -47,7 +47,8 @@ public class InterceptorContext<T> {
     /**
      * the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
      */
-    private final Map<String, String> properties;
+    @Nullable
+    private final Properties properties;
 
     /**
      * The start time of the execution.
@@ -65,11 +66,10 @@ public class InterceptorContext<T> {
      * Constructor
      *
      * @param target     The intercepted target, e.g: {@link Executor}
-     * @param properties the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * @param properties the reference of {@link Interceptor#setProperties(Properties)}
      */
-    public InterceptorContext(@Nonnull T target, @Nonnull Map<String, String> properties) {
+    public InterceptorContext(@Nonnull T target, @Nullable Properties properties) {
         assertNotNull(target, () -> "The 'target' argument must not be null!");
-        assertNotNull(properties, () -> "The 'properties' argument must not be null!");
         this.target = target;
         this.properties = properties;
     }
@@ -85,11 +85,12 @@ public class InterceptorContext<T> {
     }
 
     /**
-     * Get the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * Get the reference of {@link Interceptor#setProperties(Properties)}
      *
-     * @return non-null
+     * @return <code>null</code> if {@link Interceptor#setProperties(Properties)} was not set
      */
-    public Map<String, String> getProperties() {
+    @Nullable
+    public Properties getProperties() {
         return properties;
     }
 
