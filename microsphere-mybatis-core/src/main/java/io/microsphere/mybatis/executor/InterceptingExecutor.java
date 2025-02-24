@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.executor;
 
+import io.microsphere.logging.Logger;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
@@ -30,13 +31,10 @@ import org.apache.ibatis.transaction.Transaction;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
-import static io.microsphere.collection.MapUtils.isNotEmpty;
-import static io.microsphere.collection.MapUtils.newHashMap;
+import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.Assert.assertNotNull;
-import static java.util.Collections.emptyMap;
 
 /**
  * Delegating {@link Executor}
@@ -48,17 +46,23 @@ import static java.util.Collections.emptyMap;
  */
 public class InterceptingExecutor implements Executor {
 
+    private static final Logger logger = getLogger(InterceptingExecutor.class);
+
     private final Executor delegate;
 
-    private Map<String, String> properties = emptyMap();
+    private final Properties properties;
 
     private final ExecutorFilter[] executorFilters;
 
-    public InterceptingExecutor(Executor delegate, ExecutorFilter... executorFilters) {
+    public InterceptingExecutor(Executor delegate, Properties properties, ExecutorFilter... executorFilters) {
         assertNotNull(delegate, () -> "The 'delegate' argument must not be null");
         assertNotNull(executorFilters, () -> "The 'executorFilters' argument must not be null");
         this.delegate = delegate;
+        this.properties = properties;
         this.executorFilters = executorFilters;
+        if (logger.isTraceEnabled()) {
+            logger.trace(this.toString());
+        }
     }
 
     @Override
@@ -148,17 +152,8 @@ public class InterceptingExecutor implements Executor {
         if (executor instanceof InterceptingExecutor) {
             return;
         }
-        InterceptingExecutor interceptingExecutor = new InterceptingExecutor(executor, this.executorFilters);
-        Properties properties = new Properties();
-        properties.putAll(this.properties);
-        interceptingExecutor.setProperties(properties);
+        InterceptingExecutor interceptingExecutor = new InterceptingExecutor(executor, this.properties, this.executorFilters);
         delegate.setExecutorWrapper(interceptingExecutor);
-    }
-
-    public void setProperties(Properties properties) {
-        if (isNotEmpty(properties)) {
-            this.properties = (Map) newHashMap(properties);
-        }
     }
 
     ExecutorFilterChain buildChain() {

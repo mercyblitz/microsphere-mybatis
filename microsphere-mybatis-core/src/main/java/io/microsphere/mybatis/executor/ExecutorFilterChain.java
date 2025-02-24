@@ -30,10 +30,10 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 
@@ -53,7 +53,8 @@ public class ExecutorFilterChain {
 
     private final Executor executor;
 
-    private final Map<String, String> properties;
+    @Nullable
+    private final Properties properties;
 
     private final ExecutorFilter[] filters;
 
@@ -61,9 +62,8 @@ public class ExecutorFilterChain {
 
     private int position;
 
-    public ExecutorFilterChain(Executor executor, Map<String, String> properties, ExecutorFilter... executorFilters) {
+    public ExecutorFilterChain(Executor executor, @Nullable Properties properties, ExecutorFilter... executorFilters) {
         assertNotNull(executor, () -> "The 'executor' must not be null!");
-        assertNotNull(properties, () -> "The 'properties' must not be null!");
         assertNotEmpty(executorFilters, () -> "The 'executorFilters' must not be empty!");
         this.executor = executor;
         this.properties = properties;
@@ -179,12 +179,12 @@ public class ExecutorFilterChain {
     }
 
     /**
-     * Get the copy {@link Map} of {@link Interceptor#setProperties(Properties)}
+     * Get the reference of {@link Interceptor#setProperties(Properties)}
      *
-     * @return non-null
+     * @return <code>null</code> if {@link Interceptor#setProperties(Properties)} was not set
      */
-    @Nonnull
-    public Map<String, String> getProperties() {
+    @Nullable
+    public Properties getProperties() {
         return this.properties;
     }
 
@@ -219,10 +219,11 @@ public class ExecutorFilterChain {
     @Override
     public String toString() {
         return "ExecutorFilterChain{" +
-                "executor=" + executor +
-                ", filters=" + Arrays.toString(filters) +
-                ", size=" + size +
-                ", position=" + position +
+                "executor=" + getExecutor() +
+                ", properties=" + getProperties() +
+                ", filters=" + Arrays.toString(getFilters()) +
+                ", size=" + getSize() +
+                ", position=" + getPosition() +
                 '}';
     }
 }
