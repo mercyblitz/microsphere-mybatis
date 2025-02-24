@@ -18,6 +18,7 @@ package io.microsphere.mybatis.plugin;
 
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
+import io.microsphere.mybatis.executor.TestExecutorFilter;
 import io.microsphere.mybatis.test.AbstractMyBatisTest;
 import org.apache.ibatis.session.Configuration;
 
@@ -34,16 +35,19 @@ import static io.microsphere.util.ArrayUtils.of;
  */
 public class InterceptingExecutorInterceptorTest extends AbstractMyBatisTest {
 
+    public static final String TEST_PROPERTY_KEY = "test.class";
+
     @Override
     protected void customize(Configuration configuration) {
         configuration.addInterceptor(createInterceptingExecutorInterceptor());
     }
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter()),
-                new LogggingExecutorInterceptor(),new TestInterceptorContextExecutorInterceptor());
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(
+                of(new LoggingExecutorFilter(), new TestExecutorFilter()),
+                new LogggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
         Properties properties = new Properties();
-        properties.setProperty("test.class", this.getClass().getName());
+        properties.setProperty(TEST_PROPERTY_KEY, this.getClass().getName());
         interceptor.setProperties(properties);
         return interceptor;
     }
