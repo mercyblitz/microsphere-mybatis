@@ -299,6 +299,8 @@ public abstract class AbstractMyBatisTest {
             // test Executor#queryCursor
             runSafely(() -> {
                 MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                Connection connection = getConnection(executor);
+                connection.close();
                 executor.queryCursor(ms, null, DEFAULT);
             });
 
@@ -312,15 +314,29 @@ public abstract class AbstractMyBatisTest {
                 executor.createCacheKey(null, null, DEFAULT, null);
             });
 
+        });
+
+        doInExecutor(executor -> {
+            // test Executor#getTransaction
+            runSafely(() -> {
+                executor.close(false);
+                getConnection(executor);
+            });
+        });
+
+        doInExecutor(executor -> {
             // test Executor#commit
             runSafely(() -> {
                 executor.close(false);
                 executor.commit(true);
             });
+        });
 
+        doInExecutor(executor -> {
             // test Executor#rollback
             runSafely(() -> {
-                executor.close(false);
+                Connection connection = getConnection(executor);
+                connection.close();
                 executor.rollback(true);
             });
         });
@@ -345,6 +361,19 @@ public abstract class AbstractMyBatisTest {
     protected void runScript(String resource) throws IOException, SQLException {
         DataSource dataSource = this.getDataSource();
         runScript(dataSource, resource);
+    }
+
+
+    protected Connection getConnection(Executor executor) throws SQLException {
+        return this.getTransaction(executor).getConnection();
+    }
+
+    protected Transaction getTransaction(Executor executor) {
+        return executor.getTransaction();
+    }
+
+    protected Connection getConnection() throws SQLException {
+        return this.getDataSource().getConnection();
     }
 
     protected DataSource getDataSource() {
