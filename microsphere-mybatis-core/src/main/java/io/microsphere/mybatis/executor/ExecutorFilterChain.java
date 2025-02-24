@@ -219,11 +219,11 @@ public class ExecutorFilterChain {
     @Override
     public String toString() {
         return "ExecutorFilterChain{" +
-                "executor=" + getExecutor() +
-                ", properties=" + getProperties() +
-                ", filters=" + Arrays.toString(getFilters()) +
-                ", size=" + getSize() +
-                ", position=" + getPosition() +
+                "executor=" + this.executor +
+                ", properties=" + this.properties +
+                ", filters=" + Arrays.toString(this.filters) +
+                ", size=" + this.size +
+                ", position=" + this.position +
                 '}';
     }
 }
