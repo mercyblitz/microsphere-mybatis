@@ -16,14 +16,18 @@
  */
 package io.microsphere.mybatis.test;
 
+import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableConsumer;
+import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.test.entity.Child;
 import io.microsphere.mybatis.test.entity.User;
 import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
+import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
@@ -45,10 +49,13 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static java.util.Collections.emptyList;
+import static org.apache.ibatis.io.Resources.getResourceAsReader;
+import static org.apache.ibatis.session.RowBounds.DEFAULT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -69,6 +76,8 @@ public abstract class AbstractMyBatisTest {
     public static final String MS_ID_USER_BY_ID = "io.microsphere.mybatis.test.mapper.UserMapper.getUserById";
 
     public static final String MS_ID_USER_BY_NAME = "io.microsphere.mybatis.test.mapper.UserMapper.getUserByName";
+
+    protected final Logger logger = getLogger(this.getClass());
 
     private SqlSessionFactory sqlSessionFactory;
 
@@ -121,33 +130,9 @@ public abstract class AbstractMyBatisTest {
         runScript("META-INF/sql/create-db.sql");
     }
 
-    private void doInStatement(ThrowableConsumer<Statement> consumer) throws Throwable {
-        doInConnection(connection -> {
-            Statement statement = connection.createStatement();
-            try {
-                consumer.accept(statement);
-            } finally {
-                statement.close();
-            }
-        });
-    }
-
-    protected void doInConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
-        doInSqlSession(sqlSession -> consumer.accept(sqlSession.getConnection()));
-    }
-
-    protected void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
-        SqlSession sqlSession = openSqlSession();
-        try {
-            consumer.accept(sqlSession);
-        } finally {
-            sqlSession.close();
-        }
-    }
-
     protected void doInExecutor(ThrowableConsumer<Executor> consumer) throws Throwable {
         doInConnection(connection -> {
-            Configuration configuration = this.sqlSessionFactory.getConfiguration();
+            Configuration configuration = getConfiguration();
             Environment environment = configuration.getEnvironment();
             TransactionFactory transactionFactory = environment.getTransactionFactory();
             Transaction transaction = transactionFactory.newTransaction(connection);
@@ -160,14 +145,24 @@ public abstract class AbstractMyBatisTest {
         });
     }
 
-
-    @AfterEach
-    public void destroy() throws Throwable {
-        destroyData();
+    protected void doInConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
+        doInSqlSession(sqlSession -> consumer.accept(sqlSession.getConnection()));
     }
 
-    private void destroyData() throws Throwable {
-        runScript("META-INF/sql/destroy-db.sql");
+    protected <M> void doInMapper(Class<M> mapperClass, ThrowableConsumer<M> mapperConsumer) throws Throwable {
+        doInSqlSession(sqlSession -> {
+            M mapper = sqlSession.getMapper(mapperClass);
+            mapperConsumer.accept(mapper);
+        });
+    }
+
+    protected void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
+        SqlSession sqlSession = openSqlSession();
+        try {
+            consumer.accept(sqlSession);
+        } finally {
+            sqlSession.close();
+        }
     }
 
     protected User createUser() {
@@ -178,8 +173,9 @@ public abstract class AbstractMyBatisTest {
 
     @Test
     public void testMapper() throws Throwable {
-        doInSqlSession(sqlSession -> {
-            UserMapper userMapper = getUserMapper(sqlSession);
+        getConfiguration().setCacheEnabled(false);
+
+        doInMapper(UserMapper.class, userMapper -> {
             User user = createUser();
             // Test saveUser
             userMapper.saveUser(user);
@@ -211,6 +207,22 @@ public abstract class AbstractMyBatisTest {
         }
     }
 
+    @Test
+    public void testExecutor() throws Throwable {
+        doInExecutor(executor -> {
+            MappedStatement ms = getMappedStatement(MS_ID_SAVE_USER);
+            User user = createUser();
+
+            // Test update
+            assertEquals(1, executor.update(ms, user));
+
+            // Test query
+            ms = getMappedStatement(MS_ID_USER_BY_ID);
+            List<User> users = executor.query(ms, user.getId(), new RowBounds(), Executor.NO_RESULT_HANDLER);
+            assertEquals(1, users.size());
+            assertEquals(users.get(0), user);
+        });
+    }
 
     @Test
     public void testSqlSession() throws Throwable {
@@ -260,21 +272,74 @@ public abstract class AbstractMyBatisTest {
     }
 
     @Test
-    public void testExecutor() throws Throwable {
+    public void testOnFailed() throws Throwable {
+        // test Executor#update
         doInExecutor(executor -> {
-            Configuration configuration = this.sqlSessionFactory.getConfiguration();
-            MappedStatement ms = configuration.getMappedStatement(MS_ID_SAVE_USER);
-            User user = createUser();
 
-            // Test update
-            assertEquals(1, executor.update(ms, user));
+            // test Executor#update
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_SAVE_USER);
+                executor.update(ms, null);
+            });
 
-            // Test query
-            ms = configuration.getMappedStatement(MS_ID_USER_BY_ID);
-            List<User> users = executor.query(ms, user.getId(), new RowBounds(), Executor.NO_RESULT_HANDLER);
-            assertEquals(1, users.size());
-            assertEquals(users.get(0), user);
+            // test Executor#query
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER);
+            });
+
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                BoundSql boundSql = new BoundSql(getConfiguration(), MS_ID_USER_BY_ID, emptyList(), null);
+
+                CacheKey cacheKey = executor.createCacheKey(ms, null, new RowBounds(), boundSql);
+                executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
+            });
+
+            // test Executor#queryCursor
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                executor.queryCursor(ms, null, DEFAULT);
+            });
+
+            // test Executor#createCacheKey
+            runSafely(() -> {
+                executor.createCacheKey(null, null, DEFAULT, null);
+            });
+
+            runSafely(() -> {
+                executor.close(false);
+                executor.createCacheKey(null, null, DEFAULT, null);
+            });
+
+            // test Executor#commit
+            runSafely(() -> {
+                executor.close(false);
+                executor.commit(true);
+            });
+
+            // test Executor#rollback
+            runSafely(() -> {
+                executor.close(false);
+                executor.rollback(true);
+            });
         });
+
+        doInSqlSession(sqlSession -> {
+            runSafely(() -> {
+                sqlSession.close();
+                deferLoadAfterResultHandler(sqlSession);
+            });
+        });
+
+    }
+
+    protected void runSafely(ThrowableAction action) {
+        try {
+            action.execute();
+        } catch (Throwable e) {
+            logger.warn("error message : {}", e.getMessage());
+        }
     }
 
     protected void runScript(String resource) throws IOException, SQLException {
@@ -288,6 +353,10 @@ public abstract class AbstractMyBatisTest {
 
     protected Environment getEnvironment() {
         return this.getConfiguration().getEnvironment();
+    }
+
+    protected MappedStatement getMappedStatement(String id) {
+        return this.getConfiguration().getMappedStatement(id);
     }
 
     protected Configuration getConfiguration() {
@@ -306,8 +375,20 @@ public abstract class AbstractMyBatisTest {
     }
 
     public static void runScript(ScriptRunner runner, String resource) throws IOException, SQLException {
-        try (Reader reader = Resources.getResourceAsReader(resource)) {
+        try (Reader reader = getResourceAsReader(resource)) {
             runner.runScript(reader);
         }
     }
+
+    @AfterEach
+    public void destroy() throws Throwable {
+        destroyDB();
+    }
+
+    private void destroyDB() throws Throwable {
+        runScript("META-INF/sql/destroy-db.sql");
+    }
 }
+
+
+

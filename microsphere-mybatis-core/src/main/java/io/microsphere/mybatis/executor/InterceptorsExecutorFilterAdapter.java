@@ -18,6 +18,7 @@ package io.microsphere.mybatis.executor;
 
 import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.plugin.InterceptorContext;
+import io.microsphere.util.PriorityComparator;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
@@ -37,6 +38,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertNoNullElements;
 import static io.microsphere.util.Assert.assertNotEmpty;
+import static java.util.Arrays.sort;
 
 /**
  * {@link ExecutorFilter} Adapter based on the one or more {@link ExecutorInterceptor interceptors}
@@ -59,6 +61,9 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
         assertNoNullElements(executorInterceptors, () -> "Any element of interceptors must not be null!");
         this.executorInterceptors = executorInterceptors;
         this.executorInterceptorsCount = length(executorInterceptors);
+
+        // sort by its priority
+        sort(this.executorInterceptors, PriorityComparator.INSTANCE);
     }
 
     @Override
@@ -167,10 +172,13 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
         InterceptorContext<Executor> context = buildContext(chain);
         beforeCreateCacheKey(context, ms, parameter, rowBounds, boundSql);
         CacheKey result = null;
+        Throwable failure = null;
         try {
             result = chain.createCacheKey(ms, parameter, rowBounds, boundSql);
+        } catch (Throwable e) {
+            failure = e;
         } finally {
-            afterCreateCacheKey(context, ms, parameter, rowBounds, boundSql, result);
+            afterCreateCacheKey(context, ms, parameter, rowBounds, boundSql, result, failure);
         }
         return result;
     }
@@ -179,10 +187,13 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
     public void deferLoad(MappedStatement ms, MetaObject resultObject, String property, CacheKey key, Class<?> targetType, ExecutorFilterChain chain) {
         InterceptorContext<Executor> context = buildContext(chain);
         beforeDeferLoad(context, ms, resultObject, property, key, targetType);
+        Throwable failure = null;
         try {
             chain.deferLoad(ms, resultObject, property, key, targetType);
+        } catch (Throwable e) {
+            failure = e;
         } finally {
-            afterDeferLoad(context, ms, resultObject, property, key, targetType);
+            afterDeferLoad(context, ms, resultObject, property, key, targetType, failure);
         }
     }
 
@@ -191,10 +202,13 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
         InterceptorContext<Executor> context = buildContext(chain);
         beforeGetTransaction(context);
         Transaction transaction = null;
+        Throwable failure = null;
         try {
             transaction = chain.getTransaction();
+        } catch (Throwable e) {
+            failure = e;
         } finally {
-            afterGetTransaction(context);
+            afterGetTransaction(context, failure);
         }
         return transaction;
     }
@@ -263,8 +277,8 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
         iterate(executorInterceptor -> executorInterceptor.beforeGetTransaction(context));
     }
 
-    void afterGetTransaction(InterceptorContext<Executor> context) {
-        iterate(executorInterceptor -> executorInterceptor.afterGetTransaction(context));
+    void afterGetTransaction(InterceptorContext<Executor> context, @Nullable Throwable failure) {
+        iterate(executorInterceptor -> executorInterceptor.afterGetTransaction(context, failure));
     }
 
     void beforeCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
@@ -274,9 +288,9 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
     }
 
     void afterCreateCacheKey(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                             RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey result) {
+                             RowBounds rowBounds, BoundSql boundSql, @Nullable CacheKey result, @Nullable Throwable failure) {
         iterate(executorInterceptor ->
-                executorInterceptor.afterCreateCacheKey(context, ms, parameter, rowBounds, boundSql, result));
+                executorInterceptor.afterCreateCacheKey(context, ms, parameter, rowBounds, boundSql, result, failure));
     }
 
     void beforeDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject, String property,
@@ -286,9 +300,9 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
     }
 
     void afterDeferLoad(InterceptorContext<Executor> context, MappedStatement ms, MetaObject resultObject,
-                        String property, CacheKey key, Class<?> targetType) {
+                        String property, CacheKey key, Class<?> targetType, @Nullable Throwable failure) {
         iterate(executorInterceptor ->
-                executorInterceptor.afterDeferLoad(context, ms, resultObject, property, key, targetType));
+                executorInterceptor.afterDeferLoad(context, ms, resultObject, property, key, targetType, failure));
     }
 
     void beforeClose(InterceptorContext<Executor> context, boolean forceRollback) {
@@ -306,7 +320,7 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
                 executorInterceptorConsumer.accept(executorInterceptor);
             } catch (Throwable e) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("The ExecutorInterceptor[ index : {} , class : {}] execution is failed",
+                    logger.warn("Failed to execute ExecutorInterceptor[ index : {} , class : {}]",
                             i, executorInterceptor.getClass().getName(), e);
                 }
             }
