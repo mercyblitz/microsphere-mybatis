@@ -19,8 +19,10 @@ package io.microsphere.mybatis.executor;
 import org.apache.ibatis.mapping.MappedStatement;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static io.microsphere.mybatis.plugin.InterceptingExecutorInterceptorTest.TEST_PROPERTY_KEY;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.binarySearch;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,7 +41,7 @@ public class TestExecutorFilter implements ExecutorFilter {
     public int update(MappedStatement ms, Object parameter, ExecutorFilterChain chain) throws SQLException {
         assertNotNull(chain.getProperties().get(TEST_PROPERTY_KEY));
         assertTrue(chain.getPosition() <= chain.getSize());
-        assertTrue(binarySearch(chain.getFilters(), this) > 0);
+        assertTrue(asList(chain.getFilters()).contains(this));
         return chain.update(ms, parameter);
     }
 }
