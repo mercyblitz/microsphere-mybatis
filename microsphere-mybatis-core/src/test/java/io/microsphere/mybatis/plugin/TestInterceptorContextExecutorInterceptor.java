@@ -23,7 +23,9 @@ import org.apache.ibatis.mapping.MappedStatement;
 import javax.annotation.Nullable;
 import java.sql.SQLException;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +43,8 @@ public class TestInterceptorContextExecutorInterceptor implements ExecutorInterc
 
     @Override
     public void beforeUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter) {
+        assertSame(emptyMap(), context.getAttributes());
+        assertNotNull(context.getProperties());
         context.setAttribute(ATTRIBUTE_NAME, context.getTarget());
         context.setStartTime(System.currentTimeMillis());
     }
@@ -51,6 +55,8 @@ public class TestInterceptorContextExecutorInterceptor implements ExecutorInterc
             assertNotSame(context.getAttributes(), context.getOrCreateAttributes());
             assertEquals(context.getAttributes(), context.getOrCreateAttributes());
             Object value = context.getAttribute(ATTRIBUTE_NAME);
+            Object defaultValue = context.getAttribute("ABSENT_NAME", value);
+            assertEquals(value, defaultValue);
             assertEquals(value, context.getTarget());
             assertEquals(value, context.removeAttribute(ATTRIBUTE_NAME));
             assertSame(context, context.removeAttributes());
