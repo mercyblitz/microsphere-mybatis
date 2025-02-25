@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.plugin;
 
+import io.microsphere.mybatis.test.executor.LoggingExecutor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
@@ -23,19 +24,26 @@ import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.plugin.Signature;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
 import static io.microsphere.mybatis.plugin.Plugins.TARGET_CLASSES;
 import static io.microsphere.mybatis.plugin.Plugins.TARGET_CLASSES_SIZE;
+import static io.microsphere.mybatis.plugin.Plugins.getPlugin;
 import static io.microsphere.mybatis.plugin.Plugins.getSignatureMap;
+import static org.apache.ibatis.plugin.Plugin.wrap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -79,12 +87,36 @@ public class PluginsTest {
 
 
     @Test
-    public void testGetPlugin() {
+    public void testGetPlugin() throws SQLException {
         Executor executor = newExecutor();
+        Object proxy = wrap(executor, new TestAnnotatedExecutorInterceptor());
+        assertTrue(proxy instanceof Executor);
+
+        Plugin plugin = getPlugin(proxy);
+        assertNotNull(plugin);
+
+        Executor proxyExecutor = (Executor) proxy;
+        assertEquals(0, proxyExecutor.update(null, null));
+
+        // No Proxy
+        proxy = wrap(executor, new SignatureInterceptor());
+        assertSame(executor, proxy);
+        plugin = getPlugin(proxy);
+        assertNull(plugin);
     }
 
     private Executor newExecutor() {
-        return null;
+        return new LoggingExecutor();
+    }
+
+    @Intercepts(
+            value = {}
+    )
+    static class SignatureInterceptor implements Interceptor {
+        @Override
+        public Object intercept(Invocation invocation) throws Throwable {
+            return invocation.proceed();
+        }
     }
 
 
