@@ -14,14 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.test;
+package io.microsphere.mybatis.plugin;
+
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Invocation;
 
 /**
- * {@link DefaultMapperTest} Test
+ * No-Operation {@link Interceptor}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see DefaultMapperTest
+ * @see Interceptor
  * @since 1.0.0
  */
-public class DefaultMyBatisTest extends DefaultMapperTest {
+public class NoOpInterceptor implements Interceptor {
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+        return null;
+    }
 }
