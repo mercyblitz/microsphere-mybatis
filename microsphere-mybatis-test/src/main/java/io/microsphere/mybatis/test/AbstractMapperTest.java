@@ -16,12 +16,40 @@
  */
 package io.microsphere.mybatis.test;
 
+import io.microsphere.mybatis.test.entity.User;
+import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
- * {@link DefaultMapperTest} Test
+ * Abstract Test for Mybatis Mapper
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see DefaultMapperTest
+ * @see #testMapper()
  * @since 1.0.0
  */
-public class DefaultMyBatisTest extends DefaultMapperTest {
+public abstract class AbstractMapperTest extends AbstractExecutorTest {
+
+    @Test
+    public void testMapper() throws Throwable {
+        getConfiguration().setCacheEnabled(false);
+
+        doInMapper(UserMapper.class, userMapper -> {
+            User user = createUser();
+            // Test saveUser
+            userMapper.saveUser(user);
+
+            // Test getUserById
+            User foundUser = userMapper.getUserById(user.getId());
+            assertEquals(foundUser, user);
+
+            // Test getUserByName
+            foundUser = userMapper.getUserByName(user.getName());
+            assertEquals(foundUser, user);
+        });
+    }
 }
+
+
+
