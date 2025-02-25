@@ -78,6 +78,16 @@ public class PluginsTest {
     }
 
 
+    @Test
+    public void testGetPlugin() {
+        Executor executor = newExecutor();
+    }
+
+    private Executor newExecutor() {
+        return null;
+    }
+
+
     @Intercepts(
             @Signature(
                     type = Object.class,

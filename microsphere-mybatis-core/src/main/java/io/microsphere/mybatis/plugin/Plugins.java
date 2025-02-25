@@ -26,7 +26,9 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.plugin.Signature;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.Set;
 
 import static io.microsphere.collection.ListUtils.ofList;
 import static io.microsphere.text.FormatUtils.format;
+import static java.lang.reflect.Proxy.getInvocationHandler;
 import static org.apache.ibatis.util.MapUtil.computeIfAbsent;
 
 /**
@@ -105,6 +108,22 @@ public abstract class Plugins {
             }
         }
         return signatureMap;
+    }
+
+    /**
+     * Get the {@link Plugin} from the specified proxy
+     *
+     * @param proxy the specified proxy
+     * @return <code>null</code> if the proxy is not a {@link Plugin}
+     */
+    public static Plugin getPlugin(Object proxy) {
+        if (proxy instanceof Proxy) {
+            InvocationHandler invocationHandler = getInvocationHandler(proxy);
+            if (invocationHandler instanceof Plugin) {
+                return (Plugin) invocationHandler;
+            }
+        }
+        return null;
     }
 
     protected static PluginException newPluginException(String messagePattern, Object... args) {

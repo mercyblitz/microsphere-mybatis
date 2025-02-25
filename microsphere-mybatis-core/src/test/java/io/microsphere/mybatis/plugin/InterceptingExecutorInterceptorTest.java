@@ -19,7 +19,7 @@ package io.microsphere.mybatis.plugin;
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.executor.TestExecutorFilter;
-import io.microsphere.mybatis.test.AbstractMyBatisTest;
+import io.microsphere.mybatis.test.DefaultMapperTest;
 import org.apache.ibatis.session.Configuration;
 
 import java.util.Properties;
@@ -33,7 +33,7 @@ import static io.microsphere.util.ArrayUtils.of;
  * @see InterceptingExecutorInterceptor
  * @since 1.0.0
  */
-public class InterceptingExecutorInterceptorTest extends AbstractMyBatisTest {
+public class InterceptingExecutorInterceptorTest extends DefaultMapperTest {
 
     public static final String TEST_PROPERTY_KEY = "test.class";
 
