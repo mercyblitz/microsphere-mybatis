@@ -18,7 +18,6 @@ package io.microsphere.mybatis.executor;
 
 import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.lang.function.ThrowableFunction;
-import io.microsphere.logging.Logger;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.Executor;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
-import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertNotEmpty;
 import static io.microsphere.util.Assert.assertNotNull;
@@ -52,8 +50,6 @@ import static io.microsphere.util.ExceptionUtils.wrap;
  * @since 1.0.0
  */
 public class ExecutorFilterChain {
-
-    private static final Logger logger = getLogger(ExecutorFilterChain.class);
 
     private final Executor executor;
 
@@ -159,26 +155,16 @@ public class ExecutorFilterChain {
     protected <E extends Throwable, R> R process(ThrowableFunction<ExecutorFilter, R> filterFunction,
                                                  ThrowableFunction<Executor, R> executorFunction,
                                                  Function<Throwable, E> failureHandler) throws E {
-
-        if (position < size) {
-            ExecutorFilter filter = filters[position++];
-            try {
-                return filterFunction.apply(filter);
-            } catch (Throwable e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Failed to execute ExecutorFilter[ index : {} , instance : {}]", position, filter, e);
-                }
-            }
-        }
-
-        R result = null;
-
+        final R result;
         try {
-            result = executorFunction.apply(this.executor);
+            if (position < size) {
+                result = filterFunction.apply(filters[position++]);
+            } else {
+                result = executorFunction.apply(this.executor);
+            }
         } catch (Throwable failure) {
             throw failureHandler.apply(failure);
         }
-
         return result;
     }
 
