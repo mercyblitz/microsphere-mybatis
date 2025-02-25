@@ -16,7 +16,6 @@
  */
 package io.microsphere.mybatis.plugin;
 
-import io.microsphere.mybatis.executor.ThrowingErrorExecutorFilter;
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.executor.TestExecutorFilter;
@@ -45,7 +44,7 @@ public class InterceptingExecutorInterceptorTest extends AbstractMyBatisTest {
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
         InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(
-                of(new LoggingExecutorFilter(), new TestExecutorFilter(), new ThrowingErrorExecutorFilter()),
+                of(new LoggingExecutorFilter(), new TestExecutorFilter()),
                 new LogggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
         Properties properties = new Properties();
         properties.setProperty(TEST_PROPERTY_KEY, this.getClass().getName());
