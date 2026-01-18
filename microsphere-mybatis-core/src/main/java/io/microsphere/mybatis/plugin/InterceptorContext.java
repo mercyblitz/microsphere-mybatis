@@ -16,11 +16,11 @@
  */
 package io.microsphere.mybatis.plugin;
 
+import io.microsphere.annotation.Nonnull;
+import io.microsphere.annotation.Nullable;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.plugin.Interceptor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

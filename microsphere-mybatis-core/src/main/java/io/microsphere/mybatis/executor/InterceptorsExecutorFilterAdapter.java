@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.executor;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.plugin.InterceptorContext;
 import io.microsphere.util.PriorityComparator;
@@ -29,7 +30,6 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
-import javax.annotation.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Consumer;

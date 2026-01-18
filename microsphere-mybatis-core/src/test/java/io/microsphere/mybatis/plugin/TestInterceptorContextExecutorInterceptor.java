@@ -16,11 +16,11 @@
  */
 package io.microsphere.mybatis.plugin;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.mybatis.executor.ExecutorInterceptor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 
-import javax.annotation.Nullable;
 import java.sql.SQLException;
 
 import static java.util.Collections.emptyMap;
