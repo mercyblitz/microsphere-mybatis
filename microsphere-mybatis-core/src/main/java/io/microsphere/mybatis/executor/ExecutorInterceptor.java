@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.executor;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.lang.Prioritized;
 import io.microsphere.mybatis.plugin.InterceptorContext;
 import org.apache.ibatis.cache.CacheKey;
@@ -28,7 +29,6 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
-import javax.annotation.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
