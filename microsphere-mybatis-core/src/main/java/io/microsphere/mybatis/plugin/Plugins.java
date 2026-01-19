@@ -29,7 +29,6 @@ import org.apache.ibatis.plugin.Signature;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -128,5 +127,8 @@ public abstract class Plugins {
 
     protected static PluginException newPluginException(String messagePattern, Object... args) {
         return new PluginException(format(messagePattern, args));
+    }
+
+    private Plugins() {
     }
 }
