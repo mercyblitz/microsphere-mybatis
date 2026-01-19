@@ -92,7 +92,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     private SqlSessionFactory createSqlSessionFactory() throws IOException {
-        SqlSessionFactory factory = AbstractMyBatisTest.buildSqlSessionFactory();
+        SqlSessionFactory factory = buildSqlSessionFactory();
         customize(factory);
         customize(factory.getConfiguration());
         return factory;
