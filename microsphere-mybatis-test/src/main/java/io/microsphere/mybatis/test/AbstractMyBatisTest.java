@@ -21,7 +21,6 @@ import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.test.entity.User;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -43,6 +42,7 @@ import java.sql.SQLException;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.apache.ibatis.io.Resources.getResourceAsReader;
+import static org.apache.ibatis.io.Resources.getResourceAsStream;
 
 /**
  * Abstract MyBatis Test
@@ -61,10 +61,11 @@ public abstract class AbstractMyBatisTest {
 
     public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
         String resource = "META-INF/mybatis/config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory factory = builder.build(inputStream);
-        return factory;
+        try (InputStream inputStream = getResourceAsStream(resource)) {
+            SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
+            SqlSessionFactory factory = builder.build(inputStream);
+            return factory;
+        }
     }
 
     public static void runScript(DataSource ds, String resource) throws IOException, SQLException {
