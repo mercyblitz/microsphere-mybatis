@@ -62,5 +62,9 @@
         <module>microsphere-mybatis-dependencies</module>
         <module>microsphere-mybatis-core</module>
         <module>microsphere-mybatis-test</module>
+        <module>microsphere-mybatis-spring</module>
+        <module>microsphere-mybatis-spring-test</module>
+        <module>microsphere-mybatis-spring-boot</module>
+        <module>microsphere-mybatis-spring-cloud</module>
     </modules>
 </project>
