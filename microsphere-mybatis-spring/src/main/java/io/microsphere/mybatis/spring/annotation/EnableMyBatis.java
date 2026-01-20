@@ -100,7 +100,7 @@ public @interface EnableMyBatis {
      *
      * @return empty array as default
      */
-    Class[] typeAliasesSuperType() default {};
+    Class<?>[] typeAliasesSuperType() default {};
 
     /**
      * Packages to search for type handlers. (Package delimiters are “,; \t\n”)
