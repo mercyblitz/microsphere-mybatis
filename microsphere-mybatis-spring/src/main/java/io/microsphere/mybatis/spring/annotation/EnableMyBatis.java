@@ -33,6 +33,7 @@ import org.mybatis.spring.annotation.MapperScans;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Import;
 
+import javax.sql.DataSource;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -63,6 +64,15 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 @Inherited
 @Import(MyBatisBeanDefinitionRegistrar.class)
 public @interface EnableMyBatis {
+
+    /**
+     * The Spring Bean name of {@link DataSource}
+     *
+     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates primary bean will be applied.
+     * @see DataSource
+     * @see SqlSessionFactoryBean#setDataSource(DataSource)
+     */
+    String dataSource() default WILDCARD;
 
     /**
      * Location of MyBatis xml config file, for example,
@@ -159,7 +169,9 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean name of {@link ObjectWrapperFactory}
      *
-     * @return the empty string as default, indicates no bean specified. (the placeholders in the value will be resolved)
+     * @return the empty string as default, indicates no bean specified. If the value is
+     * {@link SymbolConstants#WILDCARD "*"}, the primray bean will be applied.
+     * (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setObjectWrapperFactory(ObjectWrapperFactory)
      * @see ObjectWrapperFactory
      * @since MyBatis Spring 1.1.2
@@ -169,7 +181,7 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean name of {@link DatabaseIdProvider}
      *
-     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
+     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates primary bean will be applied.
      * If the value is empty string, it indicates no bean specified. (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setDatabaseIdProvider(DatabaseIdProvider)
      * @see DatabaseIdProvider
@@ -180,7 +192,8 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean name of {@link Cache}
      *
-     * @return the {@link StringUtils#EMPTY_STRING empty string} as default, indicates no bean specified.
+     * @return the {@link StringUtils#EMPTY_STRING empty string} as default, indicates no bean specified. If the value is
+     * {@link SymbolConstants#WILDCARD "*"}, the primray bean will be applied.
      * (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setCache(Cache)
      * @see Cache
@@ -191,8 +204,8 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean names of {@link Interceptor} as plugins
      *
-     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
-     * If the value is {@link StringUtils#EMPTY_STRING empty string}, it indicates no bean specified.
+     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates all beans will be applied.
+     * If the value is empty string array(incluing the empty string element), it indicates no bean specified.
      * (the placeholders in each elements' value will be resolved)
      * @see SqlSessionFactoryBean#setPlugins(Interceptor...)
      * @see Interceptor
@@ -203,8 +216,8 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean names of {@link TypeHandler}
      *
-     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
-     * If the value is {@link StringUtils#EMPTY_STRING empty string}, it indicates no bean specified.
+     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates all beans will be applied.
+     * If the value is empty string array(incluing the empty string element), it indicates no bean specified.
      * (the placeholders in each elements' value will be resolved)
      * @see SqlSessionFactoryBean#setTypeHandlers(TypeHandler...)
      * @see TypeHandler
@@ -215,8 +228,8 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean names of {@link LanguageDriver}
      *
-     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
-     * If the value is {@link StringUtils#EMPTY_STRING empty string}, it indicates no bean specified.
+     * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates all beans will be applied.
+     * If the value is empty string array(incluing the empty string element), it indicates no bean specified.
      * (the placeholders in each elements' value will be resolved)
      * @see SqlSessionFactoryBean#setScriptingLanguageDrivers(LanguageDriver...)
      * @see LanguageDriver
