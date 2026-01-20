@@ -68,7 +68,7 @@ public @interface EnableMyBatis {
      * Location of MyBatis xml config file, for example,
      * {@code "classpath:/com/acme/config.xml"}
      *
-     * @return non-null
+     * @return non-null. (the placeholders in the value will be resolved)
      */
     String configLocation();
 
@@ -83,14 +83,14 @@ public @interface EnableMyBatis {
      * Locations of Mapper xml config file, for example, {@code "classpath*:/com/acme/mapper/*.xml"} or
      * {@code "file:/path/to/mapper.xml"}.
      *
-     * @return empty array as default
+     * @return empty array as default. (the placeholders in each elements' value will be resolved)
      */
     String[] mapperLocations() default {};
 
     /**
      * Packages to search for type aliases. (Package delimiters are “,; \t\n”)
      *
-     * @return empty array as default
+     * @return empty array as default. (the placeholders in each elements' value will be resolved)
      */
     String[] typeAliasesPackage() default {};
 
@@ -105,7 +105,7 @@ public @interface EnableMyBatis {
     /**
      * Packages to search for type handlers. (Package delimiters are “,; \t\n”)
      *
-     * @return empty array as default
+     * @return empty array as default. (the placeholders in each elements' value will be resolved)
      */
     String[] typeHandlersPackage() default {};
 
@@ -127,7 +127,7 @@ public @interface EnableMyBatis {
      * Externalized properties for MyBatis configuration. Specified properties can be used as placeholder on MyBatis config file and Mapper file.
      * For detail see the <a href="https://mybatis.org/mybatis-3/configuration.html#properties">MyBatis reference page</a>.
      *
-     * @return empty array as default
+     * @return empty array as default. (the placeholders in each elements' value will be resolved)
      */
     String[] configurationProperties() default {};
 
@@ -143,7 +143,7 @@ public @interface EnableMyBatis {
      * Default scope for mapper bean that scanned by auto-configure.
      * This feature requires to use together with mybatis-spring 2.0.6+.
      *
-     * @return {@link ConfigurableBeanFactory#SCOPE_SINGLETON} as default
+     * @return {@link ConfigurableBeanFactory#SCOPE_SINGLETON} as default (the placeholders in the value will be resolved)
      */
     String mapperDefaultScope() default SCOPE_SINGLETON;
 
@@ -159,7 +159,7 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean name of {@link ObjectWrapperFactory}
      *
-     * @return the empty string as default, indicates no bean specified
+     * @return the empty string as default, indicates no bean specified. (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setObjectWrapperFactory(ObjectWrapperFactory)
      * @see ObjectWrapperFactory
      * @since MyBatis Spring 1.1.2
@@ -170,7 +170,7 @@ public @interface EnableMyBatis {
      * The Spring Bean name of {@link DatabaseIdProvider}
      *
      * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
-     * If the value is empty string, it indicates no bean specified.
+     * If the value is empty string, it indicates no bean specified. (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setDatabaseIdProvider(DatabaseIdProvider)
      * @see DatabaseIdProvider
      * @since MyBatis Spring 1.1.0
@@ -180,7 +180,8 @@ public @interface EnableMyBatis {
     /**
      * The Spring Bean name of {@link Cache}
      *
-     * @return the {@link StringUtils#EMPTY_STRING empty string} as default, indicates no bean specified
+     * @return the {@link StringUtils#EMPTY_STRING empty string} as default, indicates no bean specified.
+     * (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setCache(Cache)
      * @see Cache
      * @since MyBatis Spring 1.1.0
@@ -192,6 +193,7 @@ public @interface EnableMyBatis {
      *
      * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
      * If the value is {@link StringUtils#EMPTY_STRING empty string}, it indicates no bean specified.
+     * (the placeholders in each elements' value will be resolved)
      * @see SqlSessionFactoryBean#setPlugins(Interceptor...)
      * @see Interceptor
      * @since MyBatis Spring 1.0.1
@@ -203,6 +205,7 @@ public @interface EnableMyBatis {
      *
      * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
      * If the value is {@link StringUtils#EMPTY_STRING empty string}, it indicates no bean specified.
+     * (the placeholders in each elements' value will be resolved)
      * @see SqlSessionFactoryBean#setTypeHandlers(TypeHandler...)
      * @see TypeHandler
      * @since MyBatis Spring 1.0.1
@@ -214,6 +217,7 @@ public @interface EnableMyBatis {
      *
      * @return the {@link SymbolConstants#WILDCARD "*"} as default, indicates any bean should be applied.
      * If the value is {@link StringUtils#EMPTY_STRING empty string}, it indicates no bean specified.
+     * (the placeholders in each elements' value will be resolved)
      * @see SqlSessionFactoryBean#setScriptingLanguageDrivers(LanguageDriver...)
      * @see LanguageDriver
      * @since MyBatis Spring 2.0.2
