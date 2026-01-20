@@ -19,6 +19,8 @@ package io.microsphere.mybatis.spring.annotation;
 
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
 import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
+import org.apache.ibatis.scripting.LanguageDriver;
+import org.apache.ibatis.session.ExecutorType;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
@@ -48,5 +50,23 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(ANNOTATION_CLASS_NAME);
         ResolvablePlaceholderAnnotationAttributes attributes = of(annotationAttributes, ANNOTATION_CLASS, getEnvironment());
 
+        String configLocation = attributes.getString("configLocation");
+        boolean checkConfigLocation = attributes.getBoolean("checkConfigLocation");
+        String[] mapperLocations = attributes.getStringArray("mapperLocations");
+        String[] typeAliasesPackage = attributes.getStringArray("typeAliasesPackage");
+        Class<?>[] typeAliasesSuperType = attributes.getClassArray("typeAliasesSuperType");
+        String[] typeHandlersPackage = attributes.getStringArray("typeHandlersPackage");
+        ExecutorType executorType = attributes.getEnum("executorType");
+        Class<? extends LanguageDriver> defaultScriptingLanguageDriver = attributes.getClass("defaultScriptingLanguageDriver");
+        String[] configurationProperties = attributes.getStringArray("configurationProperties");
+        boolean lazyInitialization = attributes.getBoolean("lazyInitialization");
+        String mapperDefaultScope = attributes.getString("mapperDefaultScope");
+        boolean injectSqlSessionOnMapperScan = attributes.getBoolean("injectSqlSessionOnMapperScan");
+        String objectWrapperFactory = attributes.getString("objectWrapperFactory");
+        String databaseIdProvider = attributes.getString("databaseIdProvider");
+        String cache = attributes.getString("cache");
+        String[] plugins = attributes.getStringArray("plugins");
+        String[] typeHandlers = attributes.getStringArray("typeHandlers");
+        String[] scriptingLanguageDrivers = attributes.getStringArray("scriptingLanguageDrivers");
     }
 }
