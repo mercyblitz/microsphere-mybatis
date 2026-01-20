@@ -21,8 +21,8 @@ import io.microsphere.mybatis.test.AbstractMyBatisTest;
 import io.microsphere.mybatis.test.mapper.ChildMapper;
 import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -60,7 +60,7 @@ public class MyBatisTestConfiguration {
     }
 
     <T> T getMapper(SqlSessionFactory sqlSessionFactory, Class<T> mapperClass) {
-        SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);
-        return sqlSessionTemplate.getMapper(mapperClass);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        return sqlSession.getMapper(mapperClass);
     }
 }
