@@ -20,6 +20,7 @@ import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.test.entity.User;
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
@@ -27,7 +28,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.junit.jupiter.api.AfterEach;
@@ -35,14 +36,12 @@ import org.junit.jupiter.api.BeforeEach;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.apache.ibatis.io.Resources.getResourceAsReader;
-import static org.apache.ibatis.io.Resources.getResourceAsStream;
 
 /**
  * Abstract MyBatis Test
@@ -59,13 +58,22 @@ public abstract class AbstractMyBatisTest {
 
     private SqlSessionFactory sqlSessionFactory;
 
-    public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
+    public static Configuration configuration() throws IOException {
         String resource = "META-INF/mybatis/config.xml";
-        try (InputStream inputStream = getResourceAsStream(resource)) {
-            SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-            SqlSessionFactory factory = builder.build(inputStream);
-            return factory;
+        try (Reader reader = getResourceAsReader(resource)) {
+            XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader);
+            return xmlConfigBuilder.parse();
         }
+    }
+
+    public static DataSource dataSource() throws IOException {
+        Configuration configuration = configuration();
+        return configuration.getEnvironment().getDataSource();
+    }
+
+    public static SqlSessionFactory sqlSessionFactory() throws IOException {
+        Configuration configuration = configuration();
+        return new DefaultSqlSessionFactory(configuration);
     }
 
     public static void runScript(DataSource ds, String resource) throws IOException, SQLException {
@@ -75,7 +83,7 @@ public abstract class AbstractMyBatisTest {
             runner.setStopOnError(false);
             runner.setLogWriter(null);
             runner.setErrorLogWriter(null);
-            AbstractMyBatisTest.runScript(runner, resource);
+            runScript(runner, resource);
         }
     }
 
@@ -92,7 +100,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     private SqlSessionFactory createSqlSessionFactory() throws IOException {
-        SqlSessionFactory factory = buildSqlSessionFactory();
+        SqlSessionFactory factory = sqlSessionFactory();
         customize(factory);
         customize(factory.getConfiguration());
         return factory;
@@ -150,11 +158,8 @@ public abstract class AbstractMyBatisTest {
 
 
     protected void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
-        SqlSession sqlSession = openSqlSession();
-        try {
+        try (SqlSession sqlSession = openSqlSession()) {
             consumer.accept(sqlSession);
-        } finally {
-            sqlSession.close();
         }
     }
 
@@ -183,10 +188,6 @@ public abstract class AbstractMyBatisTest {
 
     protected Transaction getTransaction(Executor executor) {
         return executor.getTransaction();
-    }
-
-    protected Connection getConnection() throws SQLException {
-        return this.getDataSource().getConnection();
     }
 
     protected DataSource getDataSource() {
