@@ -23,10 +23,12 @@ import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFactory;
+import javax.sql.DataSource;
 
 /**
  * The Spring {@link Configuration @Configuration} class for MyBatis Spring Test
@@ -36,12 +38,17 @@ import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFac
  * @see SqlSessionFactory
  * @since 1.0.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
+@Import(MyBatisDataSourceTestConfiguration.class)
 public class MyBatisTestConfiguration {
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory() throws Exception {
-        return buildSqlSessionFactory();
+    public SqlSessionFactory sqlSessionFactory(org.apache.ibatis.session.Configuration configuration,
+                                               DataSource dataSource) throws Exception {
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        sqlSessionFactoryBean.setConfiguration(configuration);
+        sqlSessionFactoryBean.setDataSource(dataSource);
+        return sqlSessionFactoryBean.getObject();
     }
 
     @Bean
