@@ -26,25 +26,27 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.annotation.MapperScans;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.Properties;
 
 import static io.microsphere.constants.SymbolConstants.WILDCARD;
 import static io.microsphere.util.StringUtils.EMPTY_STRING;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.apache.ibatis.session.ExecutorType.SIMPLE;
-import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_SINGLETON;
 
 /**
  * Enables Spring's annotation-driven MyBatis capability, similar to the offical
@@ -56,6 +58,7 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
  * @see MapperScans
  * @see Configuration
  * @see SqlSessionFactoryBean
+ * @see SqlSessionTemplate
  * @since 1.0.0
  */
 @Retention(RUNTIME)
@@ -81,6 +84,7 @@ public @interface EnableMyBatis {
      * {@code "classpath:/com/acme/config.xml"}
      *
      * @return non-null. (the placeholders in the value will be resolved)
+     * @see SqlSessionFactoryBean#setConfigLocation(Resource)
      */
     String configLocation();
 
@@ -96,6 +100,7 @@ public @interface EnableMyBatis {
      * {@code "file:/path/to/mapper.xml"}.
      *
      * @return empty array as default. (the placeholders in each elements' value will be resolved)
+     * @see SqlSessionFactoryBean#setMapperLocations(Resource...)
      */
     String[] mapperLocations() default {};
 
@@ -103,6 +108,7 @@ public @interface EnableMyBatis {
      * Packages to search for type aliases. (Package delimiters are “,; \t\n”)
      *
      * @return empty array as default. (the placeholders in each elements' value will be resolved)
+     * @see SqlSessionFactoryBean#setTypeAliasesPackage(String)
      */
     String[] typeAliasesPackage() default {};
 
@@ -111,13 +117,15 @@ public @interface EnableMyBatis {
      * searched from {@link #typeAliasesPackage()}.
      *
      * @return empty array as default
+     * @see SqlSessionFactoryBean#setTypeAliasesSuperType(Class)
      */
-    Class<?>[] typeAliasesSuperType() default {};
+    Class<?> typeAliasesSuperType() default Void.class;
 
     /**
      * Packages to search for type handlers. (Package delimiters are “,; \t\n”)
      *
      * @return empty array as default. (the placeholders in each elements' value will be resolved)
+     * @see SqlSessionFactoryBean#setTypeHandlersPackage(String)
      */
     String[] typeHandlersPackage() default {};
 
@@ -125,6 +133,7 @@ public @interface EnableMyBatis {
      * Executor type: {@link ExecutorType#SIMPLE}, {@link ExecutorType#REUSE}, {@link ExecutorType#BATCH}
      *
      * @return {@link ExecutorType#SIMPLE} as default
+     * @see SqlSessionTemplate#SqlSessionTemplate(SqlSessionFactory, ExecutorType)
      */
     ExecutorType executorType() default SIMPLE;
 
@@ -132,6 +141,7 @@ public @interface EnableMyBatis {
      * The default scripting language driver class. This feature requires to use together with mybatis-spring 2.0.2+.
      *
      * @return {@link LanguageDriver} as the default, indicates no {@link LanguageDriver} specified.
+     * @see SqlSessionFactoryBean#setDefaultScriptingLanguageDriver(Class)
      */
     Class<? extends LanguageDriver> defaultScriptingLanguageDriver() default LanguageDriver.class;
 
@@ -140,6 +150,7 @@ public @interface EnableMyBatis {
      * For detail see the <a href="https://mybatis.org/mybatis-3/configuration.html#properties">MyBatis reference page</a>.
      *
      * @return empty array as default. (the placeholders in each elements' value will be resolved)
+     * @see SqlSessionFactoryBean#setConfigurationProperties(Properties)
      */
     String[] configurationProperties() default {};
 
