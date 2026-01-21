@@ -39,7 +39,7 @@ import java.util.Map;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.configuration;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.dataSource;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.runScript;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.sqlSessionFactory;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFactory;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -70,8 +70,8 @@ class AbstractMyBatisTestTest {
     }
 
     @Test
-    void testSqlSessionFactory() throws IOException {
-        SqlSessionFactory sqlSessionFactory = sqlSessionFactory();
+    void testBuildSqlSessionFactory() throws IOException {
+        SqlSessionFactory sqlSessionFactory = buildSqlSessionFactory();
         Configuration configuration = sqlSessionFactory.getConfiguration();
         assertConfiguration(configuration);
 
