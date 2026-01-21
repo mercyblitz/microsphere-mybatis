@@ -71,7 +71,7 @@ public abstract class AbstractMyBatisTest {
         return configuration.getEnvironment().getDataSource();
     }
 
-    public static SqlSessionFactory sqlSessionFactory() throws IOException {
+    public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
         Configuration configuration = configuration();
         return new DefaultSqlSessionFactory(configuration);
     }
@@ -95,12 +95,12 @@ public abstract class AbstractMyBatisTest {
 
     @BeforeEach
     public void init() throws Throwable {
-        this.sqlSessionFactory = createSqlSessionFactory();
+        this.sqlSessionFactory = createBuildSqlSessionFactory();
         initData();
     }
 
-    private SqlSessionFactory createSqlSessionFactory() throws IOException {
-        SqlSessionFactory factory = sqlSessionFactory();
+    private SqlSessionFactory createBuildSqlSessionFactory() throws IOException {
+        SqlSessionFactory factory = buildSqlSessionFactory();
         customize(factory);
         customize(factory.getConfiguration());
         return factory;
