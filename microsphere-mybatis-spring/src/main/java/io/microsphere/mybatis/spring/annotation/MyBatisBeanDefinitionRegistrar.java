@@ -163,7 +163,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         return builder.getBeanDefinition();
     }
 
-    private void checkConfigLocation(AnnotationAttributes attributes) {
+    void checkConfigLocation(AnnotationAttributes attributes) {
         boolean checkConfigLocation = attributes.getBoolean("checkConfigLocation");
         if (checkConfigLocation) {
             String configLocation = attributes.getString("configLocation");
@@ -175,7 +175,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         }
     }
 
-    private Properties resolveConfigurationProperties(AnnotationAttributes attributes) {
+    static Properties resolveConfigurationProperties(AnnotationAttributes attributes) {
         String[] configurationProperties = attributes.getStringArray("configurationProperties");
         Properties properties = new Properties(configurationProperties.length);
         for (String configurationProperty : configurationProperties) {
@@ -185,18 +185,18 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         return properties;
     }
 
-    void setBeanAttribute(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
+    static void setBeanAttribute(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
         Object attributeValue = attributes.get(attributeName);
         builder.addPropertyValue(attributeName, attributeValue);
     }
 
-    void setBeanReference(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
+    static void setBeanReference(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
         String beanName = attributes.getString(attributeName);
         logger.trace("Try to reference a Spring Bean[{}, name : '{}'] by the attribute[name : '{}']", beanType, beanName, attributeName);
         setBeanReference(builder, attributeName, beanName, beanType);
     }
 
-    void setBeanReferences(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
+    static void setBeanReferences(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
         String[] beanNames = attributes.getStringArray(attributeName);
         logger.trace("Try to reference a Spring Beans[{}, names : '{}'] by the attribute[name : '{}']", beanType, arrayToString(beanNames), attributeName);
         int length = length(beanNames);
@@ -210,7 +210,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         }
     }
 
-    void setBeanReference(BeanDefinitionBuilder builder, String attributeName, String beanName, Class<?> beanType) {
+    static void setBeanReference(BeanDefinitionBuilder builder, String attributeName, String beanName, Class<?> beanType) {
         if (isBlank(beanName)) {
             logger.debug("No Spring Bean[{}] was speicified by the attribute[name : '{}']", beanType, attributeName);
         } else if (WILDCARD.equals(beanName)) {
