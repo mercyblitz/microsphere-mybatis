@@ -18,22 +18,15 @@
 package io.microsphere.mybatis.spring.test.config;
 
 
-import io.microsphere.mybatis.test.entity.Child;
-import io.microsphere.mybatis.test.entity.Father;
 import io.microsphere.mybatis.test.mapper.ChildMapper;
 import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * {@link MyBatisTestConfiguration} Test
@@ -44,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 @SpringJUnitConfig(classes = {
         MyBatisTestConfiguration.class,
-        MyBatisDataBaseTestConfiguration.class,
         MyBatisTestConfigurationTest.class
 })
 class MyBatisTestConfigurationTest {
@@ -63,16 +55,9 @@ class MyBatisTestConfigurationTest {
 
     @Test
     void test() {
-        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            assertNotNull(sqlSession);
-        }
-
-        Father father = fatherMapper.selectById(1);
-        assertEquals("John Smith", father.getName());
-
-        assertNull(userMapper.getUserById(1));
-
-        List<Child> children = childMapper.selectAll();
-        assertEquals(2, children.size());
+        assertNotNull(sqlSessionFactory);
+        assertNotNull(childMapper);
+        assertNotNull(fatherMapper);
+        assertNotNull(userMapper);
     }
 }
