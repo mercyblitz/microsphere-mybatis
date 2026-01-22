@@ -30,8 +30,10 @@ import static io.microsphere.mybatis.test.AbstractMyBatisTest.CHILD_TYPE_ALIAS;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.CONFIG_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.CREATE_DB_SCRIPT_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.DESTROY_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.DEVELOPMENT_ID;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.EMPTY_CONFIG_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.FATHER_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.PROPERTIES_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.USER_TYPE_ALIAS;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFactory;
@@ -55,6 +57,8 @@ class AbstractMyBatisTestTest {
     void testContaints() {
         assertSame("META-INF/mybatis/config.xml", CONFIG_RESOURCE_NAME);
         assertSame("META-INF/mybatis/empty-config.xml", EMPTY_CONFIG_RESOURCE_NAME);
+        assertSame("development", DEVELOPMENT_ID);
+        assertSame("META-INF/mybatis/mybatis.properties", PROPERTIES_RESOURCE_NAME);
         assertSame("META-INF/sql/create-db.sql", CREATE_DB_SCRIPT_RESOURCE_NAME);
         assertSame("META-INF/sql/destroy-db.sql", DESTROY_DB_SCRIPT_RESOURCE_NAME);
         assertSame("user", USER_TYPE_ALIAS);
