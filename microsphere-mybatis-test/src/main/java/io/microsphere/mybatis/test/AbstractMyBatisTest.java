@@ -48,6 +48,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
@@ -72,6 +73,10 @@ public abstract class AbstractMyBatisTest {
 
     public static final String EMPTY_CONFIG_RESOURCE_NAME = "META-INF/mybatis/empty-config.xml";
 
+    public static final String DEVELOPMENT_ID = "development";
+
+    public static final String PROPERTIES_RESOURCE_NAME = "META-INF/mybatis/mybatis.properties";
+
     public static final String CREATE_DB_SCRIPT_RESOURCE_NAME = "META-INF/sql/create-db.sql";
 
     public static final String DESTROY_DB_SCRIPT_RESOURCE_NAME = "META-INF/sql/destroy-db.sql";
@@ -88,10 +93,18 @@ public abstract class AbstractMyBatisTest {
 
     private SqlSessionFactory sqlSessionFactory;
 
+    public static Properties properties() throws IOException {
+        try (Reader reader = getResourceAsReader(PROPERTIES_RESOURCE_NAME)) {
+            Properties properties = new Properties();
+            properties.load(reader);
+            return properties;
+        }
+    }
+
     public static Configuration configuration() throws IOException {
         String resource = CONFIG_RESOURCE_NAME;
         try (Reader reader = getResourceAsReader(resource)) {
-            XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader);
+            XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader, DEVELOPMENT_ID, properties());
             return xmlConfigBuilder.parse();
         }
     }
