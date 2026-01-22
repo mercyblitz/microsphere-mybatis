@@ -38,6 +38,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
@@ -58,6 +60,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.findBeanNames;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
+import static io.microsphere.spring.core.env.PropertySourcesUtils.getPropertyNames;
 import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.ExceptionUtils.create;
@@ -185,14 +188,26 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         }
     }
 
-    static Properties resolveConfigurationProperties(AnnotationAttributes attributes) {
+    Properties resolveConfigurationProperties(AnnotationAttributes attributes) {
         String[] configurationProperties = attributes.getStringArray("configurationProperties");
-        Properties properties = new Properties(configurationProperties.length);
+        Properties properties = new Properties();
+        boolean importingPropertySources = attributes.getBoolean("configurationPropertiesImportPropertySources");
+        if (importingPropertySources) {
+            ConfigurableEnvironment environment = getEnvironment();
+            logger.trace("The MyBatis configuration properties will import the Spring PropertySources.");
+            for (PropertySource propertySource : environment.getPropertySources()) {
+                String[] propertyNames = getPropertyNames(propertySource);
+                for (String propertyName : propertyNames) {
+                    Object propertyValue = propertySource.getProperty(propertyName);
+                    properties.putIfAbsent(propertyName, propertyValue);
+                }
+            }
+        }
         for (String configurationProperty : configurationProperties) {
             String[] keyAndValue = split(configurationProperty, EQUAL);
             int length = length(keyAndValue);
             if (length != 2) {
-
+                throw create(IllegalArgumentException.class, "The configuration property is invalid, the content must contain key and value : '{}'", configurationProperty);
             }
             String key = trimAllWhitespace(keyAndValue[0]);
             String value = trimAllWhitespace(keyAndValue[1]);
