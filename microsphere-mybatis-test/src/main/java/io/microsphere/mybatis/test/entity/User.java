@@ -16,6 +16,7 @@
  */
 package io.microsphere.mybatis.test.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -24,7 +25,7 @@ import java.util.Objects;
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
  * @since 1.0.0
  */
-public class User {
+public class User implements Serializable {
 
     private int id;
 

@@ -15,7 +15,9 @@
  */
 package io.microsphere.mybatis.test.entity;
 
-public class Father {
+import java.io.Serializable;
+
+public class Father implements Serializable {
 
     private Integer id;
 
