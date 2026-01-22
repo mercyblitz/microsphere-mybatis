@@ -89,8 +89,7 @@ public class InterceptingExecutor implements Executor {
         ExecutorFilterChain chain = buildChain();
         return chain.queryCursor(ms, parameter, rowBounds);
     }
-
-
+    
     @Override
     public List<BatchResult> flushStatements() throws SQLException {
         return delegate.flushStatements();
