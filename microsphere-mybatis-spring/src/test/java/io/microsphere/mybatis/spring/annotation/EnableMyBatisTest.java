@@ -17,7 +17,10 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
+import io.microsphere.mybatis.spring.test.config.MyBatisDataBaseTestConfiguration;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataSourceTestConfiguration;
+import io.microsphere.mybatis.test.mapper.ChildMapper;
+import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
@@ -29,7 +32,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Import;
 
 import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.SQL_SESSION_FACTORY_BEAN_NAME;
+import static io.microsphere.mybatis.test.AbstractMapperTest.assertChildMapper;
+import static io.microsphere.mybatis.test.AbstractMapperTest.assertFatherMapper;
 import static io.microsphere.mybatis.test.AbstractMapperTest.assertUserMapper;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.CONFIG_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.EMPTY_CONFIG_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -68,8 +75,8 @@ class EnableMyBatisTest {
     }
 
 
-    @EnableMyBatis(configLocation = "classpath:/META-INF/mybatis/config.xml")
-    @Import(MyBatisDataSourceTestConfiguration.class)
+    @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
+    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class DefaultConfig {
     }
 
@@ -77,14 +84,14 @@ class EnableMyBatisTest {
     static class NotFoundConfig {
     }
 
-    @EnableMyBatis(dataSource = "dataSource", configLocation = "classpath:/META-INF/mybatis/config.xml")
-    @Import(MyBatisDataSourceTestConfiguration.class)
+    @EnableMyBatis(dataSource = "dataSource", configLocation = CONFIG_RESOURCE_NAME)
+    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class DataSourceConfig {
     }
 
     @EnableMyBatis(
             dataSource = "dataSource",
-            configLocation = "classpath:/META-INF/mybatis/empty-config.xml",
+            configLocation = EMPTY_CONFIG_RESOURCE_NAME,
             mapperLocations = {
                     "META-INF/mybatis/UserMapper.xml",
                     "META-INF/mybatis/ChildMapper.xml",
@@ -92,7 +99,7 @@ class EnableMyBatisTest {
             },
             typeAliasesPackage = "io.microsphere.mybatis.test.entity"
     )
-    @Import(MyBatisDataSourceTestConfiguration.class)
+    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class MapperConfig {
     }
 
@@ -117,6 +124,12 @@ class EnableMyBatisTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             UserMapper userMapper = configuration.getMapper(UserMapper.class, sqlSession);
             assertUserMapper(userMapper);
+
+            ChildMapper childMapper = configuration.getMapper(ChildMapper.class, sqlSession);
+            assertChildMapper(childMapper);
+
+            FatherMapper fatherMapper = configuration.getMapper(FatherMapper.class, sqlSession);
+            assertFatherMapper(fatherMapper);
         }
     }
 }
