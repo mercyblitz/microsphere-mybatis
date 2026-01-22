@@ -17,33 +17,30 @@
 
 package io.microsphere.mybatis.test;
 
-import io.microsphere.mybatis.test.entity.Child;
-import io.microsphere.mybatis.test.entity.Father;
-import io.microsphere.mybatis.test.entity.User;
-import io.microsphere.mybatis.test.mapper.ChildMapper;
-import io.microsphere.mybatis.test.mapper.FatherMapper;
-import io.microsphere.mybatis.test.mapper.UserMapper;
-import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.type.TypeAliasRegistry;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
-import java.util.Collection;
-import java.util.Map;
 
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.CHILD_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.CONFIG_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.CREATE_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.DESTROY_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.EMPTY_CONFIG_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.FATHER_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.USER_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFactory;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.configuration;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.dataSource;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.runScript;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFactory;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.runCreateDatabaseScript;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.runDestroyDatabaseScript;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The test class for {@link AbstractMyBatisTest}
@@ -53,6 +50,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 1.0.0
  */
 class AbstractMyBatisTestTest {
+
+    @Test
+    void testContaints() {
+        assertSame("META-INF/mybatis/config.xml", CONFIG_RESOURCE_NAME);
+        assertSame("META-INF/mybatis/empty-config.xml", EMPTY_CONFIG_RESOURCE_NAME);
+        assertSame("META-INF/sql/create-db.sql", CREATE_DB_SCRIPT_RESOURCE_NAME);
+        assertSame("META-INF/sql/destroy-db.sql", DESTROY_DB_SCRIPT_RESOURCE_NAME);
+        assertSame("user", USER_TYPE_ALIAS);
+        assertSame("child", CHILD_TYPE_ALIAS);
+        assertSame("father", FATHER_TYPE_ALIAS);
+    }
 
     @Test
     void testConfiguration() throws IOException {
@@ -83,23 +91,7 @@ class AbstractMyBatisTestTest {
     @Test
     void testRunScript() throws Exception {
         DataSource dataSource = dataSource();
-        runScript(dataSource, "META-INF/sql/create-db.sql");
-        runScript(dataSource, "META-INF/sql/destroy-db.sql");
-    }
-
-    void assertConfiguration(Configuration configuration) {
-        assertFalse(configuration.isLazyLoadingEnabled());
-
-        TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
-        Map<String, Class<?>> typeAliases = typeAliasRegistry.getTypeAliases();
-        assertSame(User.class, typeAliases.get("user"));
-        assertSame(Child.class, typeAliases.get("child"));
-        assertSame(Father.class, typeAliases.get("father"));
-
-        MapperRegistry mapperRegistry = configuration.getMapperRegistry();
-        Collection<Class<?>> mappers = mapperRegistry.getMappers();
-        assertTrue(mappers.contains(UserMapper.class));
-        assertTrue(mappers.contains(ChildMapper.class));
-        assertTrue(mappers.contains(FatherMapper.class));
+        runCreateDatabaseScript(dataSource);
+        runDestroyDatabaseScript(dataSource);
     }
 }
