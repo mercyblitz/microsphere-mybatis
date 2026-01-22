@@ -18,7 +18,6 @@
 package io.microsphere.mybatis.spring.test.config;
 
 
-import io.microsphere.mybatis.test.AbstractMyBatisTest;
 import io.microsphere.mybatis.test.entity.Child;
 import io.microsphere.mybatis.test.entity.Father;
 import io.microsphere.mybatis.test.mapper.ChildMapper;
@@ -45,9 +44,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 @SpringJUnitConfig(classes = {
         MyBatisTestConfiguration.class,
+        MyBatisDataBaseTestConfiguration.class,
         MyBatisTestConfigurationTest.class
 })
-class MyBatisTestConfigurationTest extends AbstractMyBatisTest {
+class MyBatisTestConfigurationTest {
 
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
