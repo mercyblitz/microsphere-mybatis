@@ -31,7 +31,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.RuntimeBeanNameReference;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -43,12 +43,18 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import javax.sql.DataSource;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
+import java.util.StringJoiner;
 
 import static io.micrometer.common.util.StringUtils.isBlank;
+import static io.microsphere.collection.CollectionUtils.first;
+import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.EQUAL;
 import static io.microsphere.constants.SymbolConstants.WILDCARD;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.findBeanNames;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
 import static io.microsphere.util.ArrayUtils.arrayToString;
@@ -130,35 +136,35 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         BeanDefinitionBuilder builder = genericBeanDefinition(SqlSessionFactoryBean.class);
 
         // References the DataSource Bean
-        setBeanReference(builder, attributes, "dataSource", DataSource.class);
+        setBeanReferencePropertyValue(builder, attributes, "dataSource", DataSource.class);
         // Set the attribute "configLocation"
-        setBeanAttribute(builder, attributes, "configLocation");
+        setPropertyValue(builder, attributes, "configLocation");
         // Set the attribute "mapperLocations"
-        setBeanAttribute(builder, attributes, "mapperLocations");
+        setPropertyValue(builder, attributes, "mapperLocations");
         // Set the attribute "typeAliasesPackage"
-        setBeanAttribute(builder, attributes, "typeAliasesPackage");
+        setPackagePropertyValue(builder, attributes, "typeAliasesPackage");
         // Set the attribute "typeAliasesSuperType"
-        setBeanAttribute(builder, attributes, "typeAliasesSuperType");
+        setClassPropertyValue(builder, attributes, "typeAliasesSuperType", Void.class);
         // Set the attribute "typeHandlersPackage"
-        setBeanAttribute(builder, attributes, "typeHandlersPackage");
+        setPackagePropertyValue(builder, attributes, "typeHandlersPackage");
         // Set the attribute "defaultScriptingLanguageDriver"
-        setBeanAttribute(builder, attributes, "defaultScriptingLanguageDriver");
+        setClassPropertyValue(builder, attributes, "defaultScriptingLanguageDriver", LanguageDriver.class);
         // Set the attribute "configurationProperties"
         Properties configurationProperties = resolveConfigurationProperties(attributes);
-        builder.addPropertyValue("configurationProperties", configurationProperties);
+        setPropertyValue(builder, "configurationProperties", configurationProperties);
 
         // References the ObjectWrapperFactory Bean
-        setBeanReference(builder, attributes, "objectWrapperFactory", ObjectWrapperFactory.class);
+        setBeanReferencePropertyValue(builder, attributes, "objectWrapperFactory", ObjectWrapperFactory.class);
         // References the DatabaseIdProvider Bean
-        setBeanReference(builder, attributes, "databaseIdProvider", DatabaseIdProvider.class);
+        setBeanReferencePropertyValue(builder, attributes, "databaseIdProvider", DatabaseIdProvider.class);
         // References the Cache Bean
-        setBeanReference(builder, attributes, "cache", Cache.class);
+        setBeanReferencePropertyValue(builder, attributes, "cache", Cache.class);
         // References the Interceptor Beans
-        setBeanReferences(builder, attributes, "plugins", Interceptor.class);
+        setBeanReferencePropertyValues(builder, attributes, "plugins", Interceptor.class);
         // References the TypeHandler Beans
-        setBeanReferences(builder, attributes, "typeHandlers", TypeHandler.class);
+        setBeanReferencePropertyValues(builder, attributes, "typeHandlers", TypeHandler.class);
         // References the LanguageDriver Beans
-        setBeanReferences(builder, attributes, "scriptingLanguageDrivers", LanguageDriver.class);
+        setBeanReferencePropertyValues(builder, attributes, "scriptingLanguageDrivers", LanguageDriver.class);
 
         return builder.getBeanDefinition();
     }
@@ -185,38 +191,90 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         return properties;
     }
 
-    static void setBeanAttribute(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
+    void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
         Object attributeValue = attributes.get(attributeName);
+        setPropertyValue(builder, attributeName, attributeValue);
+    }
+
+    void setPropertyValue(BeanDefinitionBuilder builder, String attributeName, Object attributeValue) {
+        logger.trace("Set the BeanDefinition[{}] property[name : '{}'  , value : '{}']", builder.getRawBeanDefinition(), attributeName, attributeValue);
         builder.addPropertyValue(attributeName, attributeValue);
     }
 
-    static void setBeanReference(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
-        String beanName = attributes.getString(attributeName);
-        logger.trace("Try to reference a Spring Bean[{}, name : '{}'] by the attribute[name : '{}']", beanType, beanName, attributeName);
-        setBeanReference(builder, attributeName, beanName, beanType);
+    void setPackagePropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
+        String[] packages = attributes.getStringArray(attributeName);
+        logger.trace("Try to set the package({}) property value by the attribute[name : '{}']", arrayToString(packages), attributeName);
+        int length = length(packages);
+        final String packageName;
+        if (length == 0) {
+            packageName = null;
+        } else if (length == 1) {
+            packageName = packages[0];
+        } else {
+            StringJoiner packageJoiner = new StringJoiner(LINE_SEPARATOR);
+            for (String pkg : packages) {
+                packageJoiner.add(pkg);
+            }
+            packageName = packageJoiner.toString();
+        }
+        if (isBlank(packageName)) {
+            logger.trace("No package property value specified by the attribute[name : '{}']", attributeName);
+        } else {
+            setPropertyValue(builder, attributeName, packageName);
+        }
     }
 
-    static void setBeanReferences(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
+    void setClassPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> defaultType) {
+        Class<?> type = attributes.getClass(attributeName);
+        logger.trace("Try to set the Class[{}] property value by the attribute[name : '{}']", type, attributeName);
+        if (Objects.equals(defaultType, type)) {
+            logger.trace("Default Class[{}] property value will ignored the attribute[name : '{}']", defaultType, attributeName);
+            return;
+        }
+        setPropertyValue(builder, attributeName, type);
+    }
+
+    void setBeanReferencePropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
+        String beanName = attributes.getString(attributeName);
+        logger.trace("Try to set the Spring Bean[{} , name : '{}'] Reference property value by the attribute[name : '{}']", beanType, beanName, attributeName);
+        setBeanReferencePropertyValue(builder, attributeName, beanName, beanType);
+    }
+
+    void setBeanReferencePropertyValues(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
         String[] beanNames = attributes.getStringArray(attributeName);
-        logger.trace("Try to reference a Spring Beans[{}, names : '{}'] by the attribute[name : '{}']", beanType, arrayToString(beanNames), attributeName);
+        logger.trace("Try to set the Spring Bean[{} , names : '{}'] Reference property values by the attribute[name : '{}']", beanType, arrayToString(beanNames), attributeName);
+
         int length = length(beanNames);
         if (length == 0) {
             logger.debug("No Spring Bean was speicified by the attribute[name : '{}']", attributeName);
         } else {
             for (int i = 0; i < length; i++) {
                 String beanName = beanNames[i];
-                setBeanReference(builder, attributeName, beanName, beanType);
+                setBeanReferencePropertyValue(builder, attributeName, beanName, beanType);
             }
         }
     }
 
-    static void setBeanReference(BeanDefinitionBuilder builder, String attributeName, String beanName, Class<?> beanType) {
+    void setBeanReferencePropertyValue(BeanDefinitionBuilder builder, String attributeName, String beanName, Class<?> beanType) {
         if (isBlank(beanName)) {
-            logger.debug("No Spring Bean[{}] was speicified by the attribute[name : '{}']", beanType, attributeName);
+            logger.trace("No Spring Bean[{}] was speicified by the attribute[name : '{}']", beanType, attributeName);
         } else if (WILDCARD.equals(beanName)) {
-            builder.addPropertyValue(attributeName, new RuntimeBeanReference(beanType));
+            ConfigurableListableBeanFactory beanFactory = this.getBeanFactory();
+            String[] beanNames = beanFactory.getBeanNamesForType(beanType, true, false);
+            int length = length(beanNames);
+            final String targetBeanName;
+            if (length == 0) {
+                targetBeanName = null;
+            } else if (length == 1) {
+                targetBeanName = beanNames[0];
+            } else {
+                // Find the name of primary bean
+                Set<String> beanNamesSet = findBeanNames(beanFactory, bf -> bf.isPrimary());
+                targetBeanName = first(beanNamesSet);
+            }
+            setBeanReferencePropertyValue(builder, attributeName, targetBeanName, beanType);
         } else {
-            builder.addPropertyValue(attributeName, new RuntimeBeanNameReference(beanName));
+            builder.addPropertyValue(attributeName, new RuntimeBeanReference(beanName));
         }
     }
 }
