@@ -21,6 +21,7 @@ import io.microsphere.logging.Logger;
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
 import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
@@ -61,6 +62,7 @@ import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.ExceptionUtils.create;
 import static io.microsphere.util.StringUtils.split;
+import static io.microsphere.util.StringUtils.trimAllWhitespace;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 
 /**
@@ -144,9 +146,11 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         // Set the attribute "typeAliasesPackage"
         setPackagePropertyValue(builder, attributes, "typeAliasesPackage");
         // Set the attribute "typeAliasesSuperType"
-        setClassPropertyValue(builder, attributes, "typeAliasesSuperType", Void.class);
+        setClassPropertyValue(builder, attributes, "typeAliasesSuperType", Object.class);
         // Set the attribute "typeHandlersPackage"
         setPackagePropertyValue(builder, attributes, "typeHandlersPackage");
+        // Set the attribute "vfs"
+        setClassPropertyValue(builder, attributes, "vfs", VFS.class);
         // Set the attribute "defaultScriptingLanguageDriver"
         setClassPropertyValue(builder, attributes, "defaultScriptingLanguageDriver", LanguageDriver.class);
         // Set the attribute "configurationProperties"
@@ -186,7 +190,13 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         Properties properties = new Properties(configurationProperties.length);
         for (String configurationProperty : configurationProperties) {
             String[] keyAndValue = split(configurationProperty, EQUAL);
-            properties.setProperty(keyAndValue[0], keyAndValue[1]);
+            int length = length(keyAndValue);
+            if (length != 2) {
+
+            }
+            String key = trimAllWhitespace(keyAndValue[0]);
+            String value = trimAllWhitespace(keyAndValue[1]);
+            properties.setProperty(key, value);
         }
         return properties;
     }
