@@ -20,6 +20,7 @@ package io.microsphere.mybatis.spring.test.config;
 import io.microsphere.mybatis.test.AbstractMyBatisTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class MyBatisDataSourceTestConfiguration {
     }
 
     @Bean(destroyMethod = "forceCloseAll")
+    @Primary
     public DataSource dataSource(org.apache.ibatis.session.Configuration configuration) {
         return configuration.getEnvironment().getDataSource();
     }
