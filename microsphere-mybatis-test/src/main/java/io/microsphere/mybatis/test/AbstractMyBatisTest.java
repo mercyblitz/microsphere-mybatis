@@ -19,30 +19,44 @@ package io.microsphere.mybatis.test;
 import io.microsphere.lang.function.ThrowableAction;
 import io.microsphere.lang.function.ThrowableConsumer;
 import io.microsphere.logging.Logger;
+import io.microsphere.mybatis.test.entity.Child;
+import io.microsphere.mybatis.test.entity.Father;
 import io.microsphere.mybatis.test.entity.User;
+import io.microsphere.mybatis.test.mapper.ChildMapper;
+import io.microsphere.mybatis.test.mapper.FatherMapper;
+import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.apache.ibatis.binding.MapperRegistry;
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.type.TypeAliasRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.apache.ibatis.io.Resources.getResourceAsReader;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Abstract MyBatis Test
@@ -55,16 +69,62 @@ import static org.apache.ibatis.io.Resources.getResourceAsReader;
  */
 public abstract class AbstractMyBatisTest {
 
+    public static final String CONFIG_RESOURCE_NAME = "META-INF/mybatis/config.xml";
+
+    public static final String EMPTY_CONFIG_RESOURCE_NAME = "META-INF/mybatis/empty-config.xml";
+
+    public static final String DEVELOPMENT_ID = "development";
+
+    public static final String PROPERTIES_RESOURCE_NAME = "META-INF/mybatis/mybatis.properties";
+
+    public static final String CREATE_DB_SCRIPT_RESOURCE_NAME = "META-INF/sql/create-db.sql";
+
+    public static final String DESTROY_DB_SCRIPT_RESOURCE_NAME = "META-INF/sql/destroy-db.sql";
+
+    public static final String USER_TYPE_ALIAS = "user";
+
+    public static final String CHILD_TYPE_ALIAS = "child";
+
+    public static final String FATHER_TYPE_ALIAS = "father";
+
+    protected static final ThreadLocalRandom random = current();
+
     protected final Logger logger = getLogger(this.getClass());
 
     private SqlSessionFactory sqlSessionFactory;
 
+    public static Properties properties() throws IOException {
+        try (Reader reader = getResourceAsReader(PROPERTIES_RESOURCE_NAME)) {
+            Properties properties = new Properties();
+            properties.load(reader);
+            return properties;
+        }
+    }
+
+    public static Configuration configuration() throws IOException {
+        String resource = CONFIG_RESOURCE_NAME;
+        try (Reader reader = getResourceAsReader(resource)) {
+            XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader, DEVELOPMENT_ID, properties());
+            return xmlConfigBuilder.parse();
+        }
+    }
+
+    public static DataSource dataSource() throws IOException {
+        Configuration configuration = configuration();
+        return configuration.getEnvironment().getDataSource();
+    }
+
     public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
-        String resource = "META-INF/mybatis/config.xml";
-        InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        SqlSessionFactory factory = builder.build(inputStream);
-        return factory;
+        Configuration configuration = configuration();
+        return new DefaultSqlSessionFactory(configuration);
+    }
+
+    public static void runCreateDatabaseScript(DataSource ds) throws SQLException, IOException {
+        runScript(ds, CREATE_DB_SCRIPT_RESOURCE_NAME);
+    }
+
+    public static void runDestroyDatabaseScript(DataSource ds) throws SQLException, IOException {
+        runScript(ds, DESTROY_DB_SCRIPT_RESOURCE_NAME);
     }
 
     public static void runScript(DataSource ds, String resource) throws IOException, SQLException {
@@ -74,7 +134,7 @@ public abstract class AbstractMyBatisTest {
             runner.setStopOnError(false);
             runner.setLogWriter(null);
             runner.setErrorLogWriter(null);
-            AbstractMyBatisTest.runScript(runner, resource);
+            runScript(runner, resource);
         }
     }
 
@@ -86,12 +146,12 @@ public abstract class AbstractMyBatisTest {
 
     @BeforeEach
     public void init() throws Throwable {
-        this.sqlSessionFactory = createSqlSessionFactory();
+        this.sqlSessionFactory = createBuildSqlSessionFactory();
         initData();
     }
 
-    private SqlSessionFactory createSqlSessionFactory() throws IOException {
-        SqlSessionFactory factory = AbstractMyBatisTest.buildSqlSessionFactory();
+    private SqlSessionFactory createBuildSqlSessionFactory() throws IOException {
+        SqlSessionFactory factory = buildSqlSessionFactory();
         customize(factory);
         customize(factory.getConfiguration());
         return factory;
@@ -118,7 +178,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     private void initData() throws Throwable {
-        runScript("META-INF/sql/create-db.sql");
+        runScript(CREATE_DB_SCRIPT_RESOURCE_NAME);
     }
 
     protected void doInExecutor(ThrowableConsumer<Executor> consumer) throws Throwable {
@@ -147,19 +207,15 @@ public abstract class AbstractMyBatisTest {
         });
     }
 
-
     protected void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
-        SqlSession sqlSession = openSqlSession();
-        try {
+        try (SqlSession sqlSession = openSqlSession()) {
             consumer.accept(sqlSession);
-        } finally {
-            sqlSession.close();
         }
     }
 
-    protected User createUser() {
-        int id = 1;
-        String name = "Mercy";
+    public static User createUser() {
+        int id = random.nextInt(1, 99999);
+        String name = "User - " + id;
         return new User(id, name);
     }
 
@@ -184,10 +240,6 @@ public abstract class AbstractMyBatisTest {
         return executor.getTransaction();
     }
 
-    protected Connection getConnection() throws SQLException {
-        return this.getDataSource().getConnection();
-    }
-
     protected DataSource getDataSource() {
         return this.getEnvironment().getDataSource();
     }
@@ -210,6 +262,22 @@ public abstract class AbstractMyBatisTest {
     }
 
     private void destroyDB() throws Throwable {
-        runScript("META-INF/sql/destroy-db.sql");
+        runScript(DESTROY_DB_SCRIPT_RESOURCE_NAME);
+    }
+
+    public static void assertConfiguration(Configuration configuration) {
+        assertFalse(configuration.isLazyLoadingEnabled());
+
+        TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
+        Map<String, Class<?>> typeAliases = typeAliasRegistry.getTypeAliases();
+        assertSame(User.class, typeAliases.get(USER_TYPE_ALIAS));
+        assertSame(Child.class, typeAliases.get(CHILD_TYPE_ALIAS));
+        assertSame(Father.class, typeAliases.get(FATHER_TYPE_ALIAS));
+
+        MapperRegistry mapperRegistry = configuration.getMapperRegistry();
+        Collection<Class<?>> mappers = mapperRegistry.getMappers();
+        assertTrue(mappers.contains(UserMapper.class));
+        assertTrue(mappers.contains(ChildMapper.class));
+        assertTrue(mappers.contains(FatherMapper.class));
     }
 }

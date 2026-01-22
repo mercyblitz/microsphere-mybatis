@@ -23,5 +23,5 @@ package io.microsphere.mybatis.test;
  * @see DefaultMapperTest
  * @since 1.0.0
  */
-public class DefaultMyBatisTest extends DefaultMapperTest {
+class DefaultMyBatisTest extends DefaultMapperTest {
 }
