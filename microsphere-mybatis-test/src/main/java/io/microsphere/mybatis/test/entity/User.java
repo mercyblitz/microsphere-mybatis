@@ -63,13 +63,6 @@ public class User {
     }
 
     @Override
-    public int hashCode() {
-        int result = id;
-        result = 31 * result + Objects.hashCode(name);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
