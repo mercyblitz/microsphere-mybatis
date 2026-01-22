@@ -29,6 +29,7 @@ import org.apache.ibatis.plugin.PluginException;
 import org.apache.ibatis.plugin.Signature;
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.Map;
@@ -38,6 +39,9 @@ import static io.microsphere.mybatis.plugin.Plugins.TARGET_CLASSES;
 import static io.microsphere.mybatis.plugin.Plugins.TARGET_CLASSES_SIZE;
 import static io.microsphere.mybatis.plugin.Plugins.getPlugin;
 import static io.microsphere.mybatis.plugin.Plugins.getSignatureMap;
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static io.microsphere.util.ClassLoaderUtils.getDefaultClassLoader;
+import static java.lang.reflect.Proxy.newProxyInstance;
 import static org.apache.ibatis.plugin.Plugin.wrap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -85,7 +89,6 @@ public class PluginsTest {
         assertThrows(PluginException.class, () -> getSignatureMap(new WrongMethodSignatureInterceptor()));
     }
 
-
     @Test
     public void testGetPlugin() throws SQLException {
         Executor executor = newExecutor();
@@ -101,6 +104,10 @@ public class PluginsTest {
         // No Proxy
         proxy = wrap(executor, new SignatureInterceptor());
         assertSame(executor, proxy);
+        plugin = getPlugin(proxy);
+        assertNull(plugin);
+        // JDK Proxy
+        proxy = newProxyInstance(getDefaultClassLoader(), ofArray(Serializable.class), (proxy1, method, args) -> null);
         plugin = getPlugin(proxy);
         assertNull(plugin);
     }
