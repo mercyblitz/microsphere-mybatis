@@ -18,10 +18,23 @@
 package io.microsphere.mybatis.spring.annotation;
 
 import io.microsphere.mybatis.spring.test.config.MyBatisDataSourceTestConfiguration;
+import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.Test;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Import;
 
+import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.SQL_SESSION_FACTORY_BEAN_NAME;
+import static io.microsphere.mybatis.test.AbstractMapperTest.assertUserMapper;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.beans.factory.BeanFactory.FACTORY_BEAN_PREFIX;
 
 /**
  * {@link EnableMyBatis} Test
@@ -34,15 +47,76 @@ class EnableMyBatisTest {
 
     @Test
     void testDefaultConfig() {
-        testInSpringContainer(context -> {
+        testInSpringContainer(this::assertTest, DefaultConfig.class);
+    }
 
-        }, DefaultConfig.class);
+    @Test
+    void testNotFoundConfig() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AnnotationConfigApplicationContext(NotFoundConfig.class);
+        });
+    }
+
+    @Test
+    void testDataSourceConfig() {
+        testInSpringContainer(this::assertTest, DataSourceConfig.class);
+    }
+
+    @Test
+    void testMapperConfig() {
+        testInSpringContainer(this::assertTest, MapperConfig.class);
     }
 
 
     @EnableMyBatis(configLocation = "classpath:/META-INF/mybatis/config.xml")
     @Import(MyBatisDataSourceTestConfiguration.class)
     static class DefaultConfig {
+    }
 
+    @EnableMyBatis(configLocation = "not-found.xml", checkConfigLocation = true)
+    static class NotFoundConfig {
+    }
+
+    @EnableMyBatis(dataSource = "dataSource", configLocation = "classpath:/META-INF/mybatis/config.xml")
+    @Import(MyBatisDataSourceTestConfiguration.class)
+    static class DataSourceConfig {
+    }
+
+    @EnableMyBatis(
+            dataSource = "dataSource",
+            configLocation = "classpath:/META-INF/mybatis/empty-config.xml",
+            mapperLocations = {
+                    "META-INF/mybatis/UserMapper.xml",
+                    "META-INF/mybatis/ChildMapper.xml",
+                    "META-INF/mybatis/FatherMapper.xml"
+            },
+            typeAliasesPackage = "io.microsphere.mybatis.test.entity"
+    )
+    @Import(MyBatisDataSourceTestConfiguration.class)
+    static class MapperConfig {
+    }
+
+    private SqlSessionFactoryBean getSqlSessionFactoryBean(ConfigurableApplicationContext context) {
+        return context.getBean(FACTORY_BEAN_PREFIX + SQL_SESSION_FACTORY_BEAN_NAME, SqlSessionFactoryBean.class);
+    }
+
+    private SqlSessionFactory getSqlSessionFactory(ConfigurableApplicationContext context) {
+        return context.getBean(SQL_SESSION_FACTORY_BEAN_NAME, SqlSessionFactory.class);
+    }
+
+    void assertTest(ConfigurableApplicationContext context) {
+        SqlSessionFactoryBean sqlSessionFactoryBean = getSqlSessionFactoryBean(context);
+        assertNull(sqlSessionFactoryBean.getDatabaseIdProvider());
+        assertNull(sqlSessionFactoryBean.getCache());
+        assertNull(sqlSessionFactoryBean.getVfs());
+
+        SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(context);
+        Configuration configuration = sqlSessionFactory.getConfiguration();
+        assertConfiguration(configuration);
+
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            UserMapper userMapper = configuration.getMapper(UserMapper.class, sqlSession);
+            assertUserMapper(userMapper);
+        }
     }
 }
