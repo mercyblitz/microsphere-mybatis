@@ -17,12 +17,21 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
+import io.microsphere.mybatis.executor.LoggingExecutorFilter;
+import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataBaseTestConfiguration;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataSourceTestConfiguration;
 import io.microsphere.mybatis.test.mapper.ChildMapper;
 import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
+import org.apache.ibatis.mapping.DatabaseIdProvider;
+import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
+import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -47,8 +56,9 @@ import static io.microsphere.mybatis.test.AbstractMyBatisTest.CONFIG_RESOURCE_NA
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.EMPTY_CONFIG_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static io.microsphere.util.ArrayUtils.ofArray;
 import static org.apache.ibatis.session.ExecutorType.REUSE;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.beans.factory.BeanFactory.FACTORY_BEAN_PREFIX;
@@ -98,6 +108,26 @@ class EnableMyBatisTest {
     @Test
     void testMultipleDataSourceConfig() {
         testInSpringContainer(this::assertTest, MultipleDataSourceConfig.class);
+    }
+
+    @Test
+    void testObjectWrapperFactoryConfig() {
+        testInSpringContainer(this::assertTest, ObjectWrapperFactoryConfig.class);
+    }
+
+    @Test
+    void testDatabaseIdProviderConfig() {
+        testInSpringContainer(this::assertTest, DatabaseIdProviderConfig.class);
+    }
+
+    @Test
+    void testCacheConfig() {
+        testInSpringContainer(this::assertTest, CacheConfig.class);
+    }
+
+    @Test
+    void testPluginsConfig() {
+        testInSpringContainer(this::assertTest, PluginsConfig.class);
     }
 
     @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
@@ -206,6 +236,71 @@ class EnableMyBatisTest {
     static class MultipleDataSourceConfig {
     }
 
+    @EnableMyBatis(
+            configLocation = CONFIG_RESOURCE_NAME,
+            objectWrapperFactory = "objectWrapperFactory"
+    )
+    @Import(value = {
+            MyBatisDataSourceTestConfiguration.class,
+            MyBatisDataBaseTestConfiguration.class
+    })
+    static class ObjectWrapperFactoryConfig {
+
+        @Bean
+        public ObjectWrapperFactory objectWrapperFactory() {
+            return new DefaultObjectWrapperFactory();
+        }
+    }
+
+    @EnableMyBatis(
+            configLocation = CONFIG_RESOURCE_NAME,
+            databaseIdProvider = "databaseIdProvider"
+    )
+    @Import(value = {
+            MyBatisDataSourceTestConfiguration.class,
+            MyBatisDataBaseTestConfiguration.class
+    })
+    static class DatabaseIdProviderConfig {
+
+        @Bean
+        public DatabaseIdProvider databaseIdProvider() {
+            return new VendorDatabaseIdProvider();
+        }
+    }
+
+    @EnableMyBatis(
+            configLocation = CONFIG_RESOURCE_NAME,
+            cache = "cache"
+    )
+    @Import(value = {
+            MyBatisDataSourceTestConfiguration.class,
+            MyBatisDataBaseTestConfiguration.class
+    })
+    static class CacheConfig {
+
+        @Bean
+        public Cache cache() {
+            return new PerpetualCache("test");
+        }
+    }
+
+    @EnableMyBatis(
+            configLocation = CONFIG_RESOURCE_NAME,
+            plugins = "interceptor"
+    )
+    @Import(value = {
+            MyBatisDataSourceTestConfiguration.class,
+            MyBatisDataBaseTestConfiguration.class
+    })
+    static class PluginsConfig {
+
+        @Bean
+        public Interceptor interceptor() {
+            return new InterceptingExecutorInterceptor(ofArray(new LoggingExecutorFilter()));
+        }
+    }
+
+
     static class HardCodeDataSourceConfiguration {
 
         @Bean(initMethod = "forceCloseAll")
@@ -233,9 +328,7 @@ class EnableMyBatisTest {
 
     void assertTest(ConfigurableApplicationContext context) {
         SqlSessionFactoryBean sqlSessionFactoryBean = getSqlSessionFactoryBean(context);
-        assertNull(sqlSessionFactoryBean.getDatabaseIdProvider());
-        assertNull(sqlSessionFactoryBean.getCache());
-        assertNull(sqlSessionFactoryBean.getVfs());
+        assertNotNull(sqlSessionFactoryBean.getObjectType());
 
         SqlSessionFactory sqlSessionFactory = getSqlSessionFactory(context);
         Configuration configuration = sqlSessionFactory.getConfiguration();
