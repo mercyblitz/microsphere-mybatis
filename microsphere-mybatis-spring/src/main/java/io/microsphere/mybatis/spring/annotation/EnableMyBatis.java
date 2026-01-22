@@ -34,6 +34,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.annotation.MapperScans;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.PropertySources;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
@@ -54,6 +55,7 @@ import static org.apache.ibatis.session.ExecutorType.SIMPLE;
  * <a href="https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/#Configuration">MyBatis Spring Boot Starter</a>
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see MyBatisBeanDefinitionRegistrar
  * @see MyBatisConfiguration
  * @see MapperScan
  * @see MapperScans
@@ -162,6 +164,17 @@ public @interface EnableMyBatis {
      * @see SqlSessionFactoryBean#setConfigurationProperties(Properties)
      */
     String[] configurationProperties() default {};
+
+    /**
+     * Indicates the externalized properties for MyBatis configuration importing Spring {@link PropertySources}.
+     * The properties from {@link #configurationProperties()} method will overrides the Spring {@link PropertySources}
+     * if present.
+     *
+     * @return <code>false</code> as default.
+     * @see #configurationProperties()
+     * @see PropertySources
+     */
+    boolean configurationPropertiesImportPropertySources() default false;
 
     /**
      * The Spring Bean name of {@link ObjectWrapperFactory}
