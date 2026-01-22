@@ -20,6 +20,7 @@ package io.microsphere.mybatis.spring.annotation;
 import io.microsphere.constants.SymbolConstants;
 import io.microsphere.util.StringUtils;
 import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
@@ -116,10 +117,10 @@ public @interface EnableMyBatis {
      * The super class for filtering type alias. If this not specifies, the MyBatis deal as type alias all classes that
      * searched from {@link #typeAliasesPackage()}.
      *
-     * @return empty array as default
+     * @return {@link Object} as default
      * @see SqlSessionFactoryBean#setTypeAliasesSuperType(Class)
      */
-    Class<?> typeAliasesSuperType() default Void.class;
+    Class<?> typeAliasesSuperType() default Object.class;
 
     /**
      * Packages to search for type handlers. (Package delimiters are “,; \t\n”)
@@ -136,6 +137,14 @@ public @interface EnableMyBatis {
      * @see SqlSessionTemplate#SqlSessionTemplate(SqlSessionFactory, ExecutorType)
      */
     ExecutorType executorType() default SIMPLE;
+
+    /**
+     * The {@link VFS} class.
+     *
+     * @return {@link VFS} as the default, indicates no {@link VFS} specified.
+     * @see SqlSessionFactoryBean#setVfs(Class)
+     */
+    Class<? extends VFS> vfs() default VFS.class;
 
     /**
      * The default scripting language driver class. This feature requires to use together with mybatis-spring 2.0.2+.
