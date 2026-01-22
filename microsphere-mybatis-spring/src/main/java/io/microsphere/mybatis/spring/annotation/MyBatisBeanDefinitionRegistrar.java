@@ -51,7 +51,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static io.micrometer.common.util.StringUtils.isBlank;
 import static io.microsphere.collection.CollectionUtils.first;
 import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.EQUAL;
@@ -64,6 +63,7 @@ import static io.microsphere.spring.core.env.PropertySourcesUtils.getPropertyNam
 import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.ExceptionUtils.create;
+import static io.microsphere.util.StringUtils.isBlank;
 import static io.microsphere.util.StringUtils.split;
 import static io.microsphere.util.StringUtils.trimAllWhitespace;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
