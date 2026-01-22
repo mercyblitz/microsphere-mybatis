@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * Abstract Test for Mybatis Mapper
@@ -57,6 +58,9 @@ public abstract class AbstractMapperTest extends AbstractExecutorTest {
         // Test getUserByName
         foundUser = userMapper.getUserByName(user.getName());
         assertEquals(foundUser, user);
+
+        assertNotEquals(foundUser, createUser());
+        assertNotEquals(foundUser, userMapper);
     }
 
     public static void assertChildMapper(ChildMapper childMapper) {
