@@ -19,6 +19,7 @@ package io.microsphere.mybatis.plugin;
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.executor.TestExecutorFilter;
+import io.microsphere.mybatis.executor.ThrowingErrorExecutorInterceptor;
 import io.microsphere.mybatis.test.AbstractMapperTest;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -148,7 +149,7 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
     protected void customize(Configuration configuration) {
         configuration.addInterceptor(createInterceptingExecutorInterceptor());
         configuration.addInterceptor(new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter())));
-        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(), new LogggingExecutorInterceptor()));
+        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(), new ThrowingErrorExecutorInterceptor()));
     }
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
