@@ -155,17 +155,19 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
     protected void customize(Configuration configuration) {
         configuration.addInterceptor(createInterceptingExecutorInterceptor());
         configuration.addInterceptor(new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter())));
-        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(), new ThrowingErrorExecutorInterceptor(),
-                new NoOpExecutorInterceptor()));
-    }
 
-    private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(
-                of(new LoggingExecutorFilter(), new TestExecutorFilter()),
-                new LogggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(), new ThrowingErrorExecutorInterceptor());
         Properties properties = new Properties();
         properties.setProperty(TEST_PROPERTY_KEY, this.getClass().getName());
         interceptor.setProperties(properties);
+
+        configuration.addInterceptor(interceptor);
+        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(), new NoOpExecutorInterceptor()));
+    }
+
+    private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new TestExecutorFilter()),
+                new LogggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
         return interceptor;
     }
 }
