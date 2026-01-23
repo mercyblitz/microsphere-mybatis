@@ -77,17 +77,13 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
-        if (logger.isWarnEnabled()) {
-            logger.warn("The intercept method should not be invoked : {}", invocation);
-        }
+        logger.warn("The intercept method should not be invoked : {}", invocation);
         return invocation.proceed();
     }
 
     @Override
     public Object plugin(Object target) {
-        if (executorFiltersCount > 0
-                && target instanceof Executor
-                && !(target instanceof InterceptingExecutor)) {
+        if (target instanceof Executor && !(target instanceof InterceptingExecutor)) {
             Executor executor = ((Executor) target);
 
             final InterceptingExecutor interceptingExecutor;
@@ -101,9 +97,7 @@ public class InterceptingExecutorInterceptor implements Interceptor {
                 return interceptingExecutor;
             }
         }
-        if (logger.isTraceEnabled()) {
-            logger.trace("The non-executor [{}] instance simply returns without any dynamic proxy interception", target.getClass());
-        }
+        logger.trace("The non-executor [{}] instance simply returns without any dynamic proxy interception", target);
         return target;
     }
 
@@ -111,17 +105,13 @@ public class InterceptingExecutorInterceptor implements Interceptor {
         Field field = findField(cachingExecutor, "delegate");
         field.setAccessible(true);
         Executor delegate = (Executor) execute(() -> field.get(cachingExecutor));
-        if (logger.isTraceEnabled()) {
-            logger.trace("The delegate of {} is : {}", cachingExecutor, delegate);
-        }
+        logger.trace("The delegate of {} is : {}", cachingExecutor, delegate);
         return delegate;
     }
 
     @Override
     public void setProperties(Properties properties) {
         this.properties = properties;
-        if (logger.isTraceEnabled()) {
-            logger.trace("setProperties : {}", properties);
-        }
+        logger.trace("setProperties : {}", properties);
     }
 }

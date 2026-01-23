@@ -24,6 +24,7 @@ import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 import org.junit.jupiter.api.Test;
@@ -31,9 +32,13 @@ import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.util.Properties;
 
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.of;
+import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.Collections.emptyList;
 import static org.apache.ibatis.session.RowBounds.DEFAULT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link InterceptingExecutorInterceptor} Test
@@ -45,6 +50,11 @@ import static org.apache.ibatis.session.RowBounds.DEFAULT;
 public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
 
     public static final String TEST_PROPERTY_KEY = "test.class";
+
+    @Test
+    public void testInValidConstructorArgs() {
+        assertThrows(IllegalArgumentException.class, () -> new InterceptingExecutorInterceptor(ofArray()));
+    }
 
     @Test
     public void testOnFailed() throws Throwable {
@@ -125,9 +135,20 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
 
     }
 
+    @Test
+    void testIntercept() throws Throwable {
+        doInExecutor(executor -> {
+            Invocation invocation = new Invocation(executor, findMethod(Executor.class, "isClosed"), ofArray());
+            InterceptingExecutorInterceptor interceptor = createInterceptingExecutorInterceptor();
+            assertEquals(executor.isClosed(), interceptor.intercept(invocation));
+        });
+    }
+
     @Override
     protected void customize(Configuration configuration) {
         configuration.addInterceptor(createInterceptingExecutorInterceptor());
+        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter())));
+        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(), new LogggingExecutorInterceptor()));
     }
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
