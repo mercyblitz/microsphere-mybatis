@@ -60,9 +60,10 @@ import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.fin
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getPropertyNames;
+import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.ArrayUtils.length;
-import static io.microsphere.util.ExceptionUtils.create;
+import static io.microsphere.util.Assert.assertTrue;
 import static io.microsphere.util.StringUtils.isBlank;
 import static io.microsphere.util.StringUtils.split;
 import static io.microsphere.util.StringUtils.trimAllWhitespace;
@@ -182,9 +183,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
             String configLocation = attributes.getString("configLocation");
             ResourceLoader resourceLoader = getResourceLoader();
             Resource resource = resourceLoader.getResource(configLocation);
-            if (!resource.exists()) {
-                throw create(IllegalArgumentException.class, "The resource can't be found by the attribute 'configLocation' : '{}'", configLocation);
-            }
+            assertTrue(resource.exists(), () -> format("The resource can't be found by the attribute 'configLocation' : '{}'", configLocation));
         }
     }
 
@@ -205,10 +204,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         }
         for (String configurationProperty : configurationProperties) {
             String[] keyAndValue = split(configurationProperty, EQUAL);
-            int length = length(keyAndValue);
-            if (length != 2) {
-                throw create(IllegalArgumentException.class, "The configuration property is invalid, the content must contain key and value : '{}'", configurationProperty);
-            }
+            assertTrue(length(keyAndValue) == 2, () -> format("The configuration property is invalid, the content must contain key and value : '{}'", configurationProperty));
             String key = trimAllWhitespace(keyAndValue[0]);
             String value = trimAllWhitespace(keyAndValue[1]);
             properties.setProperty(key, value);

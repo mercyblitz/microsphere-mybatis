@@ -15,6 +15,10 @@
         SELECT id,name FROM users WHERE name = #{name}
     </select>
 
+    <select id="getErrorUserByName" resultType="User">
+        SELECT id,name FROM error_users WHERE name = #{name}
+    </select>
+
     <cache
             eviction="FIFO"
             flushInterval="60000"

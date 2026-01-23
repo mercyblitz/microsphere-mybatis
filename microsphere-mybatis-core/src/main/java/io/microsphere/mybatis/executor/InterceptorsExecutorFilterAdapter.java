@@ -38,6 +38,7 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertNoNullElements;
 import static io.microsphere.util.Assert.assertNotEmpty;
+import static io.microsphere.util.ClassUtils.getTypeName;
 import static java.util.Arrays.sort;
 
 /**
@@ -319,10 +320,8 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
             try {
                 executorInterceptorConsumer.accept(executorInterceptor);
             } catch (Throwable e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Failed to execute ExecutorInterceptor[ index : {} , class : {}]",
-                            i, executorInterceptor.getClass().getName(), e);
-                }
+                logger.warn("Failed to execute ExecutorInterceptor[index : {} , class : {}]", i,
+                        getTypeName(executorInterceptor), e);
             }
         }
     }

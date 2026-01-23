@@ -14,24 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.test.mapper;
 
-import io.microsphere.mybatis.test.entity.User;
+package io.microsphere.mybatis.executor;
+
+import io.microsphere.logging.Logger;
+import org.apache.ibatis.executor.CachingExecutor;
+import org.apache.ibatis.executor.Executor;
+
+import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.reflect.FieldUtils.getFieldValue;
 
 /**
- * MyBatis Mapper for {@link User}
+ * The utilities class for {@link Executor}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see User
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see Executor
+ * @see CachingExecutor
  * @since 1.0.0
  */
-public interface UserMapper {
+public abstract class Executors {
 
-    void saveUser(User user);
+    private static final Logger logger = getLogger(Executors.class);
 
-    User getUserById(int id);
+    public static Executor getDelegate(CachingExecutor cachingExecutor) {
+        Executor delegate = getFieldValue(cachingExecutor, "delegate");
+        logger.trace("The delegate of {} is : {}", cachingExecutor, delegate);
+        return delegate;
+    }
 
-    User getUserByName(String name);
-
-    User getErrorUserByName(String name);
+    private Executors() {
+    }
 }

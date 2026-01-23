@@ -14,24 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.test.mapper;
 
-import io.microsphere.mybatis.test.entity.User;
+package io.microsphere.mybatis.executor;
+
+
+import org.apache.ibatis.executor.Executor;
+import org.junit.jupiter.api.Test;
+
+import java.util.Properties;
+
+import static io.microsphere.mybatis.executor.ExecutorsTest.mockExecutor;
 
 /**
- * MyBatis Mapper for {@link User}
+ * {@link InterceptingExecutor} Test
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see User
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see InterceptingExecutor
  * @since 1.0.0
  */
-public interface UserMapper {
+class InterceptingExecutorTest {
 
-    void saveUser(User user);
-
-    User getUserById(int id);
-
-    User getUserByName(String name);
-
-    User getErrorUserByName(String name);
+    @Test
+    void testSetExecutorWrapper() {
+        Executor executor = mockExecutor();
+        InterceptingExecutor interceptingExecutor = new InterceptingExecutor(executor, new Properties());
+        interceptingExecutor.setExecutorWrapper(interceptingExecutor);
+    }
 }

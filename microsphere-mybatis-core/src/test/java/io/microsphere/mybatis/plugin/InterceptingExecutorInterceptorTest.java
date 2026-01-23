@@ -18,13 +18,30 @@ package io.microsphere.mybatis.plugin;
 
 import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
+import io.microsphere.mybatis.executor.NoOpExecutorInterceptor;
 import io.microsphere.mybatis.executor.TestExecutorFilter;
-import io.microsphere.mybatis.test.DefaultMapperTest;
+import io.microsphere.mybatis.executor.ThrowingErrorExecutorInterceptor;
+import io.microsphere.mybatis.test.AbstractMapperTest;
+import io.microsphere.mybatis.test.mapper.UserMapper;
+import org.apache.ibatis.cache.CacheKey;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.RowBounds;
+import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.util.Properties;
 
+import static io.microsphere.reflect.MethodUtils.findMethod;
 import static io.microsphere.util.ArrayUtils.of;
+import static io.microsphere.util.ArrayUtils.ofArray;
+import static java.util.Collections.emptyList;
+import static org.apache.ibatis.session.RowBounds.DEFAULT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * {@link InterceptingExecutorInterceptor} Test
@@ -33,22 +50,124 @@ import static io.microsphere.util.ArrayUtils.of;
  * @see InterceptingExecutorInterceptor
  * @since 1.0.0
  */
-public class InterceptingExecutorInterceptorTest extends DefaultMapperTest {
+public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
 
     public static final String TEST_PROPERTY_KEY = "test.class";
+
+    @Test
+    public void testInValidConstructorArgs() {
+        assertThrows(IllegalArgumentException.class, () -> new InterceptingExecutorInterceptor(ofArray()));
+    }
+
+    @Test
+    public void testOnFailed() throws Throwable {
+        // test Executor#update
+        doInExecutor(executor -> {
+
+            // test Executor#update
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_SAVE_USER);
+                executor.update(ms, null);
+            });
+
+            // test Executor#query
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER);
+            });
+
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                BoundSql boundSql = new BoundSql(getConfiguration(), MS_ID_USER_BY_ID, emptyList(), null);
+
+                CacheKey cacheKey = executor.createCacheKey(ms, null, new RowBounds(), boundSql);
+                executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
+            });
+
+            // test Executor#queryCursor
+            runSafely(() -> {
+                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                Connection connection = getConnection(executor);
+                connection.close();
+                executor.queryCursor(ms, null, DEFAULT);
+            });
+
+            // test Executor#createCacheKey
+            runSafely(() -> {
+                executor.createCacheKey(null, null, DEFAULT, null);
+            });
+
+            runSafely(() -> {
+                executor.close(false);
+                executor.createCacheKey(null, null, DEFAULT, null);
+            });
+
+        });
+
+        doInExecutor(executor -> {
+            // test Executor#getTransaction
+            runSafely(() -> {
+                executor.close(false);
+                getConnection(executor);
+            });
+        });
+
+        doInExecutor(executor -> {
+            // test Executor#commit
+            runSafely(() -> {
+                executor.close(false);
+                executor.commit(true);
+            });
+        });
+
+        doInExecutor(executor -> {
+            // test Executor#rollback
+            runSafely(() -> {
+                Connection connection = getConnection(executor);
+                connection.close();
+                executor.rollback(true);
+            });
+        });
+
+        doInSqlSession(sqlSession -> {
+            runSafely(() -> {
+                sqlSession.close();
+                deferLoadAfterResultHandler(sqlSession);
+            });
+        });
+
+        doInMapper(UserMapper.class, userMapper -> {
+            runSafely(() -> userMapper.getErrorUserByName("testing"));
+        });
+
+    }
+
+    @Test
+    void testIntercept() throws Throwable {
+        doInExecutor(executor -> {
+            Invocation invocation = new Invocation(executor, findMethod(Executor.class, "isClosed"), ofArray());
+            InterceptingExecutorInterceptor interceptor = createInterceptingExecutorInterceptor();
+            assertEquals(executor.isClosed(), interceptor.intercept(invocation));
+        });
+    }
 
     @Override
     protected void customize(Configuration configuration) {
         configuration.addInterceptor(createInterceptingExecutorInterceptor());
-    }
+        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(new LoggingExecutorFilter())));
 
-    private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(
-                of(new LoggingExecutorFilter(), new TestExecutorFilter()),
-                new LogggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(), new ThrowingErrorExecutorInterceptor());
         Properties properties = new Properties();
         properties.setProperty(TEST_PROPERTY_KEY, this.getClass().getName());
         interceptor.setProperties(properties);
+
+        configuration.addInterceptor(interceptor);
+        configuration.addInterceptor(new InterceptingExecutorInterceptor(of(), new NoOpExecutorInterceptor()));
+    }
+
+    private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
+        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new TestExecutorFilter()),
+                new LogggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
         return interceptor;
     }
 }
