@@ -51,8 +51,6 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     private final ExecutorFilter[] executorFilters;
 
-    private final int executorFiltersCount;
-
     private Properties properties;
 
     public InterceptingExecutorInterceptor(ExecutorFilter[] executorFilters, ExecutorInterceptor... executorInterceptors) {
@@ -66,10 +64,8 @@ public class InterceptingExecutorInterceptor implements Interceptor {
             System.arraycopy(executorFilters, 0, newExecutorFilters, 0, executorFiltersCount);
             newExecutorFilters[executorFiltersCount] = new InterceptorsExecutorFilterAdapter(executorInterceptors);
             this.executorFilters = newExecutorFilters;
-            this.executorFiltersCount = newExecutorFiltersCount;
         } else {
             this.executorFilters = executorFilters;
-            this.executorFiltersCount = executorFiltersCount;
         }
         // sort by its priority
         sort(this.executorFilters, PriorityComparator.INSTANCE);
