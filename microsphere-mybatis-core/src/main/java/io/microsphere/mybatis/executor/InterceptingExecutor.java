@@ -60,9 +60,7 @@ public class InterceptingExecutor implements Executor {
         this.delegate = delegate;
         this.properties = properties;
         this.executorFilters = executorFilters;
-        if (logger.isTraceEnabled()) {
-            logger.trace(this.toString());
-        }
+        logger.trace(this.toString());
     }
 
     @Override
