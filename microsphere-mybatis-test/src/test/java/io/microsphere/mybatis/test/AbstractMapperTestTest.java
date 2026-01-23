@@ -17,11 +17,11 @@
 package io.microsphere.mybatis.test;
 
 /**
- * {@link DefaultMapperTest} Test
+ * {@link AbstractMapperTest} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
- * @see DefaultMapperTest
+ * @see AbstractMapperTest
  * @since 1.0.0
  */
-class DefaultMyBatisTest extends DefaultMapperTest {
+class AbstractMapperTestTest extends AbstractMapperTest {
 }

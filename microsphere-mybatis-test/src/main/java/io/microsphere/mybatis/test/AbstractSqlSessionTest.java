@@ -87,7 +87,7 @@ public abstract class AbstractSqlSessionTest extends AbstractMyBatisTest {
 
     }
 
-    void deferLoadAfterResultHandler(SqlSession sqlSession) {
+    protected void deferLoadAfterResultHandler(SqlSession sqlSession) {
         class MyResultHandler implements ResultHandler {
             private final List<Child> children = new ArrayList<>();
 
