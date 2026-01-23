@@ -212,7 +212,7 @@ public abstract class AbstractMyBatisTest {
 
     public static User createUser() {
         Random random = new Random();
-        int id = random.nextInt(1, 99999);
+        int id = random.nextInt(99999);
         String name = "User - " + id;
         return new User(id, name);
     }
