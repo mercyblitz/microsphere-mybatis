@@ -29,11 +29,11 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.util.ArrayUtils.arrayToString;
 import static io.microsphere.util.Assert.assertNotNull;
 
 /**
@@ -60,9 +60,7 @@ public class InterceptingExecutor implements Executor {
         this.delegate = delegate;
         this.properties = properties;
         this.executorFilters = executorFilters;
-        if (logger.isTraceEnabled()) {
-            logger.trace(this.toString());
-        }
+        logger.trace(this.toString());
     }
 
     @Override
@@ -89,7 +87,6 @@ public class InterceptingExecutor implements Executor {
         ExecutorFilterChain chain = buildChain();
         return chain.queryCursor(ms, parameter, rowBounds);
     }
-
 
     @Override
     public List<BatchResult> flushStatements() throws SQLException {
@@ -160,12 +157,24 @@ public class InterceptingExecutor implements Executor {
         return new ExecutorFilterChain(this.delegate, this.properties, this.executorFilters);
     }
 
+    public Executor getDelegate() {
+        return delegate;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public ExecutorFilter[] getExecutorFilters() {
+        return executorFilters;
+    }
+
     @Override
     public String toString() {
         return "InterceptingExecutor{" +
                 "delegate=" + delegate +
                 ", properties=" + properties +
-                ", executorFilters=" + Arrays.toString(executorFilters) +
+                ", executorFilters=" + arrayToString(executorFilters) +
                 '}';
     }
 }

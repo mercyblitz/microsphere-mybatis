@@ -29,13 +29,13 @@ import org.apache.ibatis.plugin.Signature;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static io.microsphere.collection.ListUtils.ofList;
+import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.text.FormatUtils.format;
 import static java.lang.reflect.Proxy.getInvocationHandler;
 import static org.apache.ibatis.util.MapUtil.computeIfAbsent;
@@ -86,13 +86,12 @@ public abstract class Plugins {
      */
     public static Map<Class<?>, Set<Method>> getSignatureMap(Class<? extends Interceptor> interceptorClass) throws PluginException {
         Intercepts interceptsAnnotation = interceptorClass.getAnnotation(Intercepts.class);
-        // issue #251
         if (interceptsAnnotation == null) {
             throw newPluginException("No @Intercepts annotation was found in interceptorClass : {}", interceptorClass.getName());
         }
         Signature[] sigs = interceptsAnnotation.value();
         // @Intercepts usually specifies one or two targets, so HashMap can be optimized
-        Map<Class<?>, Set<Method>> signatureMap = new HashMap<>(TARGET_CLASSES_SIZE / 2, 1.0f);
+        Map<Class<?>, Set<Method>> signatureMap = newFixedHashMap(TARGET_CLASSES_SIZE / 2);
         for (Signature sig : sigs) {
             Class<?> targetType = sig.type();
             if (!TARGET_CLASSES.contains(targetType)) {
@@ -128,5 +127,8 @@ public abstract class Plugins {
 
     protected static PluginException newPluginException(String messagePattern, Object... args) {
         return new PluginException(format(messagePattern, args));
+    }
+
+    private Plugins() {
     }
 }
