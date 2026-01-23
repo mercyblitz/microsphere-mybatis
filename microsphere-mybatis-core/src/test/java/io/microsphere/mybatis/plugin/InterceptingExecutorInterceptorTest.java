@@ -21,6 +21,7 @@ import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.executor.TestExecutorFilter;
 import io.microsphere.mybatis.executor.ThrowingErrorExecutorInterceptor;
 import io.microsphere.mybatis.test.AbstractMapperTest;
+import io.microsphere.mybatis.test.mapper.UserMapper;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -132,6 +133,10 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
                 sqlSession.close();
                 deferLoadAfterResultHandler(sqlSession);
             });
+        });
+
+        doInMapper(UserMapper.class, userMapper -> {
+            runSafely(() -> userMapper.getErrorUserByName("testing"));
         });
 
     }
