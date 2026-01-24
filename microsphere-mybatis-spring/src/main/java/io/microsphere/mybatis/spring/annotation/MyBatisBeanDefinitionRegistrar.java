@@ -57,6 +57,7 @@ import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.EQUAL;
 import static io.microsphere.constants.SymbolConstants.WILDCARD;
 import static io.microsphere.logging.LoggerFactory.getLogger;
+import static io.microsphere.mybatis.spring.annotation.MyBatisConfigurationBeanDefintionRegistrar.CONFIGURATION_BEAN_NAME;
 import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.findBeanNames;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
@@ -183,7 +184,11 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         String configLocation = attributes.getString(attributeName);
         if (isBlank(configLocation)) {
             String targetBeanName = findTargetBeanName(Configuration.class);
-            setBeanReferencePropertyValue(builder, "configuration", targetBeanName);
+            if (isBlank(targetBeanName)) {
+                setBeanReferencePropertyValue(builder, "configuration", CONFIGURATION_BEAN_NAME);
+            } else {
+                setBeanReferencePropertyValue(builder, "configuration", targetBeanName);
+            }
         } else {
             setPropertyValue(builder, attributeName, configLocation);
         }
