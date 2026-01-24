@@ -23,11 +23,13 @@ import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.ibatis.scripting.LanguageDriver;
+import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.AutoMappingBehavior;
 import org.apache.ibatis.session.AutoMappingUnknownColumnBehavior;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.LocalCacheScope;
+import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.springframework.context.annotation.Import;
@@ -39,6 +41,7 @@ import java.lang.annotation.Target;
 import java.util.Properties;
 import java.util.Set;
 
+import static io.microsphere.util.StringUtils.EMPTY_STRING;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static org.apache.ibatis.mapping.ResultSetType.DEFAULT;
@@ -229,19 +232,19 @@ public @interface MyBatisConfiguration {
     /**
      * Specifies the language used by default for dynamic SQL generation.
      *
-     * @return the {@link Class} of {@link LanguageDriver} as default, indicates no speicifed class.
+     * @return the {@link Class} of {@link XMLLanguageDriver} as default, indicates no speicifed class.
      * @see Configuration#setDefaultScriptingLanguage(Class)
      */
-    Class<? extends LanguageDriver> defaultScriptingLanguage() default LanguageDriver.class;
+    Class<? extends LanguageDriver> defaultScriptingLanguage() default XMLLanguageDriver.class;
 
     /**
      * Specifies the TypeHandler used by default for Enum.
      *
-     * @return the {@link Class} of {@link TypeHandler} as default, indicates no speicifed class.
+     * @return the {@link Class} of {@link EnumTypeHandler} as default, indicates no speicifed class.
      * @see Configuration#setDefaultEnumTypeHandler(Class)
      * @since MyBatis 3.4.5
      */
-    Class<? extends TypeHandler> defaultEnumTypeHandler() default TypeHandler.class;
+    Class<? extends TypeHandler> defaultEnumTypeHandler() default EnumTypeHandler.class;
 
     /**
      * Specifies if setters or map's put method will be called when a retrieved value is null. It is useful when you
@@ -269,7 +272,7 @@ public @interface MyBatisConfiguration {
      * @return the empty string as default.
      * @see Configuration#setLogPrefix(String)
      */
-    String logPrefix() default "";
+    String logPrefix() default EMPTY_STRING;
 
     /**
      * Specifies which logging implementation MyBatis should use. If this setting is not present logging implementation
@@ -365,5 +368,5 @@ public @interface MyBatisConfiguration {
      * @return the empty string as default, indicates no database ID specified
      * @see Configuration#setDatabaseId(String)
      */
-    String databaseId() default "";
+    String databaseId() default EMPTY_STRING;
 }
