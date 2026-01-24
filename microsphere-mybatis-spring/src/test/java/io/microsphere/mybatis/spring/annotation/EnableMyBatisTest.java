@@ -79,6 +79,11 @@ class EnableMyBatisTest {
     }
 
     @Test
+    void testSpecifiedConfig() {
+        testInSpringContainer(this::assertTest, SpecifiedConfig.class);
+    }
+
+    @Test
     void testNotFoundConfig() {
         assertThrows(IllegalArgumentException.class, () -> {
             new AnnotationConfigApplicationContext(NotFoundConfig.class);
@@ -130,9 +135,14 @@ class EnableMyBatisTest {
         testInSpringContainer(this::assertTest, PluginsConfig.class);
     }
 
-    @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
+    @EnableMyBatis
     @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class DefaultConfig {
+    }
+
+    @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
+    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
+    static class SpecifiedConfig {
     }
 
     @EnableMyBatis(configLocation = "not-found.xml", checkConfigLocation = true)
