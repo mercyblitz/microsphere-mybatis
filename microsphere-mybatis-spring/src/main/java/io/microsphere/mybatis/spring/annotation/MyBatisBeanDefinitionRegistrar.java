@@ -151,13 +151,13 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         // Set the attribute "typeAliasesPackage"
         setPackagePropertyValue(builder, attributes, "typeAliasesPackage");
         // Set the attribute "typeAliasesSuperType"
-        setClassPropertyValue(builder, attributes, "typeAliasesSuperType", Object.class);
+        setPropertyValue(builder, attributes, "typeAliasesSuperType", Object.class);
         // Set the attribute "typeHandlersPackage"
         setPackagePropertyValue(builder, attributes, "typeHandlersPackage");
         // Set the attribute "vfs"
-        setClassPropertyValue(builder, attributes, "vfs", VFS.class);
+        setPropertyValue(builder, attributes, "vfs", VFS.class);
         // Set the attribute "defaultScriptingLanguageDriver"
-        setClassPropertyValue(builder, attributes, "defaultScriptingLanguageDriver", LanguageDriver.class);
+        setPropertyValue(builder, attributes, "defaultScriptingLanguageDriver", LanguageDriver.class);
         // Set the attribute "configurationProperties"
         Properties configurationProperties = resolveConfigurationProperties(attributes);
         setPropertyValue(builder, "configurationProperties", configurationProperties);
@@ -214,24 +214,20 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
                 }
             }
         }
-        for (String configurationProperty : configurationProperties) {
-            String[] keyAndValue = split(configurationProperty, EQUAL);
-            assertTrue(length(keyAndValue) == 2, () -> format("The configuration property is invalid, the content must contain key and value : '{}'", configurationProperty));
+        properties.putAll(stringArrayToProperties(configurationProperties));
+        return properties;
+    }
+
+    static Properties stringArrayToProperties(String[] lines) {
+        Properties properties = new Properties();
+        for (String line : lines) {
+            String[] keyAndValue = split(line, EQUAL);
+            assertTrue(length(keyAndValue) == 2, () -> format("The configuration property is invalid, the content must contain key and value : '{}'", line));
             String key = trimAllWhitespace(keyAndValue[0]);
             String value = trimAllWhitespace(keyAndValue[1]);
             properties.setProperty(key, value);
         }
         return properties;
-    }
-
-    void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
-        Object attributeValue = attributes.get(attributeName);
-        setPropertyValue(builder, attributeName, attributeValue);
-    }
-
-    void setPropertyValue(BeanDefinitionBuilder builder, String attributeName, Object attributeValue) {
-        logger.trace("Set the BeanDefinition[{}] property[name : '{}'  , value : '{}']", builder.getRawBeanDefinition(), attributeName, attributeValue);
-        builder.addPropertyValue(attributeName, attributeValue);
     }
 
     void setPackagePropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
@@ -255,16 +251,6 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         } else {
             setPropertyValue(builder, attributeName, packageName);
         }
-    }
-
-    void setClassPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> defaultType) {
-        Class<?> type = attributes.getClass(attributeName);
-        logger.trace("Try to set the Class[{}] property value by the attribute[name : '{}']", type, attributeName);
-        if (Objects.equals(defaultType, type)) {
-            logger.trace("Default Class[{}] property value will ignored the attribute[name : '{}']", defaultType, attributeName);
-            return;
-        }
-        setPropertyValue(builder, attributeName, type);
     }
 
     void setBeanReferencePropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Class<?> beanType) {
@@ -318,5 +304,24 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
             targetBeanName = first(beanNamesSet);
         }
         return targetBeanName;
+    }
+
+    static void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Object defaultValue) {
+        Object value = attributes.get(attributeName);
+        if (Objects.equals(defaultValue, value)) {
+            logger.trace("Default property value[{}] will ignored the attribute[name : '{}']", defaultValue, attributeName);
+            return;
+        }
+        setPropertyValue(builder, attributeName, value);
+    }
+
+    static void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
+        Object attributeValue = attributes.get(attributeName);
+        setPropertyValue(builder, attributeName, attributeValue);
+    }
+
+    static void setPropertyValue(BeanDefinitionBuilder builder, String attributeName, Object attributeValue) {
+        logger.trace("Set the BeanDefinition[{}] property[name : '{}'  , value : '{}']", builder.getRawBeanDefinition(), attributeName, attributeValue);
+        builder.addPropertyValue(attributeName, attributeValue);
     }
 }
