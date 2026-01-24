@@ -182,7 +182,6 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(
-            configLocation = EMPTY_CONFIG_RESOURCE_NAME,
             mapperLocations = {
                     "${user-mapper-resource}",
                     "${child-mapper-resource}",
@@ -193,8 +192,9 @@ class EnableMyBatisTest {
             typeHandlersPackage = "${not-found:}",
             executorType = REUSE
     )
+    @MyBatisConfiguration
     @PropertySource(value = "classpath:META-INF/mybatis/mybatis.properties")
-    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
+    @Import(value = {HardCodeDataSourceConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class MapperConfig2 {
     }
 
