@@ -26,6 +26,7 @@ import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.scripting.LanguageDriver;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeHandler;
@@ -144,7 +145,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         // References the DataSource Bean
         setBeanReferencePropertyValue(builder, attributes, "dataSource", DataSource.class);
         // Set the attribute "configLocation"
-        setPropertyValue(builder, attributes, "configLocation");
+        setConfiguration(builder, attributes);
         // Set the attribute "mapperLocations"
         setPropertyValue(builder, attributes, "mapperLocations");
         // Set the attribute "typeAliasesPackage"
@@ -175,6 +176,17 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         setBeanReferencePropertyValues(builder, attributes, "scriptingLanguageDrivers", LanguageDriver.class);
 
         return builder.getBeanDefinition();
+    }
+
+    void setConfiguration(BeanDefinitionBuilder builder, AnnotationAttributes attributes) {
+        String attributeName = "configLocation";
+        String configLocation = attributes.getString(attributeName);
+        if (isBlank(configLocation)) {
+            String targetBeanName = findTargetBeanName(Configuration.class);
+            setBeanReferencePropertyValue(builder, "configuration", targetBeanName);
+        } else {
+            setPropertyValue(builder, attributeName, configLocation);
+        }
     }
 
     void checkConfigLocation(AnnotationAttributes attributes) {
@@ -280,22 +292,31 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         if (isBlank(beanName)) {
             logger.trace("No Spring Bean[{}] was speicified by the attribute[name : '{}']", beanType, attributeName);
         } else if (WILDCARD.equals(beanName)) {
-            ConfigurableListableBeanFactory beanFactory = this.getBeanFactory();
-            String[] beanNames = beanFactory.getBeanNamesForType(beanType, true, false);
-            int length = length(beanNames);
-            final String targetBeanName;
-            if (length == 0) {
-                targetBeanName = null;
-            } else if (length == 1) {
-                targetBeanName = beanNames[0];
-            } else {
-                // Find the name of primary bean
-                Set<String> beanNamesSet = findBeanNames(beanFactory, bf -> bf.isPrimary());
-                targetBeanName = first(beanNamesSet);
-            }
+            String targetBeanName = findTargetBeanName(beanType);
             setBeanReferencePropertyValue(builder, attributeName, targetBeanName, beanType);
         } else {
-            builder.addPropertyValue(attributeName, new RuntimeBeanReference(beanName));
+            setBeanReferencePropertyValue(builder, attributeName, beanName);
         }
+    }
+
+    void setBeanReferencePropertyValue(BeanDefinitionBuilder builder, String attributeName, String beanName) {
+        setPropertyValue(builder, attributeName, new RuntimeBeanReference(beanName));
+    }
+
+    String findTargetBeanName(Class<?> beanType) {
+        ConfigurableListableBeanFactory beanFactory = this.getBeanFactory();
+        String[] beanNames = beanFactory.getBeanNamesForType(beanType, true, false);
+        int length = length(beanNames);
+        final String targetBeanName;
+        if (length == 0) {
+            targetBeanName = null;
+        } else if (length == 1) {
+            targetBeanName = beanNames[0];
+        } else {
+            // Find the name of primary bean
+            Set<String> beanNamesSet = findBeanNames(beanFactory, bf -> bf.isPrimary());
+            targetBeanName = first(beanNamesSet);
+        }
+        return targetBeanName;
     }
 }
