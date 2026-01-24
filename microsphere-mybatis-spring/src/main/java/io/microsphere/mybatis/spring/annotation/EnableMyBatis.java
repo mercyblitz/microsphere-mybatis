@@ -86,10 +86,12 @@ public @interface EnableMyBatis {
      * Location of MyBatis xml config file, for example,
      * {@code "classpath:/com/acme/config.xml"}
      *
-     * @return non-null. (the placeholders in the value will be resolved)
+     * @return the empty string as default.If the value is blank, it indicates primary bean of {@link Configuration}
+     * will be applied. (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setConfigLocation(Resource)
+     * @see SqlSessionFactoryBean#setConfiguration(Configuration)
      */
-    String configLocation();
+    String configLocation() default EMPTY_STRING;
 
     /**
      * Indicates whether perform presence check of the MyBatis xml config file.
