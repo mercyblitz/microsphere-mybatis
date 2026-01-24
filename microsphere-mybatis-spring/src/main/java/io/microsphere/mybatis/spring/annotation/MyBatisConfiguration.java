@@ -30,6 +30,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
+import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
@@ -61,6 +62,7 @@ import static org.apache.ibatis.type.JdbcType.OTHER;
 @Target(TYPE)
 @Documented
 @Inherited
+@Import(MyBatisConfigurationBeanDefintionRegistrar.class)
 public @interface MyBatisConfiguration {
 
     /**
