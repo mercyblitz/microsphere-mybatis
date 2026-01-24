@@ -17,19 +17,29 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.executor.loader.CglibProxyFactory;
 import org.apache.ibatis.io.DefaultVFS;
+import org.apache.ibatis.io.VFS;
+import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
+import org.apache.ibatis.mapping.ResultSetType;
+import org.apache.ibatis.scripting.LanguageDriverRegistry;
+import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.EnumTypeHandler;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
 import static io.microsphere.collection.Sets.ofSet;
+import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.stringArrayToProperties;
 import static io.microsphere.mybatis.spring.annotation.MyBatisConfigurationBeanDefintionRegistrar.CONFIGURATION_BEAN_NAME;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
+import static io.microsphere.util.StringUtils.EMPTY_STRING;
+import static org.apache.ibatis.mapping.ResultSetType.DEFAULT;
+import static org.apache.ibatis.mapping.ResultSetType.FORWARD_ONLY;
 import static org.apache.ibatis.session.AutoMappingBehavior.NONE;
 import static org.apache.ibatis.session.AutoMappingUnknownColumnBehavior.WARNING;
 import static org.apache.ibatis.session.ExecutorType.REUSE;
@@ -54,6 +64,8 @@ public class MyBatisConfigurationTest {
         testInSpringContainer(context -> {
             Configuration configuration = context.getBean(CONFIGURATION_BEAN_NAME, Configuration.class);
             assertNotNull(configuration);
+            MyBatisConfiguration annotation = DefaultConfig.class.getAnnotation(MyBatisConfiguration.class);
+            assertConfiguration(annotation, configuration);
         }, DefaultConfig.class);
     }
 
@@ -62,18 +74,17 @@ public class MyBatisConfigurationTest {
         testInSpringContainer(context -> {
             Configuration configuration = context.getBean(CONFIGURATION_BEAN_NAME, Configuration.class);
             assertNotNull(configuration);
+            MyBatisConfiguration annotation = FullConfig.class.getAnnotation(MyBatisConfiguration.class);
+            assertConfiguration(annotation, configuration);
         }, FullConfig.class);
     }
 
-    @Test
-    void testDefaultAttributes() {
-        MyBatisConfiguration annotation = MyBatisConfigurationTest.class.getAnnotation(MyBatisConfiguration.class);
-        Configuration configuration = new Configuration();
-
+    void assertConfiguration(MyBatisConfiguration annotation, Configuration configuration) {
         assertEquals(annotation.cacheEnabled(), configuration.isCacheEnabled());
         assertEquals(annotation.lazyLoadingEnabled(), configuration.isLazyLoadingEnabled());
         assertEquals(annotation.aggressiveLazyLoading(), configuration.isAggressiveLazyLoading());
-        assertEquals(annotation.multipleResultSetsEnabled(), configuration.isMultipleResultSetsEnabled());
+        // always true
+        assertEquals(true, configuration.isMultipleResultSetsEnabled());
         assertEquals(annotation.useColumnLabel(), configuration.isUseColumnLabel());
         assertEquals(annotation.useGeneratedKeys(), configuration.isUseGeneratedKeys());
         assertEquals(annotation.autoMappingBehavior(), configuration.getAutoMappingBehavior());
@@ -81,37 +92,81 @@ public class MyBatisConfigurationTest {
         assertEquals(annotation.defaultExecutorType(), configuration.getDefaultExecutorType());
         assertInt(annotation::defaultStatementTimeout, configuration::getDefaultStatementTimeout);
         assertInt(annotation::defaultFetchSize, configuration::getDefaultFetchSize);
-        // assertEquals(annotation.defaultResultSetType(), configuration.getDefaultResultSetType());
+
+        ResultSetType resultSetType = annotation.defaultResultSetType();
+        if (DEFAULT.equals(resultSetType)) {
+            assertNull(configuration.getDefaultResultSetType());
+        } else {
+            assertEquals(annotation.defaultResultSetType(), configuration.getDefaultResultSetType());
+        }
         assertEquals(annotation.safeRowBoundsEnabled(), configuration.isSafeRowBoundsEnabled());
         assertEquals(annotation.safeResultHandlerEnabled(), configuration.isSafeResultHandlerEnabled());
         assertEquals(annotation.mapUnderscoreToCamelCase(), configuration.isMapUnderscoreToCamelCase());
         assertEquals(annotation.localCacheScope(), configuration.getLocalCacheScope());
         assertEquals(annotation.jdbcTypeForNull(), configuration.getJdbcTypeForNull());
         assertEquals(ofSet(annotation.lazyLoadTriggerMethods()), configuration.getLazyLoadTriggerMethods());
-        // assertEquals(annotation.defaultScriptingLanguage(), configuration.getDefaultScriptingLanguageInstance());
-        // assertEquals(annotation.defaultEnumTypeHandler(), configuration.getEnvironment());
+
+        LanguageDriverRegistry languageRegistry = configuration.getLanguageRegistry();
+        assertEquals(annotation.defaultScriptingLanguage(), languageRegistry.getDefaultDriverClass());
+
+        TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+        assertEquals(annotation.defaultEnumTypeHandler(), typeHandlerRegistry.getTypeHandler(Enum.class).getClass());
         assertEquals(annotation.callSettersOnNulls(), configuration.isCallSettersOnNulls());
         assertEquals(annotation.returnInstanceForEmptyRow(), configuration.isReturnInstanceForEmptyRow());
-        // null
-        // assertEquals(annotation.logPrefix(), configuration.getLogPrefix());
-        // null
-        // assertEquals(annotation.logImpl(), configuration.getLogImpl());
+
+        String logPrefix = annotation.logPrefix();
+        if (EMPTY_STRING.equals(logPrefix)) {
+            assertNull(configuration.getLogPrefix());
+        } else {
+            assertEquals(logPrefix, configuration.getLogPrefix());
+        }
+
+        Class<? extends Log> logImpl = annotation.logImpl();
+        if (Log.class.equals(logImpl)) {
+            assertNull(configuration.getLogImpl());
+        } else {
+            assertEquals(annotation.logImpl(), configuration.getLogImpl());
+        }
+
         assertEquals(annotation.proxyFactory(), configuration.getProxyFactory().getClass());
-        // null
-        // assertEquals(annotation.vfsImpl(), configuration.getVfsImpl());
+
+        Class<? extends VFS> vfsImpl = annotation.vfsImpl();
+        if (VFS.class.equals(vfsImpl)) {
+            assertNull(configuration.getVfsImpl());
+        } else {
+            assertEquals(annotation.vfsImpl(), configuration.getVfsImpl());
+        }
+
         assertEquals(annotation.useActualParamName(), configuration.isUseActualParamName());
-        // null
-        // assertEquals(annotation.configurationFactory(), configuration.getConfigurationFactory());
+
+        Class<?> configurationFactory = annotation.configurationFactory();
+        if (Object.class.equals(configurationFactory)) {
+            assertNull(configuration.getConfigurationFactory());
+        } else {
+            assertEquals(configurationFactory, configuration.getConfigurationFactory());
+        }
+
         assertEquals(annotation.shrinkWhitespacesInSql(), configuration.isShrinkWhitespacesInSql());
-        // null
-        // assertEquals(annotation.defaultSqlProviderType(), configuration.getDefaultSqlProviderType());
+
+        Class<?> defaultSqlProviderType = annotation.defaultSqlProviderType();
+        if (Object.class.equals(defaultSqlProviderType)) {
+            assertNull(configuration.getDefaultSqlProviderType());
+        } else {
+            assertEquals(defaultSqlProviderType, configuration.getDefaultSqlProviderType());
+        }
+
         assertEquals(annotation.nullableOnForEach(), configuration.isNullableOnForEach());
         assertEquals(annotation.argNameBasedConstructorAutoMapping(), configuration.isArgNameBasedConstructorAutoMapping());
-        // null
-        // assertEquals(annotation.variables(), configuration.getParameterMapNames());
-        // null
-        // assertEquals(annotation.databaseId(), configuration.getDatabaseId());
 
+        String[] variables = annotation.variables();
+        assertEquals(stringArrayToProperties(variables), configuration.getVariables());
+
+        String databaseId = annotation.databaseId();
+        if (EMPTY_STRING.equals(databaseId)) {
+            assertNull(configuration.getDatabaseId());
+        } else {
+            assertEquals(databaseId, configuration.getDatabaseId());
+        }
     }
 
     void assertInt(Supplier<? extends Number> expected, Supplier<? extends Number> actual) {
@@ -141,14 +196,15 @@ public class MyBatisConfigurationTest {
             defaultExecutorType = REUSE,
             defaultStatementTimeout = 10,
             defaultFetchSize = 1,
+            defaultResultSetType = FORWARD_ONLY,
             safeRowBoundsEnabled = true,
             safeResultHandlerEnabled = false,
             mapUnderscoreToCamelCase = true,
             localCacheScope = STATEMENT,
             jdbcTypeForNull = UNDEFINED,
             lazyLoadTriggerMethods = "equals",
-            defaultScriptingLanguage = XMLLanguageDriver.class,
-            defaultEnumTypeHandler = EnumTypeHandler.class,
+            defaultScriptingLanguage = RawLanguageDriver.class,
+            defaultEnumTypeHandler = EnumTypeHandlerExt.class,
             callSettersOnNulls = true,
             returnInstanceForEmptyRow = true,
             logPrefix = "test-",
@@ -156,9 +212,9 @@ public class MyBatisConfigurationTest {
             proxyFactory = CglibProxyFactory.class,
             vfsImpl = DefaultVFS.class,
             useActualParamName = false,
-            configurationFactory = Object.class,
+            configurationFactory = FullConfig.class,
             shrinkWhitespacesInSql = true,
-            defaultSqlProviderType = Object.class,
+            defaultSqlProviderType = SelectProvider.class,
             nullableOnForEach = true,
             argNameBasedConstructorAutoMapping = true,
             variables = {
@@ -168,5 +224,15 @@ public class MyBatisConfigurationTest {
     )
     static class FullConfig {
 
+        public static Configuration getConfiguration() {
+            return new Configuration();
+        }
+    }
+
+    public static class EnumTypeHandlerExt<E extends Enum<E>> extends EnumTypeHandler<E> {
+
+        public EnumTypeHandlerExt(Class<E> type) {
+            super(type);
+        }
     }
 }
