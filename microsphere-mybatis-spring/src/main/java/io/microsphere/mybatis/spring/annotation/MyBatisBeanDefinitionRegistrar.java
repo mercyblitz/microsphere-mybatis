@@ -18,6 +18,9 @@
 package io.microsphere.mybatis.spring.annotation;
 
 import io.microsphere.logging.Logger;
+import io.microsphere.mybatis.executor.ExecutorFilter;
+import io.microsphere.mybatis.executor.ExecutorInterceptor;
+import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
 import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import org.apache.ibatis.cache.Cache;
@@ -49,21 +52,21 @@ import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Stream;
 
-import static io.microsphere.collection.CollectionUtils.first;
 import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.EQUAL;
 import static io.microsphere.constants.SymbolConstants.WILDCARD;
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.mybatis.spring.annotation.MyBatisConfigurationBeanDefintionRegistrar.CONFIGURATION_BEAN_NAME;
-import static io.microsphere.spring.beans.factory.config.BeanDefinitionUtils.findBeanNames;
+import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes.of;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getPropertyNames;
 import static io.microsphere.text.FormatUtils.format;
 import static io.microsphere.util.ArrayUtils.arrayToString;
+import static io.microsphere.util.ArrayUtils.forEach;
 import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertTrue;
 import static io.microsphere.util.StringUtils.isBlank;
@@ -98,12 +101,20 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
      */
     public static final String SQL_SESSION_TEMPLATE_BEAN_NAME = "sqlSessionTemplate";
 
+    /**
+     * The Spring Bean name of {@link InterceptingExecutorInterceptor}
+     */
+    public static final String INTERCEPTING_EXECUTOR_INTERCEPTOR_BEAN_NAME = "interceptingExecutorInterceptor";
+
     private static final Logger logger = getLogger(ANNOTATION_CLASS_NAME);
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
         Map<String, Object> annotationAttributes = metadata.getAnnotationAttributes(ANNOTATION_CLASS_NAME);
         ResolvablePlaceholderAnnotationAttributes attributes = of(annotationAttributes, ANNOTATION_CLASS, getEnvironment());
+        // Register the BeanDefintion of InterceptingExecutorInterceptor if required
+        registerInterceptingExecutorInterceptorIfRequired(attributes, registry);
+
         // Register the BeanDefinition of SqlSessionFactoryBean if absent
         registerSqlSessionFactoryBeanIfAbsent(attributes, registry);
 
@@ -135,6 +146,38 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         builder.addConstructorArgValue(executorType);
         BeanDefinition beanDefinition = builder.getBeanDefinition();
         registerBeanDefinition(registry, SQL_SESSION_TEMPLATE_BEAN_NAME, beanDefinition);
+    }
+
+    /**
+     * Register the {@link BeanDefinition} of {@link SqlSessionFactoryBean} if Any {@link ExecutorFilter}  or
+     * {@link ExecutorInterceptor} bean is present.
+     *
+     * @param attributes {@link AnnotationAttributes}
+     * @param registry   {@link BeanDefinitionRegistry}
+     * @see ExecutorFilter
+     * @see ExecutorInterceptor
+     * @see InterceptingExecutorInterceptor
+     */
+    private void registerInterceptingExecutorInterceptorIfRequired(ResolvablePlaceholderAnnotationAttributes attributes,
+                                                                   BeanDefinitionRegistry registry) {
+        if (attributes.getBoolean("interceptExecutor")) {
+            String[] executorFilterBeanNames = getBeanNamesByType(ExecutorFilter.class);
+            String[] executorInterceptorBeanNames = getBeanNamesByType(ExecutorInterceptor.class);
+            int executorFilterBeanCount = length(executorFilterBeanNames);
+            int executorInterceptorBeanCount = length(executorInterceptorBeanNames);
+            logger.trace("Found {} ExecutorFilter and {} ExecutorInterceptor BeanDefinition(s)",
+                    executorFilterBeanCount, executorInterceptorBeanCount);
+            if (executorFilterBeanCount == 0 && executorInterceptorBeanCount == 0) {
+                logger.trace("No bean of ExecutorFilter or ExecutorInterceptor was found.");
+                return;
+            }
+            BeanDefinitionBuilder builder = genericBeanDefinition(InterceptingExecutorInterceptor.class);
+            forEach(executorFilterBeanNames, builder::addDependsOn);
+            forEach(executorInterceptorBeanNames, builder::addDependsOn);
+
+            BeanDefinition beanDefinition = builder.getBeanDefinition();
+            registerBeanDefinition(registry, INTERCEPTING_EXECUTOR_INTERCEPTOR_BEAN_NAME, beanDefinition);
+        }
     }
 
     BeanDefinition buildSqlSessionFactoryBeanDefinition(AnnotationAttributes attributes) {
@@ -295,8 +338,7 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
     }
 
     String findTargetBeanName(Class<?> beanType) {
-        ConfigurableListableBeanFactory beanFactory = this.getBeanFactory();
-        String[] beanNames = beanFactory.getBeanNamesForType(beanType, true, false);
+        String[] beanNames = getBeanNamesByType(beanType);
         int length = length(beanNames);
         final String targetBeanName;
         if (length == 0) {
@@ -304,11 +346,21 @@ class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implemen
         } else if (length == 1) {
             targetBeanName = beanNames[0];
         } else {
+            ConfigurableListableBeanFactory beanFactory = super.getBeanFactory();
             // Find the name of primary bean
-            Set<String> beanNamesSet = findBeanNames(beanFactory, bf -> bf.isPrimary());
-            targetBeanName = first(beanNamesSet);
+            targetBeanName = Stream.of(beanNames).filter(beanName -> {
+                        BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+                        return beanDefinition.isPrimary();
+                    })
+                    .findFirst()
+                    .orElse(null);
         }
         return targetBeanName;
+    }
+
+    String[] getBeanNamesByType(Class<?> beanType) {
+        ConfigurableListableBeanFactory beanFactory = super.getBeanFactory();
+        return getBeanNames(beanFactory, beanType, true);
     }
 
     static void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Object defaultValue) {
