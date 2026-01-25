@@ -84,7 +84,7 @@ public class MyBatisConfigurationTest {
         assertEquals(annotation.lazyLoadingEnabled(), configuration.isLazyLoadingEnabled());
         assertEquals(annotation.aggressiveLazyLoading(), configuration.isAggressiveLazyLoading());
         // always true
-        assertEquals(true, configuration.isMultipleResultSetsEnabled());
+        assertEquals(annotation.multipleResultSetsEnabled(), configuration.isMultipleResultSetsEnabled());
         assertEquals(annotation.useColumnLabel(), configuration.isUseColumnLabel());
         assertEquals(annotation.useGeneratedKeys(), configuration.isUseGeneratedKeys());
         assertEquals(annotation.autoMappingBehavior(), configuration.getAutoMappingBehavior());
