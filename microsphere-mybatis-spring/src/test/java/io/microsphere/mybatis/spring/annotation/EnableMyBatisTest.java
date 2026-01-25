@@ -17,6 +17,7 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
+import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataBaseTestConfiguration;
@@ -79,6 +80,11 @@ class EnableMyBatisTest {
     }
 
     @Test
+    void testSpecifiedConfig() {
+        testInSpringContainer(this::assertTest, SpecifiedConfig.class);
+    }
+
+    @Test
     void testNotFoundConfig() {
         assertThrows(IllegalArgumentException.class, () -> {
             new AnnotationConfigApplicationContext(NotFoundConfig.class);
@@ -130,9 +136,22 @@ class EnableMyBatisTest {
         testInSpringContainer(this::assertTest, PluginsConfig.class);
     }
 
-    @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
-    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
+    @EnableMyBatis
+    @Import(value = {
+            MyBatisDataSourceTestConfiguration.class,
+            MyBatisDataBaseTestConfiguration.class,
+            LoggingExecutorFilter.class
+    })
     static class DefaultConfig {
+    }
+
+    @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
+    @Import(value = {
+            MyBatisDataSourceTestConfiguration.class,
+            MyBatisDataBaseTestConfiguration.class,
+            LogggingExecutorInterceptor.class
+    })
+    static class SpecifiedConfig {
     }
 
     @EnableMyBatis(configLocation = "not-found.xml", checkConfigLocation = true)
@@ -165,14 +184,14 @@ class EnableMyBatisTest {
             typeHandlersPackage = {
                     "",
                     " "
-            }
+            },
+            interceptExecutor = false
     )
     @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class MapperConfig {
     }
 
     @EnableMyBatis(
-            configLocation = EMPTY_CONFIG_RESOURCE_NAME,
             mapperLocations = {
                     "${user-mapper-resource}",
                     "${child-mapper-resource}",
@@ -183,8 +202,9 @@ class EnableMyBatisTest {
             typeHandlersPackage = "${not-found:}",
             executorType = REUSE
     )
+    @MyBatisConfiguration
     @PropertySource(value = "classpath:META-INF/mybatis/mybatis.properties")
-    @Import(value = {MyBatisDataSourceTestConfiguration.class, MyBatisDataBaseTestConfiguration.class})
+    @Import(value = {HardCodeDataSourceConfiguration.class, MyBatisDataBaseTestConfiguration.class})
     static class MapperConfig2 {
     }
 
