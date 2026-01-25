@@ -46,7 +46,7 @@ import static org.springframework.beans.factory.support.BeanDefinitionBuilder.ge
  * @see Configuration
  * @since 1.0.0
  */
-public class MyBatisConfigurationBeanDefintionRegistrar extends BeanCapableImportCandidate implements ImportBeanDefinitionRegistrar {
+class MyBatisConfigurationBeanDefintionRegistrar extends BeanCapableImportCandidate implements ImportBeanDefinitionRegistrar {
 
     static final Class<MyBatisConfiguration> ANNOTATION_CLASS = MyBatisConfiguration.class;
 
