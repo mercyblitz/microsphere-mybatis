@@ -18,11 +18,17 @@
 package io.microsphere.mybatis.spring.annotation;
 
 import io.microsphere.constants.SymbolConstants;
+import io.microsphere.mybatis.executor.ExecutorFilter;
+import io.microsphere.mybatis.executor.ExecutorInterceptor;
+import io.microsphere.mybatis.executor.InterceptingExecutor;
+import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
 import io.microsphere.util.StringUtils;
 import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
 import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
@@ -42,6 +48,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 import static io.microsphere.constants.SymbolConstants.WILDCARD;
@@ -86,10 +93,12 @@ public @interface EnableMyBatis {
      * Location of MyBatis xml config file, for example,
      * {@code "classpath:/com/acme/config.xml"}
      *
-     * @return non-null. (the placeholders in the value will be resolved)
+     * @return the empty string as default.If the value is blank, it indicates primary bean of {@link Configuration}
+     * will be applied. (the placeholders in the value will be resolved)
      * @see SqlSessionFactoryBean#setConfigLocation(Resource)
+     * @see SqlSessionFactoryBean#setConfiguration(Configuration)
      */
-    String configLocation();
+    String configLocation() default EMPTY_STRING;
 
     /**
      * Indicates whether perform presence check of the MyBatis xml config file.
@@ -249,4 +258,18 @@ public @interface EnableMyBatis {
      * @since MyBatis Spring 2.0.2
      */
     String[] scriptingLanguageDrivers() default WILDCARD;
+
+    /**
+     * Indicate whether the methods of MyBatis {@link Executor} should be intercepted.
+     * If <code>true</code>, {@link ExecutorFilter} and {@link ExecutorInterceptor} beans
+     * will be initialized and then be invoked around {@link Method} being executed.
+     *
+     * @see Plugin
+     * @see Executor
+     * @see ExecutorFilter
+     * @see ExecutorInterceptor
+     * @see InterceptingExecutor
+     * @see InterceptingExecutorInterceptor
+     */
+    boolean interceptExecutor() default true;
 }

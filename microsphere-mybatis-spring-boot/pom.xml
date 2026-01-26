@@ -35,6 +35,13 @@
             <artifactId>microsphere-spring-boot-core</artifactId>
         </dependency>
 
+        <!-- Microsphere -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-annotation-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Mybatis -->
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -64,12 +71,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -113,6 +114,13 @@
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-mybatis-spring-test</artifactId>
             <version>${revision}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Microsphere Spring Test-->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-spring-test</artifactId>
             <scope>test</scope>
         </dependency>
 

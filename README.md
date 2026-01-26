@@ -47,18 +47,18 @@ pom.xml:
 ```xml
 
 <dependencyManagement>
-    <dependencies>
-        ...
-        <!-- Microsphere MyBatis Dependencies -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-mybatis-dependencies</artifactId>
-            <version>${microsphere-mybatis.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-        ...
-    </dependencies>
+  <dependencies>
+    ...
+    <!-- Microsphere MyBatis Dependencies -->
+    <dependency>
+      <groupId>io.github.microsphere-projects</groupId>
+      <artifactId>microsphere-mybatis-dependencies</artifactId>
+      <version>${microsphere-mybatis.version}</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+    ...
+  </dependencies>
 </dependencyManagement>
 ```
 
@@ -76,18 +76,18 @@ Then add the specific modules you need.
 ```xml
 
 <dependencies>
-    <!-- Microsphere MyBatis Core -->
-    <dependency>
-        <groupId>io.github.microsphere-projects</groupId>
-        <artifactId>microsphere-mybatis-core</artifactId>
-    </dependency>
+  <!-- Microsphere MyBatis Core -->
+  <dependency>
+    <groupId>io.github.microsphere-projects</groupId>
+    <artifactId>microsphere-mybatis-core</artifactId>
+  </dependency>
 </dependencies>
 ```
 
 ### Gradle Dependencies
 
 ```kotlin
-implementation(platform("io.github.microsphere-projects:microsphere-mybatis-core:${microsphere - mybatis.version}"))
+implementation(platform("io.github.microsphere-projects:microsphere-mybatis-core:${microsphere.mybatis.version}"))
 ```
 
 ## Building from Source
@@ -145,10 +145,10 @@ We welcome your contributions! Please read [Code of Conduct](./CODE_OF_CONDUCT.m
 
 - [microsphere-mybatis-core](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-core)
 - [microsphere-mybatis-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-test)
-- [microsphere-mybatis-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring)
-- [microsphere-mybatis-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring-test)
-- [microsphere-mybatis-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring-boot)
-- [microsphere-mybatis-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring-cloud)
+- [microsphere-mybatis-spring](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring)
+- [microsphere-mybatis-spring-test](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring-test)
+- [microsphere-mybatis-spring-boot](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring-boot)
+- [microsphere-mybatis-spring-cloud](https://javadoc.io/doc/io.github.microsphere-projects/microsphere-mybatis-spring-cloud)
 
 ## License
 
