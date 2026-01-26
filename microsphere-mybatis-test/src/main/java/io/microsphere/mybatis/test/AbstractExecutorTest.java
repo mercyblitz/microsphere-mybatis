@@ -19,9 +19,11 @@ package io.microsphere.mybatis.test;
 import io.microsphere.mybatis.test.entity.User;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.RowBounds;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,19 +45,20 @@ public abstract class AbstractExecutorTest extends AbstractSqlSessionTest {
 
     @Test
     public void testExecutor() throws Throwable {
-        doInExecutor(executor -> {
-            MappedStatement ms = getMappedStatement(MS_ID_SAVE_USER);
-            User user = createUser();
-
-            // Test update
-            assertEquals(1, executor.update(ms, user));
-
-            // Test query
-            ms = getMappedStatement(MS_ID_USER_BY_ID);
-            List<User> users = executor.query(ms, user.getId(), new RowBounds(), Executor.NO_RESULT_HANDLER);
-            assertEquals(1, users.size());
-            assertEquals(users.get(0), user);
-        });
+        doInExecutor(executor -> assertEexecutor(getConfiguration(), executor));
     }
 
+    public static void assertEexecutor(Configuration configuration, Executor executor) throws SQLException {
+        MappedStatement ms = configuration.getMappedStatement(MS_ID_SAVE_USER);
+        User user = createUser();
+
+        // Test update
+        assertEquals(1, executor.update(ms, user));
+
+        // Test query
+        ms = configuration.getMappedStatement(MS_ID_USER_BY_ID);
+        List<User> users = executor.query(ms, user.getId(), new RowBounds(), Executor.NO_RESULT_HANDLER);
+        assertEquals(1, users.size());
+        assertEquals(users.get(0), user);
+    }
 }

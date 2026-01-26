@@ -99,7 +99,7 @@ public class ThrowingErrorExecutorFilter implements ExecutorFilter {
         ExecutorFilter.super.close(forceRollback, chain);
     }
 
-    static void throwsError() {
+    public static void throwsError() {
         throw new RuntimeException("For testing");
     }
 }

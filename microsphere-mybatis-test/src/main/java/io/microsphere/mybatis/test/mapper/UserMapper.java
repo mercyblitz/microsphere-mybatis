@@ -32,4 +32,6 @@ public interface UserMapper {
     User getUserById(int id);
 
     User getUserByName(String name);
+
+    User getErrorUserByName(String name);
 }

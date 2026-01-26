@@ -27,6 +27,9 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.microsphere.mybatis.test.AbstractExecutorTest.MS_ID_SAVE_USER;
+import static io.microsphere.mybatis.test.AbstractExecutorTest.MS_ID_USER_BY_ID;
+import static io.microsphere.mybatis.test.AbstractExecutorTest.MS_ID_USER_BY_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,10 +50,10 @@ public abstract class AbstractSqlSessionTest extends AbstractMyBatisTest {
             User user = createUser();
 
             // Test insert
-            assertEquals(1, sqlSession.insert(AbstractMapperTest.MS_ID_SAVE_USER, user));
+            assertEquals(1, sqlSession.insert(MS_ID_SAVE_USER, user));
 
             // Test selectCursor
-            Cursor<User> cursor = sqlSession.selectCursor(AbstractMapperTest.MS_ID_USER_BY_ID, user.getId());
+            Cursor<User> cursor = sqlSession.selectCursor(MS_ID_USER_BY_ID, user.getId());
             assertNotNull(cursor);
             assertFalse(cursor.isOpen());
             assertFalse(cursor.isConsumed());
@@ -58,11 +61,11 @@ public abstract class AbstractSqlSessionTest extends AbstractMyBatisTest {
             cursor.forEach(foundUser -> assertEquals(foundUser, user));
 
             // Test selectOne
-            User foundUser = sqlSession.selectOne(AbstractMapperTest.MS_ID_USER_BY_NAME, user.getName());
+            User foundUser = sqlSession.selectOne(MS_ID_USER_BY_NAME, user.getName());
             assertEquals(foundUser, user);
 
             // Test selectList
-            List<User> users = sqlSession.selectList(AbstractMapperTest.MS_ID_USER_BY_NAME, user.getName());
+            List<User> users = sqlSession.selectList(MS_ID_USER_BY_NAME, user.getName());
             assertEquals(1, users.size());
             assertEquals(users.get(0), user);
 
@@ -87,20 +90,25 @@ public abstract class AbstractSqlSessionTest extends AbstractMyBatisTest {
 
     }
 
-    void deferLoadAfterResultHandler(SqlSession sqlSession) {
-        class MyResultHandler implements ResultHandler {
-            private final List<Child> children = new ArrayList<>();
-
-            @Override
-            public void handleResult(ResultContext context) {
-                Child child = (Child) context.getResultObject();
-                children.add(child);
-            }
-        }
+    protected void deferLoadAfterResultHandler(SqlSession sqlSession) {
         MyResultHandler myResultHandler = new MyResultHandler();
         sqlSession.select("io.microsphere.mybatis.test.mapper.ChildMapper.selectAll", myResultHandler);
-        for (Child child : myResultHandler.children) {
+        for (Child child : myResultHandler.getChildren()) {
             assertNotNull(child.getFather());
+        }
+    }
+
+    public static class MyResultHandler implements ResultHandler {
+        private final List<Child> children = new ArrayList<>();
+
+        @Override
+        public void handleResult(ResultContext context) {
+            Child child = (Child) context.getResultObject();
+            children.add(child);
+        }
+
+        public List<Child> getChildren() {
+            return children;
         }
     }
 
