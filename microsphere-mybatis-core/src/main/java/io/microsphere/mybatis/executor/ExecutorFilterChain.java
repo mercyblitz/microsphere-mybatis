@@ -76,12 +76,12 @@ public class ExecutorFilterChain {
         return applySQL(f -> f.update(ms, parameter, this), e -> e.update(ms, parameter));
     }
 
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException {
         return applySQL(f -> f.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, this),
                 e -> e.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql));
     }
 
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
         return applySQL(f -> f.query(ms, parameter, rowBounds, resultHandler, this),
                 e -> e.query(ms, parameter, rowBounds, resultHandler));
     }

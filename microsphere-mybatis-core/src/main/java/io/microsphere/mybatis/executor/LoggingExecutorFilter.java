@@ -49,13 +49,13 @@ public class LoggingExecutorFilter implements ExecutorFilter {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler, CacheKey cacheKey, BoundSql boundSql, ExecutorFilterChain chain) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql, ExecutorFilterChain chain) throws SQLException {
         logger.debug("query() : {} , {} , {} , {} , {} , {} , {}", ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, chain);
         return ExecutorFilter.super.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, chain);
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler, ExecutorFilterChain chain) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, ExecutorFilterChain chain) throws SQLException {
         logger.debug("query() : {} , {} , {} , {} , {}", ms, parameter, rowBounds, resultHandler, chain);
         return ExecutorFilter.super.query(ms, parameter, rowBounds, resultHandler, chain);
     }

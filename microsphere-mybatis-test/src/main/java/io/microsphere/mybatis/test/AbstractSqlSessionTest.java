@@ -98,7 +98,7 @@ public abstract class AbstractSqlSessionTest extends AbstractMyBatisTest {
         }
     }
 
-    public static class MyResultHandler<T> implements ResultHandler<T> {
+    public static class MyResultHandler implements ResultHandler {
         private final List<Child> children = new ArrayList<>();
 
         @Override

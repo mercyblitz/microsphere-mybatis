@@ -56,13 +56,13 @@ public class LoggingExecutorInterceptor implements ExecutorInterceptor {
 
     @Override
     public void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds,
-                            ResultHandler<?> resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
+                            ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
         logger.debug("beforeQuery() : {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
     }
 
     @Override
     public <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter, RowBounds rowBounds,
-                               ResultHandler<?> resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
+                               ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
         logger.debug("afterQuery() : {} , {} , {} , {} , {} , {} , {} , {}", context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure);
     }
 
