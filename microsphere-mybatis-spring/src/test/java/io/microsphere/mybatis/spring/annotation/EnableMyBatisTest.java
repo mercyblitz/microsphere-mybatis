@@ -17,7 +17,7 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
-import io.microsphere.mybatis.executor.LogggingExecutorInterceptor;
+import io.microsphere.mybatis.executor.LoggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
 import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataBaseTestConfiguration;
@@ -149,7 +149,7 @@ class EnableMyBatisTest {
     @Import(value = {
             MyBatisDataSourceTestConfiguration.class,
             MyBatisDataBaseTestConfiguration.class,
-            LogggingExecutorInterceptor.class
+            LoggingExecutorInterceptor.class
     })
     static class SpecifiedConfig {
     }

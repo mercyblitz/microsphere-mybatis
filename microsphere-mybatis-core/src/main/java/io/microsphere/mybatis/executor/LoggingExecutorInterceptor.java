@@ -40,9 +40,9 @@ import static io.microsphere.logging.LoggerFactory.getLogger;
  * @see InterceptingExecutor
  * @since 1.0.0
  */
-public class LogggingExecutorInterceptor implements ExecutorInterceptor {
+public class LoggingExecutorInterceptor implements ExecutorInterceptor {
 
-    private final static Logger logger = getLogger(LogggingExecutorInterceptor.class);
+    private final static Logger logger = getLogger(LoggingExecutorInterceptor.class);
 
     @Override
     public void beforeUpdate(InterceptorContext<Executor> context, MappedStatement ms, Object parameter) {
