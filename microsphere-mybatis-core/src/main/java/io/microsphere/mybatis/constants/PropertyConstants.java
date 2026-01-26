@@ -15,15 +15,17 @@
  * limitations under the License.
  */
 
-package io.microsphere.mybatis.spring.boot.constants;
+package io.microsphere.mybatis.constants;
 
 import io.microsphere.annotation.ConfigurationProperty;
 
+import static io.microsphere.annotation.ConfigurationProperty.APPLICATION_SOURCE;
+import static io.microsphere.constants.PropertyConstants.ENABLED_PROPERTY_NAME;
+import static io.microsphere.constants.PropertyConstants.MICROSPHERE_PROPERTY_NAME_PREFIX;
 import static io.microsphere.constants.SymbolConstants.DOT;
-import static io.microsphere.spring.boot.constants.PropertyConstants.MICROSPHERE_SPRING_BOOT_PROPERTY_NAME_PREFIX;
 
 /**
- * The constants class for MyBatis Spring Boot Constants
+ * The constants class for MyBatis
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see ConfigurationProperty
@@ -32,7 +34,22 @@ import static io.microsphere.spring.boot.constants.PropertyConstants.MICROSPHERE
 public interface PropertyConstants {
 
     /**
-     * The Property Name prefix of Microsphere MyBatis Spring Boot
+     * The property Name prefix of Microsphere MyBatis: "microsphere.mybatis"
      */
-    String MICROSPHERE_MYBATIS_SPRING_BOOT_PROPERTY_NAME_PREFIX = MICROSPHERE_SPRING_BOOT_PROPERTY_NAME_PREFIX + "mybatis" + DOT;
+    String MICROSPHERE_MYBATIS_PROPERTY_NAME_PREFIX = MICROSPHERE_PROPERTY_NAME_PREFIX + "mybatis";
+
+    /**
+     * The String presentation on default value of property name of Microsphere MyBatis enalbed : "true"
+     */
+    String DEFAULT_MICROSPHERE_MYBATIS_ENABLED = "true";
+
+    /**
+     * The property name of Microsphere MyBatis enalbed : "microsphere.mybatis.enabled"
+     */
+    @ConfigurationProperty(
+            type = boolean.class,
+            defaultValue = DEFAULT_MICROSPHERE_MYBATIS_ENABLED,
+            source = APPLICATION_SOURCE
+    )
+    String MICROSPHERE_MYBATIS_ENABLED_PROPERTY_NAME = MICROSPHERE_MYBATIS_PROPERTY_NAME_PREFIX + DOT + ENABLED_PROPERTY_NAME;
 }

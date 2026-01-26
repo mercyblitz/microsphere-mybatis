@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package io.microsphere.mybatis.spring.boot.constants;
+package io.microsphere.mybatis.constants;
 
 
-import io.microsphere.mybatis.spring.boot.constants.PropertyConstants;
 import org.junit.jupiter.api.Test;
 
-import static io.microsphere.mybatis.spring.boot.constants.PropertyConstants.MICROSPHERE_MYBATIS_SPRING_BOOT_PROPERTY_NAME_PREFIX;
+import static io.microsphere.mybatis.constants.PropertyConstants.DEFAULT_MICROSPHERE_MYBATIS_ENABLED;
+import static io.microsphere.mybatis.constants.PropertyConstants.MICROSPHERE_MYBATIS_ENABLED_PROPERTY_NAME;
+import static io.microsphere.mybatis.constants.PropertyConstants.MICROSPHERE_MYBATIS_PROPERTY_NAME_PREFIX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -35,6 +36,8 @@ class PropertyConstantsTest {
 
     @Test
     void testtConstants() {
-        assertEquals("microsphere.spring.boot.mybatis.", MICROSPHERE_MYBATIS_SPRING_BOOT_PROPERTY_NAME_PREFIX);
+        assertEquals("microsphere.mybatis", MICROSPHERE_MYBATIS_PROPERTY_NAME_PREFIX);
+        assertEquals("true", DEFAULT_MICROSPHERE_MYBATIS_ENABLED);
+        assertEquals("microsphere.mybatis.enabled", MICROSPHERE_MYBATIS_ENABLED_PROPERTY_NAME);
     }
 }
