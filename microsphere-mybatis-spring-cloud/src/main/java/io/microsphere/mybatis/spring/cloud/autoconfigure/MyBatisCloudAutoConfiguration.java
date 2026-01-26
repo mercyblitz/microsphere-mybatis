@@ -17,13 +17,9 @@
 
 package io.microsphere.mybatis.spring.cloud.autoconfigure;
 
-import io.microsphere.mybatis.spring.annotation.EnableMyBatis;
+import io.microsphere.mybatis.spring.boot.autoconfigure.condition.ConditionalOnMyBatisEnabled;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
-
-import static io.microsphere.constants.PropertyConstants.ENABLED_PROPERTY_NAME;
-import static io.microsphere.mybatis.constants.PropertyConstants.MICROSPHERE_MYBATIS_SPRING_BOOT_PROPERTY_NAME_PREFIX;
 
 /**
  * The Auto-{@link Configuration} for MyBatis Spring Cloud
@@ -33,9 +29,7 @@ import static io.microsphere.mybatis.constants.PropertyConstants.MICROSPHERE_MYB
  * @see org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
  * @since 1.0.0
  */
-@EnableMyBatis
-@ConditionalOnProperty(prefix = MICROSPHERE_MYBATIS_SPRING_BOOT_PROPERTY_NAME_PREFIX, name = ENABLED_PROPERTY_NAME,
-        matchIfMissing = true)
+@ConditionalOnMyBatisEnabled
 @AutoConfigureAfter(name = {
         "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration"
 })
