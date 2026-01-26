@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * @since 1.0.0
  */
 @MyBatisConfiguration
-public class MyBatisConfigurationTest {
+class MyBatisConfigurationTest {
 
     @Test
     void testDefaultConfig() {
