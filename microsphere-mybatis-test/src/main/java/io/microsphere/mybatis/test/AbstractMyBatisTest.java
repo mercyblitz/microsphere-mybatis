@@ -135,7 +135,7 @@ public abstract class AbstractMyBatisTest {
         }
     }
 
-    public static void runScript(ScriptRunner runner, String resource) throws IOException, SQLException {
+    public static void runScript(ScriptRunner runner, String resource) throws IOException {
         try (Reader reader = getResourceAsReader(resource)) {
             runner.runScript(reader);
         }
@@ -174,7 +174,7 @@ public abstract class AbstractMyBatisTest {
         return this.sqlSessionFactory.openSession();
     }
 
-    private void initData() throws Throwable {
+    private void initData() throws IOException, SQLException {
         runScript(CREATE_DB_SCRIPT_RESOURCE_NAME);
     }
 
@@ -255,11 +255,11 @@ public abstract class AbstractMyBatisTest {
     }
 
     @AfterEach
-    public void destroy() throws Throwable {
+    public void destroy() throws IOException, SQLException {
         destroyDB();
     }
 
-    private void destroyDB() throws Throwable {
+    private void destroyDB() throws IOException, SQLException {
         runScript(DESTROY_DB_SCRIPT_RESOURCE_NAME);
     }
 

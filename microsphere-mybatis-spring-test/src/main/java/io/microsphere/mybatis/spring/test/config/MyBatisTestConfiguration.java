@@ -67,7 +67,8 @@ public class MyBatisTestConfiguration {
     }
 
     <T> T getMapper(SqlSessionFactory sqlSessionFactory, Class<T> mapperClass) {
-        SqlSession sqlSession = sqlSessionFactory.openSession();
-        return sqlSession.getMapper(mapperClass);
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            return sqlSession.getMapper(mapperClass);
+        }
     }
 }

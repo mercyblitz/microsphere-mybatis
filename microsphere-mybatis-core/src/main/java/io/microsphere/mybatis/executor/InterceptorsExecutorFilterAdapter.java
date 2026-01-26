@@ -85,7 +85,7 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
                              CacheKey cacheKey, BoundSql boundSql, ExecutorFilterChain chain) throws SQLException {
         InterceptorContext<Executor> context = buildContext(chain);
         beforeQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
@@ -103,7 +103,7 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
                              ExecutorFilterChain chain) throws SQLException {
         InterceptorContext<Executor> context = buildContext(chain);
         beforeQuery(context, ms, parameter, rowBounds, resultHandler, null, null);
@@ -235,13 +235,13 @@ public class InterceptorsExecutorFilterAdapter implements ExecutorFilter {
     }
 
     void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                     RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
+                     RowBounds rowBounds, ResultHandler<?> resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
         iterate(executorInterceptor ->
                 executorInterceptor.beforeQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql));
     }
 
     <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                        RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql,
+                        RowBounds rowBounds, ResultHandler<?> resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql,
                         @Nullable List<E> result, @Nullable SQLException failure) {
         iterate(executorInterceptor ->
                 executorInterceptor.afterQuery(context, ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, result, failure));
