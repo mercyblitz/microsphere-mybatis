@@ -55,12 +55,12 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
     public static final String TEST_PROPERTY_KEY = "test.class";
 
     @Test
-    public void testInValidConstructorArgs() {
+    void testInValidConstructorArgs() {
         assertThrows(IllegalArgumentException.class, () -> new InterceptingExecutorInterceptor(ofArray()));
     }
 
     @Test
-    public void testOnFailed() throws Throwable {
+    void testOnFailed() throws Throwable {
         // test Executor#update
         doInExecutor(executor -> {
 

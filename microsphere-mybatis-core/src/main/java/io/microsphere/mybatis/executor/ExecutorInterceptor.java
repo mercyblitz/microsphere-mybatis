@@ -109,8 +109,8 @@ public interface ExecutorInterceptor extends Prioritized {
      * @param <E>           the type of result
      */
     default <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                                RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql,
-                                @Nullable List<E> result, @Nullable SQLException failure) {
+                                RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey,
+                                @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
     }
 
     /**

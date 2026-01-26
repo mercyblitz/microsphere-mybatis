@@ -45,9 +45,7 @@ public abstract class AbstractExecutorTest extends AbstractSqlSessionTest {
 
     @Test
     public void testExecutor() throws Throwable {
-        doInExecutor(executor -> {
-            assertEexecutor(getConfiguration(), executor);
-        });
+        doInExecutor(executor -> assertEexecutor(getConfiguration(), executor));
     }
 
     public static void assertEexecutor(Configuration configuration, Executor executor) throws SQLException {

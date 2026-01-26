@@ -51,6 +51,6 @@ class ExecutorsTest {
     }
 
     public static Executor mockExecutor(InvocationHandler handler) {
-        return (Executor) newProxyInstance(getDefaultClassLoader(), ofArray(Executor.class), (proxy, method, args) -> null);
+        return (Executor) newProxyInstance(getDefaultClassLoader(), ofArray(Executor.class), handler);
     }
 }
