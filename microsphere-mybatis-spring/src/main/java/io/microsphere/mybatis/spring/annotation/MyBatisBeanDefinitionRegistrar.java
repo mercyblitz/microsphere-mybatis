@@ -85,7 +85,7 @@ import static org.springframework.beans.factory.support.BeanDefinitionBuilder.ge
  * @see SqlSessionTemplate
  * @since 1.0.0
  */
-class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implements ImportBeanDefinitionRegistrar {
+public class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate implements ImportBeanDefinitionRegistrar {
 
     static final Class<EnableMyBatis> ANNOTATION_CLASS = EnableMyBatis.class;
 
