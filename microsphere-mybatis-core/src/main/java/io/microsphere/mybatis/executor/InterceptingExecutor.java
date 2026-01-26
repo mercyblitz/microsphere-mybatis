@@ -70,14 +70,14 @@ public class InterceptingExecutor implements Executor {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
                              CacheKey cacheKey, BoundSql boundSql) throws SQLException {
         ExecutorFilterChain chain = buildChain();
         return chain.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler) throws SQLException {
         ExecutorFilterChain chain = buildChain();
         return chain.query(ms, parameter, rowBounds, resultHandler);
     }

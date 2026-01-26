@@ -52,13 +52,13 @@ public class LoggingExecutor implements Executor {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException {
         logger.debug("query() : {} , {} , {} , {} , {} , {} ", ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
         return emptyList();
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler) throws SQLException {
         logger.debug("query() : {} , {} , {} , {} ", ms, parameter, rowBounds, resultHandler);
         return emptyList();
     }
