@@ -44,14 +44,14 @@ public class ThrowingErrorExecutorFilter implements ExecutorFilter {
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
                              CacheKey cacheKey, BoundSql boundSql, ExecutorFilterChain chain) throws SQLException {
         throwsError();
         return ExecutorFilter.super.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql, chain);
     }
 
     @Override
-    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
+    public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
                              ExecutorFilterChain chain) throws SQLException {
         throwsError();
         return ExecutorFilter.super.query(ms, parameter, rowBounds, resultHandler, chain);

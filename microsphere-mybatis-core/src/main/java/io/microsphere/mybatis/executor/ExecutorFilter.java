@@ -78,7 +78,7 @@ public interface ExecutorFilter extends Prioritized {
      * @return
      * @throws SQLException
      */
-    default <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
+    default <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
                               CacheKey cacheKey, BoundSql boundSql, ExecutorFilterChain chain) throws SQLException {
         return chain.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
     }
@@ -95,7 +95,7 @@ public interface ExecutorFilter extends Prioritized {
      * @return
      * @throws SQLException
      */
-    default <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler<?> resultHandler,
+    default <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
                               ExecutorFilterChain chain) throws SQLException {
         return chain.query(ms, parameter, rowBounds, resultHandler);
     }

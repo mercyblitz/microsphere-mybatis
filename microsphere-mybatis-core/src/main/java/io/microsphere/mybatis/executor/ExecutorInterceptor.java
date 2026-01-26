@@ -89,7 +89,7 @@ public interface ExecutorInterceptor extends Prioritized {
      * @param boundSql      (optional) {@link BoundSql}
      */
     default void beforeQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                             RowBounds rowBounds, ResultHandler<?> resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
+                             RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey, @Nullable BoundSql boundSql) {
     }
 
     /**
@@ -109,7 +109,7 @@ public interface ExecutorInterceptor extends Prioritized {
      * @param <E>           the type of result
      */
     default <E> void afterQuery(InterceptorContext<Executor> context, MappedStatement ms, Object parameter,
-                                RowBounds rowBounds, ResultHandler<?> resultHandler, @Nullable CacheKey cacheKey,
+                                RowBounds rowBounds, ResultHandler resultHandler, @Nullable CacheKey cacheKey,
                                 @Nullable BoundSql boundSql, @Nullable List<E> result, @Nullable SQLException failure) {
     }
 
