@@ -20,7 +20,7 @@
 
     <properties>
         <!-- BOM -->
-        <microsphere-spring-cloud.version>0.2.5</microsphere-spring-cloud.version>
+        <microsphere-spring-cloud.version>0.2.6</microsphere-spring-cloud.version>
         <!-- Libraries -->
         <mybatis.version>3.5.19</mybatis.version>
         <mybatis-spring.version>3.0.5</mybatis-spring.version>
