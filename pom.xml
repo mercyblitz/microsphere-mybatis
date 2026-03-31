@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>io.github.microsphere-projects</groupId>
-        <artifactId>microsphere-build</artifactId>
-        <version>0.2.5</version>
+        <artifactId>microsphere-spring-cloud-dependencies</artifactId>
+        <version>0.2.6</version>
     </parent>
 
     <groupId>io.github.microsphere-projects</groupId>
@@ -54,6 +54,7 @@
 
     <properties>
         <revision>0.2.0-SNAPSHOT</revision>
+        <microsphere-spring-cloud.version>0.2.6</microsphere-spring-cloud.version>
         <java.version>17</java.version>
     </properties>
 
