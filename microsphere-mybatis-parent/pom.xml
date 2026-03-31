@@ -33,6 +33,15 @@
     <dependencyManagement>
         <dependencies>
 
+            <!-- JUnit BOM -->
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- MyBatis -->
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -57,15 +66,6 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
-            </dependency>
-
-            <!-- JUnit BOM -->
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
             </dependency>
 
             <!-- Spring Boot Dependencies -->
