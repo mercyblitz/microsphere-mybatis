@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.microsphere.mybatis.executor.ExecutorsTest.mockExecutor;
 import static io.microsphere.util.ArrayUtils.ofArray;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * {@link InterceptorsExecutorFilterAdapter} Test
@@ -34,9 +35,11 @@ class InterceptorsExecutorFilterAdapterTest {
 
     @Test
     void testDeferLoadOnFailed() {
-        ThrowingErrorExecutorInterceptor interceptor = new ThrowingErrorExecutorInterceptor();
-        InterceptorsExecutorFilterAdapter interceptorsExecutorFilterAdapter = new InterceptorsExecutorFilterAdapter(ofArray(interceptor));
-        ExecutorFilterChain executorFilterChain = new ExecutorFilterChain(mockExecutor(), null, new ThrowingErrorExecutorFilter());
-        interceptorsExecutorFilterAdapter.deferLoad(null, null, null, null, null, executorFilterChain);
+        assertDoesNotThrow(() -> {
+            ThrowingErrorExecutorInterceptor interceptor = new ThrowingErrorExecutorInterceptor();
+            InterceptorsExecutorFilterAdapter interceptorsExecutorFilterAdapter = new InterceptorsExecutorFilterAdapter(ofArray(interceptor));
+            ExecutorFilterChain executorFilterChain = new ExecutorFilterChain(mockExecutor(), null, new ThrowingErrorExecutorFilter());
+            interceptorsExecutorFilterAdapter.deferLoad(null, null, null, null, null, executorFilterChain);
+        });
     }
 }

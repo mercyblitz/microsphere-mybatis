@@ -85,8 +85,7 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     @Override
     public Object plugin(Object target) {
-        if (target instanceof Executor) {
-            Executor executor = ((Executor) target);
+        if (target instanceof Executor executor) {
 
             boolean isCachingExecutor = executor instanceof CachingExecutor;
             Executor delegate = executor;
@@ -95,31 +94,30 @@ public class InterceptingExecutorInterceptor implements Interceptor {
                 delegate = getDelegate(cachingExecutor);
             }
 
-            Properties properties = new Properties();
+            Properties newProperties = new Properties();
             ExecutorFilter[] executorFilters = this.executorFilters;
 
-            if (delegate instanceof InterceptingExecutor) {
-                List<ExecutorFilter> executorFiltersList = new LinkedList<>();
-                InterceptingExecutor previousInterceptingExecutor = (InterceptingExecutor) delegate;
+            if (delegate instanceof InterceptingExecutor previousInterceptingExecutor) {
+                List<ExecutorFilter> newExecutorFiltersList = new LinkedList<>();
                 delegate = previousInterceptingExecutor.getDelegate();
                 // merge Properties
                 Properties previousProperties = previousInterceptingExecutor.getProperties();
                 if (isNotEmpty(previousProperties)) {
-                    properties.putAll(previousProperties);
+                    newProperties.putAll(previousProperties);
                 }
 
                 // merge ExecutorFilters
-                addAll(executorFiltersList, previousInterceptingExecutor.getExecutorFilters());
-                addAll(executorFiltersList, executorFilters);
-                executorFilters = executorFiltersList.toArray(new ExecutorFilter[0]);
+                addAll(newExecutorFiltersList, previousInterceptingExecutor.getExecutorFilters());
+                addAll(newExecutorFiltersList, executorFilters);
+                executorFilters = newExecutorFiltersList.toArray(new ExecutorFilter[0]);
             }
 
             if (isNotEmpty(this.properties)) {
-                properties.putAll(this.properties);
+                newProperties.putAll(this.properties);
             }
-            properties = properties.isEmpty() ? null : properties;
+            newProperties = newProperties.isEmpty() ? null : newProperties;
 
-            InterceptingExecutor interceptingExecutor = new InterceptingExecutor(delegate, properties, executorFilters);
+            InterceptingExecutor interceptingExecutor = new InterceptingExecutor(delegate, newProperties, executorFilters);
             return isCachingExecutor ? new CachingExecutor(interceptingExecutor) : interceptingExecutor;
         }
         logger.trace("The non-executor [{}] instance simply returns without any dynamic proxy interception", target);
