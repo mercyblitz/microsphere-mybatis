@@ -41,6 +41,7 @@ import static io.microsphere.util.ArrayUtils.of;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static java.util.Collections.emptyList;
 import static org.apache.ibatis.session.RowBounds.DEFAULT;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -64,93 +65,95 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
     @Test
     void testOnFailed() throws Throwable {
         // test Executor#update
-        doInExecutor(executor -> {
+        assertDoesNotThrow(() -> {
+            doInExecutor(executor -> {
 
-            // test Executor#update
-            runSafely(() -> {
-                MappedStatement ms = getMappedStatement(MS_ID_SAVE_USER);
-                executor.update(ms, null);
+                // test Executor#update
+                runSafely(() -> {
+                    MappedStatement ms = getMappedStatement(MS_ID_SAVE_USER);
+                    executor.update(ms, null);
+                });
+
+                // test Executor#query
+                runSafely(() -> {
+                    MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                    executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER);
+                });
+
+                runSafely(() -> {
+                    MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                    BoundSql boundSql = new BoundSql(getConfiguration(), MS_ID_USER_BY_ID, emptyList(), null);
+
+                    CacheKey cacheKey = executor.createCacheKey(ms, null, new RowBounds(), boundSql);
+                    executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
+                });
+
+                // test Executor#queryCursor
+                runSafely(() -> {
+                    MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
+                    Connection connection = getConnection(executor);
+                    connection.close();
+                    executor.queryCursor(ms, null, DEFAULT);
+                });
+
+                // test Executor#createCacheKey
+                runSafely(() -> {
+                    executor.createCacheKey(null, null, DEFAULT, null);
+                });
+
+                runSafely(() -> {
+                    executor.close(false);
+                    executor.createCacheKey(null, null, DEFAULT, null);
+                });
+
             });
 
-            // test Executor#query
-            runSafely(() -> {
-                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
-                executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER);
+            doInExecutor(executor -> {
+                // test Executor#getTransaction
+                runSafely(() -> {
+                    executor.close(false);
+                    getConnection(executor);
+                });
             });
 
-            runSafely(() -> {
-                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
-                BoundSql boundSql = new BoundSql(getConfiguration(), MS_ID_USER_BY_ID, emptyList(), null);
-
-                CacheKey cacheKey = executor.createCacheKey(ms, null, new RowBounds(), boundSql);
-                executor.query(ms, null, DEFAULT, Executor.NO_RESULT_HANDLER, cacheKey, boundSql);
+            doInExecutor(executor -> {
+                // test Executor#commit
+                runSafely(() -> {
+                    executor.close(false);
+                    executor.commit(true);
+                });
             });
 
-            // test Executor#queryCursor
-            runSafely(() -> {
-                MappedStatement ms = getMappedStatement(MS_ID_USER_BY_ID);
-                Connection connection = getConnection(executor);
-                connection.close();
-                executor.queryCursor(ms, null, DEFAULT);
+            doInExecutor(executor -> {
+                // test Executor#rollback
+                runSafely(() -> {
+                    Connection connection = getConnection(executor);
+                    connection.close();
+                    executor.rollback(true);
+                });
             });
 
-            // test Executor#createCacheKey
-            runSafely(() -> {
-                executor.createCacheKey(null, null, DEFAULT, null);
+            doInSqlSession(sqlSession -> {
+                runSafely(() -> {
+                    sqlSession.close();
+                    deferLoadAfterResultHandler(sqlSession);
+                });
             });
 
-            runSafely(() -> {
-                executor.close(false);
-                executor.createCacheKey(null, null, DEFAULT, null);
+            doInMapper(UserMapper.class, userMapper -> {
+                runSafely(() -> userMapper.getErrorUserByName("testing"));
             });
-
-        });
-
-        doInExecutor(executor -> {
-            // test Executor#getTransaction
-            runSafely(() -> {
-                executor.close(false);
-                getConnection(executor);
-            });
-        });
-
-        doInExecutor(executor -> {
-            // test Executor#commit
-            runSafely(() -> {
-                executor.close(false);
-                executor.commit(true);
-            });
-        });
-
-        doInExecutor(executor -> {
-            // test Executor#rollback
-            runSafely(() -> {
-                Connection connection = getConnection(executor);
-                connection.close();
-                executor.rollback(true);
-            });
-        });
-
-        doInSqlSession(sqlSession -> {
-            runSafely(() -> {
-                sqlSession.close();
-                deferLoadAfterResultHandler(sqlSession);
-            });
-        });
-
-        doInMapper(UserMapper.class, userMapper -> {
-            runSafely(() -> userMapper.getErrorUserByName("testing"));
         });
 
     }
 
     @Test
     void testIntercept() throws Throwable {
-        doInExecutor(executor -> {
+        assertDoesNotThrow(() -> doInExecutor(executor -> {
             Invocation invocation = new Invocation(executor, findMethod(Executor.class, "isClosed"), ofArray());
             InterceptingExecutorInterceptor interceptor = createInterceptingExecutorInterceptor();
             assertEquals(executor.isClosed(), interceptor.intercept(invocation));
-        });
+        }));
     }
 
     @Override
@@ -168,8 +171,7 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
     }
 
     private InterceptingExecutorInterceptor createInterceptingExecutorInterceptor() {
-        InterceptingExecutorInterceptor interceptor = new InterceptingExecutorInterceptor(of(new TestExecutorFilter()),
-                new LoggingExecutorInterceptor(), new TestInterceptorContextExecutorInterceptor());
-        return interceptor;
+        return new InterceptingExecutorInterceptor(of(new TestExecutorFilter()), new LoggingExecutorInterceptor(),
+                new TestInterceptorContextExecutorInterceptor());
     }
 }
