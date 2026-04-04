@@ -16,8 +16,9 @@
  */
 package io.microsphere.mybatis.plugin;
 
-import io.microsphere.mybatis.executor.LoggingExecutorInterceptor;
+import io.microsphere.mybatis.executor.ExecutorFilter;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
+import io.microsphere.mybatis.executor.LoggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.NoOpExecutorInterceptor;
 import io.microsphere.mybatis.executor.TestExecutorFilter;
 import io.microsphere.mybatis.executor.ThrowingErrorExecutorInterceptor;
@@ -56,7 +57,8 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
 
     @Test
     void testInValidConstructorArgs() {
-        assertThrows(IllegalArgumentException.class, () -> new InterceptingExecutorInterceptor(ofArray()));
+        ExecutorFilter[] executorFilters = ofArray();
+        assertThrows(IllegalArgumentException.class, () -> new InterceptingExecutorInterceptor(executorFilters));
     }
 
     @Test
