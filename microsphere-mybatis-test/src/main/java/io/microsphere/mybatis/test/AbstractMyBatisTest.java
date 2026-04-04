@@ -86,6 +86,8 @@ public abstract class AbstractMyBatisTest {
 
     public static final String FATHER_TYPE_ALIAS = "father";
 
+    private static final Random random = new Random();
+
     protected final Logger logger = getLogger(this.getClass());
 
     private SqlSessionFactory sqlSessionFactory;
@@ -211,7 +213,6 @@ public abstract class AbstractMyBatisTest {
     }
 
     public static User createUser() {
-        Random random = new Random();
         int id = random.nextInt(99999);
         String name = "User - " + id;
         return new User(id, name);
