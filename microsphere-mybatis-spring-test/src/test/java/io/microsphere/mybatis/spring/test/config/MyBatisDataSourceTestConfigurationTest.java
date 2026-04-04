@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -48,7 +47,7 @@ class MyBatisDataSourceTestConfigurationTest {
     private DataSource dataSource;
 
     @Test
-    void test() throws IOException {
+    void test() {
         assertNotNull(this.configuration);
         assertNotNull(this.dataSource);
     }
