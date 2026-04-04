@@ -85,9 +85,8 @@ public class InterceptingExecutorInterceptor implements Interceptor {
 
     @Override
     public Object plugin(Object target) {
-        if (target instanceof Executor) {
-            Executor executor = ((Executor) target);
-
+        if (target instanceof Executor executor) {
+            
             boolean isCachingExecutor = executor instanceof CachingExecutor;
             Executor delegate = executor;
             if (isCachingExecutor) {
