@@ -17,7 +17,6 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
-import io.microsphere.logging.Logger;
 import io.microsphere.mybatis.executor.ExecutorFilter;
 import io.microsphere.mybatis.executor.ExecutorInterceptor;
 import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
@@ -58,7 +57,6 @@ import java.util.stream.Stream;
 import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
 import static io.microsphere.constants.SymbolConstants.EQUAL;
 import static io.microsphere.constants.SymbolConstants.WILDCARD;
-import static io.microsphere.logging.LoggerFactory.getLogger;
 import static io.microsphere.mybatis.spring.annotation.MyBatisConfigurationBeanDefintionRegistrar.CONFIGURATION_BEAN_NAME;
 import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
@@ -105,8 +103,6 @@ public class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate i
      * The Spring Bean name of {@link InterceptingExecutorInterceptor}
      */
     public static final String INTERCEPTING_EXECUTOR_INTERCEPTOR_BEAN_NAME = "interceptingExecutorInterceptor";
-
-    private static final Logger logger = getLogger(ANNOTATION_CLASS_NAME);
 
     @Override
     public void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
@@ -363,7 +359,7 @@ public class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate i
         return getBeanNames(beanFactory, beanType, true);
     }
 
-    static void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Object defaultValue) {
+    void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName, Object defaultValue) {
         Object value = attributes.get(attributeName);
         if (Objects.equals(defaultValue, value)) {
             logger.trace("Default property value[{}] will ignored the attribute[name : '{}']", defaultValue, attributeName);
@@ -372,12 +368,12 @@ public class MyBatisBeanDefinitionRegistrar extends BeanCapableImportCandidate i
         setPropertyValue(builder, attributeName, value);
     }
 
-    static void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
+    void setPropertyValue(BeanDefinitionBuilder builder, AnnotationAttributes attributes, String attributeName) {
         Object attributeValue = attributes.get(attributeName);
         setPropertyValue(builder, attributeName, attributeValue);
     }
 
-    static void setPropertyValue(BeanDefinitionBuilder builder, String attributeName, Object attributeValue) {
+    void setPropertyValue(BeanDefinitionBuilder builder, String attributeName, Object attributeValue) {
         logger.trace("Set the BeanDefinition[{}] property[name : '{}'  , value : '{}']", builder.getRawBeanDefinition(), attributeName, attributeValue);
         builder.addPropertyValue(attributeName, attributeValue);
     }
