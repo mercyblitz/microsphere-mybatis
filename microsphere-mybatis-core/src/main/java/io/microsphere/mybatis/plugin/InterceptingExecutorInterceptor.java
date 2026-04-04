@@ -98,7 +98,7 @@ public class InterceptingExecutorInterceptor implements Interceptor {
             ExecutorFilter[] executorFilters = this.executorFilters;
 
             if (delegate instanceof InterceptingExecutor previousInterceptingExecutor) {
-                List<ExecutorFilter> executorFiltersList = new LinkedList<>();
+                List<ExecutorFilter> newExecutorFiltersList = new LinkedList<>();
                 delegate = previousInterceptingExecutor.getDelegate();
                 // merge Properties
                 Properties previousProperties = previousInterceptingExecutor.getProperties();
@@ -107,9 +107,9 @@ public class InterceptingExecutorInterceptor implements Interceptor {
                 }
 
                 // merge ExecutorFilters
-                addAll(executorFiltersList, previousInterceptingExecutor.getExecutorFilters());
-                addAll(executorFiltersList, executorFilters);
-                executorFilters = executorFiltersList.toArray(new ExecutorFilter[0]);
+                addAll(newExecutorFiltersList, previousInterceptingExecutor.getExecutorFilters());
+                addAll(newExecutorFiltersList, executorFilters);
+                executorFilters = newExecutorFiltersList.toArray(new ExecutorFilter[0]);
             }
 
             if (isNotEmpty(this.properties)) {
