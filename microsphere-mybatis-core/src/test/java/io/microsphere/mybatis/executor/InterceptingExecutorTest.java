@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import static io.microsphere.mybatis.executor.ExecutorsTest.mockExecutor;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * {@link InterceptingExecutor} Test
@@ -36,8 +37,10 @@ class InterceptingExecutorTest {
 
     @Test
     void testSetExecutorWrapper() {
-        Executor executor = mockExecutor();
-        InterceptingExecutor interceptingExecutor = new InterceptingExecutor(executor, new Properties());
-        interceptingExecutor.setExecutorWrapper(interceptingExecutor);
+        assertDoesNotThrow(() -> {
+            Executor executor = mockExecutor();
+            InterceptingExecutor interceptingExecutor = new InterceptingExecutor(executor, new Properties());
+            interceptingExecutor.setExecutorWrapper(interceptingExecutor);
+        });
     }
 }
