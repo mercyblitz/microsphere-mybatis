@@ -148,7 +148,7 @@ public class InterceptingExecutorInterceptorTest extends AbstractMapperTest {
     }
 
     @Test
-    void testIntercept() throws Throwable {
+    void testIntercept() {
         assertDoesNotThrow(() -> doInExecutor(executor -> {
             Invocation invocation = new Invocation(executor, findMethod(Executor.class, "isClosed"), ofArray());
             InterceptingExecutorInterceptor interceptor = createInterceptingExecutorInterceptor();
