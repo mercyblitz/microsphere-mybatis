@@ -44,12 +44,12 @@ import org.junit.jupiter.api.BeforeEach;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.Reader;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
 import static org.apache.ibatis.io.Resources.getResourceAsReader;
@@ -85,6 +85,8 @@ public abstract class AbstractMyBatisTest {
     public static final String CHILD_TYPE_ALIAS = "child";
 
     public static final String FATHER_TYPE_ALIAS = "father";
+
+    private static final SecureRandom random = new SecureRandom();
 
     protected final Logger logger = getLogger(this.getClass());
 
@@ -211,7 +213,6 @@ public abstract class AbstractMyBatisTest {
     }
 
     public static User createUser() {
-        Random random = new Random();
         int id = random.nextInt(99999);
         String name = "User - " + id;
         return new User(id, name);

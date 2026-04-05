@@ -41,6 +41,7 @@ import static io.microsphere.mybatis.test.AbstractMyBatisTest.configuration;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.dataSource;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.runCreateDatabaseScript;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.runDestroyDatabaseScript;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -93,9 +94,11 @@ class AbstractMyBatisTestTest {
     }
 
     @Test
-    void testRunScript() throws Exception {
-        DataSource dataSource = dataSource();
-        runCreateDatabaseScript(dataSource);
-        runDestroyDatabaseScript(dataSource);
+    void testRunScript() {
+        assertDoesNotThrow(() -> {
+            DataSource dataSource = dataSource();
+            runCreateDatabaseScript(dataSource);
+            runDestroyDatabaseScript(dataSource);
+        });
     }
 }
