@@ -119,7 +119,7 @@ public class InterceptingExecutorInterceptor implements Interceptor {
             }
             newProperties = newProperties.isEmpty() ? null : newProperties;
 
-            InterceptingExecutor interceptingExecutor = new InterceptingExecutor(delegate, properties, executorFilters);
+            InterceptingExecutor interceptingExecutor = new InterceptingExecutor(delegate, newProperties, executorFilters);
             return isCachingExecutor ? new CachingExecutor(interceptingExecutor) : interceptingExecutor;
         }
         logger.trace("The non-executor [{}] instance simply returns without any dynamic proxy interception", target);
