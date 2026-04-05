@@ -99,7 +99,9 @@ public @interface MyBatisConfiguration {
      *
      * @return <code>true</code> as default.
      * @see Configuration#setMultipleResultSetsEnabled(boolean)
+     * @deprecated
      */
+    @Deprecated
     boolean multipleResultSetsEnabled() default true;
 
     /**
