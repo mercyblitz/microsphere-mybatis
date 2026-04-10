@@ -25,7 +25,7 @@
         <!-- Microsphere -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-java-core</artifactId>
+            <artifactId>microsphere-java-test</artifactId>
         </dependency>
 
         <!-- Mybatis -->
