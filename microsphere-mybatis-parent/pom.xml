@@ -60,51 +60,5 @@
 
         </dependencies>
     </dependencyManagement>
-
-    <profiles>
-        <profile>
-            <id>mybatis-3.0</id>
-            <properties>
-                <mybatis.version>3.0.6</mybatis.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>mybatis-3.1</id>
-            <properties>
-                <mybatis.version>3.1.1</mybatis.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>mybatis-3.2</id>
-            <properties>
-                <mybatis.version>3.2.8</mybatis.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>mybatis-3.3</id>
-            <properties>
-                <mybatis.version>3.3.1</mybatis.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>mybatis-3.4</id>
-            <properties>
-                <mybatis.version>3.4.6</mybatis.version>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>mybatis-3.5</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <mybatis.version>3.5.19</mybatis.version>
-            </properties>
-        </profile>
-    </profiles>
+    
 </project>
