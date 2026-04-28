@@ -38,7 +38,6 @@ import static io.microsphere.collection.ListUtils.ofList;
 import static io.microsphere.collection.MapUtils.newFixedHashMap;
 import static io.microsphere.text.FormatUtils.format;
 import static java.lang.reflect.Proxy.getInvocationHandler;
-import static org.apache.ibatis.util.MapUtil.computeIfAbsent;
 
 /**
  * The utilities class of {@link Plugin}
@@ -97,7 +96,7 @@ public abstract class Plugins {
             if (!TARGET_CLASSES.contains(targetType)) {
                 throw newPluginException("The @Intercepts#type() =  {} must be one of the target classes : {}", targetType.getName(), TARGET_CLASSES);
             }
-            Set<Method> methods = computeIfAbsent(signatureMap, targetType, k -> new HashSet<>());
+            Set<Method> methods = signatureMap.computeIfAbsent(targetType, k -> new HashSet<>());
             String methodName = sig.method();
             try {
                 Method method = targetType.getMethod(methodName, sig.args());
