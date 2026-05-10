@@ -24,3 +24,26 @@
 
 For the complete list of changes, please visit the [GitHub repository](https://github.com/microsphere-projects/microsphere-core/compare/0.1.2...0.1.3).
 
+## v0.1.4
+
+# Release Notes for v0.1.4
+
+## Build and Workflow Enhancements
+- Improved `maven-publish` workflow with enhanced release notes. ([c77d5f8](https://github.com/mercyblitz/microsphere-mybatis/commit/c77d5f8))
+
+## Documentation
+- Updated README to reflect latest branch versions. ([e476ee8](https://github.com/mercyblitz/microsphere-mybatis/commit/e476ee8))
+
+## Dependency Updates
+- Bumped `microsphere-spring-cloud` parent version to `0.1.11`. ([fcaad29](https://github.com/mercyblitz/microsphere-mybatis/commit/fcaad29))
+
+## Bug Fixes
+- Fixed indentation for Dependabot updates list. ([0825235](https://github.com/mercyblitz/microsphere-mybatis/commit/0825235))
+
+## Other Changes
+- Utilized `AnnotationUtils.getAnnotationAttributes` for enhanced annotation handling. ([b369c7a](https://github.com/mercyblitz/microsphere-mybatis/commit/b369c7a))
+- Updated version to next patch (`0.1.4`) after publishing `0.1.3`. ([74d0c62](https://github.com/mercyblitz/microsphere-mybatis/commit/74d0c62)) 
+
+_**Note:** Skipped unrelated merge commits from the list._ 
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.3...0.1.4
