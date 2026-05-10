@@ -18,6 +18,7 @@
 package io.microsphere.mybatis.spring.annotation;
 
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
+import io.microsphere.spring.core.annotation.AnnotationUtils;
 import org.apache.ibatis.session.Configuration;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -31,7 +32,6 @@ import java.util.Map.Entry;
 import static io.microsphere.collection.Sets.ofSet;
 import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.stringArrayToProperties;
 import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
-import static io.microsphere.spring.core.annotation.AnnotationUtils.getAnnotationAttributes;
 import static io.microsphere.util.ClassLoaderUtils.loadClass;
 import static io.microsphere.util.ClassUtils.newInstance;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
@@ -68,7 +68,7 @@ public class MyBatisConfigurationBeanDefintionRegistrar extends BeanCapableImpor
         Class<?> targetClass = loadClass(classLoader, className);
         MyBatisConfiguration annotation = targetClass.getAnnotation(ANNOTATION_CLASS);
         // Only concerns the non-default attributes
-        AnnotationAttributes annotationAttributes = getAnnotationAttributes(annotation, getEnvironment(), true);
+        AnnotationAttributes annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation, getEnvironment(), true);
 
         BeanDefinitionBuilder builder = genericBeanDefinition(Configuration.class);
 
