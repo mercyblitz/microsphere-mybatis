@@ -22,3 +22,25 @@
 
 For more details, view the commit history [here](https://example.com/commit-history).
 
+## v0.2.4
+
+# Release Notes for v0.2.4
+
+## New Features
+- Enhanced release notes generation and automated release creation. (#0803d42)
+
+## Bug Fixes
+- Fixed indentation issue in Dependabot configuration. (#f176c1c)
+
+## Documentation
+- Updated branch version references in `README`. (#7091371)
+- Removed project-specific name from docstring to improve clarity. (#23503e5)
+
+## Dependency Updates
+- Upgraded `microsphere-spring-cloud` to v0.2.11. (#2d5d9c4)
+
+## Build and Workflow Enhancements
+- Merged main and release branches to maintain consistency. (#a8b5abf, #df70148, #5bdb41c)
+- Auto-bumped version to next patch post release of v0.2.3. (#e2d468c)
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.2.3...0.2.4
