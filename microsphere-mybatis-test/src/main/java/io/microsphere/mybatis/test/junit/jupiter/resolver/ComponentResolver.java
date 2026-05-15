@@ -26,7 +26,6 @@ import org.junit.jupiter.api.extension.ParameterContext;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
 
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 import static org.junit.jupiter.api.extension.ExtensionContext.StoreScope.EXTENSION_CONTEXT;
@@ -40,17 +39,6 @@ import static org.junit.jupiter.api.extension.ExtensionContext.StoreScope.EXTENS
  * @since 1.0.0
  */
 public interface ComponentResolver<T> {
-
-    /**
-     * Determine if this resolver supports resolution of an argument for the
-     * {@link Parameter} in the supplied {@link ParameterContext} for the supplied
-     * {@link ExtensionContext}.
-     *
-     * @param parameterContext {@link ParameterContext}
-     * @param extensionContext {@link ExtensionContext}
-     * @return {@code true} if this resolver supports the parameter , otherwise {@code false}
-     */
-    boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext);
 
     /**
      * Determine if this resolver supports resolution of the field
