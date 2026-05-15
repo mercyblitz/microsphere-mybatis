@@ -17,8 +17,8 @@
 
 package io.microsphere.mybatis.spring.annotation;
 
-import io.microsphere.mybatis.executor.LoggingExecutorInterceptor;
 import io.microsphere.mybatis.executor.LoggingExecutorFilter;
+import io.microsphere.mybatis.executor.LoggingExecutorInterceptor;
 import io.microsphere.mybatis.plugin.InterceptingExecutorInterceptor;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataBaseTestConfiguration;
 import io.microsphere.mybatis.spring.test.config.MyBatisDataSourceTestConfiguration;
@@ -53,9 +53,9 @@ import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegi
 import static io.microsphere.mybatis.test.AbstractMapperTest.assertChildMapper;
 import static io.microsphere.mybatis.test.AbstractMapperTest.assertFatherMapper;
 import static io.microsphere.mybatis.test.AbstractMapperTest.assertUserMapper;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.CONFIG_RESOURCE_NAME;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.EMPTY_CONFIG_RESOURCE_NAME;
 import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.DEFAULT_CONFIG_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.EMPTY_CONFIG_RESOURCE_NAME;
 import static io.microsphere.spring.test.util.SpringTestUtils.testInSpringContainer;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static org.apache.ibatis.session.ExecutorType.REUSE;
@@ -145,7 +145,7 @@ class EnableMyBatisTest {
     static class DefaultConfig {
     }
 
-    @EnableMyBatis(configLocation = CONFIG_RESOURCE_NAME)
+    @EnableMyBatis(configLocation = DEFAULT_CONFIG_RESOURCE_NAME)
     @Import(value = {
             MyBatisDataSourceTestConfiguration.class,
             MyBatisDataBaseTestConfiguration.class,
@@ -159,7 +159,7 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(dataSource = "dataSource",
-            configLocation = CONFIG_RESOURCE_NAME,
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME,
             checkConfigLocation = true,
             objectWrapperFactory = "",
             databaseIdProvider = "",
@@ -209,7 +209,7 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(
-            configLocation = CONFIG_RESOURCE_NAME,
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME,
             configurationProperties = {
                     "jdbc.driver = org.h2.Driver",
                     "jdbc.url = jdbc:h2:mem:test_mem",
@@ -246,7 +246,7 @@ class EnableMyBatisTest {
 
 
     @EnableMyBatis(
-            configLocation = CONFIG_RESOURCE_NAME
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME
     )
     @Import(value = {
             MyBatisDataSourceTestConfiguration.class,
@@ -257,7 +257,7 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(
-            configLocation = CONFIG_RESOURCE_NAME,
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME,
             objectWrapperFactory = "objectWrapperFactory"
     )
     @Import(value = {
@@ -273,7 +273,7 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(
-            configLocation = CONFIG_RESOURCE_NAME,
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME,
             databaseIdProvider = "databaseIdProvider"
     )
     @Import(value = {
@@ -289,7 +289,7 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(
-            configLocation = CONFIG_RESOURCE_NAME,
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME,
             cache = "cache"
     )
     @Import(value = {
@@ -305,7 +305,7 @@ class EnableMyBatisTest {
     }
 
     @EnableMyBatis(
-            configLocation = CONFIG_RESOURCE_NAME,
+            configLocation = DEFAULT_CONFIG_RESOURCE_NAME,
             plugins = "interceptor"
     )
     @Import(value = {
