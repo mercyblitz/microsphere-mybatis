@@ -61,7 +61,7 @@ class MyBatisTestUtilsTest {
     void testContaints() {
         assertSame("META-INF/mybatis/config.xml", DEFAULT_CONFIG_RESOURCE_NAME);
         assertSame("META-INF/mybatis/empty-config.xml", EMPTY_CONFIG_RESOURCE_NAME);
-        assertSame("development", DEFAULT_ENVIRONMENT_ID);
+        assertSame("testing", DEFAULT_ENVIRONMENT_ID);
         assertSame("META-INF/mybatis/mybatis.properties", DEFAULT_PROPERTIES_RESOURCE_NAME);
         assertSame("META-INF/sql/init-db.sql", INIT_DB_SCRIPT_RESOURCE_NAME);
         assertSame("META-INF/sql/destroy-db.sql", DESTROY_DB_SCRIPT_RESOURCE_NAME);
