@@ -14,52 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.test.entity;
 
-import java.io.Serializable;
-import java.util.Objects;
+package io.microsphere.mybatis.test.junit.jupiter.resolver;
+
+import org.junit.jupiter.api.extension.ExtensionContext;
+
+import java.util.Properties;
+
+import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.get;
 
 /**
- * User
+ * {@link ComponentResolver} for {@link Properties}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see Properties
  * @since 1.0.0
  */
-public class User implements Serializable {
+public class PropertiesResolver extends AbstractComponentResolver<Properties> {
 
-    private int id;
-
-    private String name;
-
-    public User() {
-    }
-
-    public User(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    public static final PropertiesResolver INSTANCE = new PropertiesResolver();
 
     @Override
-    public final boolean equals(Object o) {
-        if (!(o instanceof User)) return false;
-
-        User user = (User) o;
-        return id == user.id && Objects.equals(name, user.name);
+    public Properties doResolve(ExtensionContext extensionContext) throws Exception {
+        return get(extensionContext, Properties.class);
     }
 }

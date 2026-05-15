@@ -27,8 +27,8 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.runCreateDatabaseScript;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.runDestroyDatabaseScript;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.runCreateDatabaseScript;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.runDestroyDatabaseScript;
 
 /**
  * The Spring {@link Configuration @Configuration} class for MyBatis Database test

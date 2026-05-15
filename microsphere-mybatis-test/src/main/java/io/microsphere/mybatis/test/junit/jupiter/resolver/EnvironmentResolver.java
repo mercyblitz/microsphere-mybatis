@@ -14,52 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.test.entity;
 
-import java.io.Serializable;
-import java.util.Objects;
+package io.microsphere.mybatis.test.junit.jupiter.resolver;
+
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
- * User
+ * {@link ComponentResolver} for {@link Environment}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see Environment
  * @since 1.0.0
  */
-public class User implements Serializable {
+public class EnvironmentResolver extends AbstractComponentResolver<Environment> {
 
-    private int id;
-
-    private String name;
-
-    public User() {
-    }
-
-    public User(int id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    public static final EnvironmentResolver INSTANCE = new EnvironmentResolver();
 
     @Override
-    public final boolean equals(Object o) {
-        if (!(o instanceof User)) return false;
-
-        User user = (User) o;
-        return id == user.id && Objects.equals(name, user.name);
+    protected Environment doResolve(ExtensionContext extensionContext) throws Exception {
+        Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
+        return configuration.getEnvironment();
     }
 }

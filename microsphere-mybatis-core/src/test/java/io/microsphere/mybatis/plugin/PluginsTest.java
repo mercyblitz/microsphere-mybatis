@@ -16,7 +16,7 @@
  */
 package io.microsphere.mybatis.plugin;
 
-import io.microsphere.mybatis.test.executor.LoggingExecutor;
+import io.microsphere.mybatis.executor.LoggingExecutor;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
