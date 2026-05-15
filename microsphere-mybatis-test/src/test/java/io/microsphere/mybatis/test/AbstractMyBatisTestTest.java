@@ -17,33 +17,12 @@
 
 package io.microsphere.mybatis.test;
 
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.junit.jupiter.api.Test;
 
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.sql.Connection;
-
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.CHILD_TYPE_ALIAS;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.CONFIG_RESOURCE_NAME;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.CREATE_DB_SCRIPT_RESOURCE_NAME;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.DESTROY_DB_SCRIPT_RESOURCE_NAME;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.DEVELOPMENT_ID;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.EMPTY_CONFIG_RESOURCE_NAME;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.FATHER_TYPE_ALIAS;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.PROPERTIES_RESOURCE_NAME;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.USER_TYPE_ALIAS;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.buildSqlSessionFactory;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.configuration;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.dataSource;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.runCreateDatabaseScript;
-import static io.microsphere.mybatis.test.AbstractMyBatisTest.runDestroyDatabaseScript;
+import static io.microsphere.mybatis.test.AbstractExecutorTest.MS_ID_USER_BY_ID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * The test class for {@link AbstractMyBatisTest}
@@ -52,53 +31,32 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * @see AbstractMyBatisTest
  * @since 1.0.0
  */
-class AbstractMyBatisTestTest {
+class AbstractMyBatisTestTest extends AbstractMyBatisTest {
 
     @Test
-    void testContaints() {
-        assertSame("META-INF/mybatis/config.xml", CONFIG_RESOURCE_NAME);
-        assertSame("META-INF/mybatis/empty-config.xml", EMPTY_CONFIG_RESOURCE_NAME);
-        assertSame("development", DEVELOPMENT_ID);
-        assertSame("META-INF/mybatis/mybatis.properties", PROPERTIES_RESOURCE_NAME);
-        assertSame("META-INF/sql/create-db.sql", CREATE_DB_SCRIPT_RESOURCE_NAME);
-        assertSame("META-INF/sql/destroy-db.sql", DESTROY_DB_SCRIPT_RESOURCE_NAME);
-        assertSame("user", USER_TYPE_ALIAS);
-        assertSame("child", CHILD_TYPE_ALIAS);
-        assertSame("father", FATHER_TYPE_ALIAS);
-    }
-
-    @Test
-    void testConfiguration() throws IOException {
-        Configuration configuration = configuration();
-        assertConfiguration(configuration);
-    }
-
-    @Test
-    void testDataSource() throws Exception {
-        DataSource dataSource = dataSource();
-        assertNotNull(dataSource);
-        try (Connection connection = dataSource.getConnection()) {
-            assertNotNull(connection);
-        }
-    }
-
-    @Test
-    void testBuildSqlSessionFactory() throws IOException {
-        SqlSessionFactory sqlSessionFactory = buildSqlSessionFactory();
-        Configuration configuration = sqlSessionFactory.getConfiguration();
-        assertConfiguration(configuration);
-
-        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            assertNotNull(sqlSession);
-        }
-    }
-
-    @Test
-    void testRunScript() {
+    void testRunSafely() {
         assertDoesNotThrow(() -> {
-            DataSource dataSource = dataSource();
-            runCreateDatabaseScript(dataSource);
-            runDestroyDatabaseScript(dataSource);
+            runSafely(() -> {
+            });
         });
+
+        assertDoesNotThrow(() -> {
+            runSafely(() -> {
+                throw new RuntimeException("Test Exception");
+            });
+        });
+    }
+
+    @Test
+    void testGetConnection() throws Throwable {
+        doInExecutor(executor -> {
+            assertNotNull(getConnection(executor));
+        });
+    }
+
+    @Test
+    void testGetMappedStatement() {
+        MappedStatement mappedStatement = getMappedStatement(MS_ID_USER_BY_ID);
+        assertNotNull(mappedStatement);
     }
 }
