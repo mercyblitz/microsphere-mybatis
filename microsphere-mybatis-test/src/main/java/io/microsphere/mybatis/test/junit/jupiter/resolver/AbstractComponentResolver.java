@@ -20,10 +20,8 @@ package io.microsphere.mybatis.test.junit.jupiter.resolver;
 import io.microsphere.mybatis.test.junit.jupiter.MyBatisRuntime;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-import org.junit.jupiter.api.extension.ParameterContext;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
 
 import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.get;
 import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.isMyBatisRuntime;
@@ -50,12 +48,6 @@ public abstract class AbstractComponentResolver<T> implements ComponentResolver<
                 .as(ComponentResolver.class)
                 .getGenericType(0)
                 .toClass();
-    }
-
-    @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        Parameter parameter = parameterContext.getParameter();
-        return isMyBatisRuntime(parameter) && isComponentType(parameter.getType());
     }
 
     @Override
