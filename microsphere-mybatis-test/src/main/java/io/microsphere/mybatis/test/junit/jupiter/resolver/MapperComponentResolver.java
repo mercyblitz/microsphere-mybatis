@@ -17,20 +17,25 @@
 
 package io.microsphere.mybatis.test.junit.jupiter.resolver;
 
+import org.apache.ibatis.binding.MapperRegistry;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.util.Collection;
+
+import static io.microsphere.lang.function.ThrowableSupplier.execute;
+
 /**
- * {@link ComponentResolver} for {@link SqlSession}
+ * {@link ComponentResolver} for MyBatis Mapper
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see SqlSession
+ * @see ComponentResolver
  * @since 1.0.0
  */
-public class SqlSessionResolver extends AbstractComponentResolver<SqlSession> {
+public class MapperComponentResolver extends AbstractComponentResolver<Object> {
 
-    public static final SqlSessionResolver INSTANCE = new SqlSessionResolver();
+    public static final MapperComponentResolver INSTANCE = new MapperComponentResolver();
 
     @Override
     public boolean supportsStaticField() {
@@ -38,8 +43,18 @@ public class SqlSessionResolver extends AbstractComponentResolver<SqlSession> {
     }
 
     @Override
-    protected SqlSession doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
-        SqlSessionFactory sqlSessionFactory = SqlSessionFactoryResolver.INSTANCE.resolve(extensionContext);
-        return sqlSessionFactory.openSession();
+    protected Object doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
+        SqlSession sqlSession = SqlSessionResolver.INSTANCE.resolve(extensionContext);
+        return sqlSession.getMapper(componentType);
+    }
+
+    @Override
+    public boolean isComponentType(ExtensionContext extensionContext, Class<?> componentType) {
+        return execute(() -> {
+            Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
+            MapperRegistry mapperRegistry = configuration.getMapperRegistry();
+            Collection<Class<?>> mappers = mapperRegistry.getMappers();
+            return mappers.contains(componentType);
+        });
     }
 }

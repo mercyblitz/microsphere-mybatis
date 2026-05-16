@@ -34,7 +34,7 @@ public class DataSourceResolver extends AbstractComponentResolver<DataSource> {
     public static final DataSourceResolver INSTANCE = new DataSourceResolver();
 
     @Override
-    protected DataSource doResolve(ExtensionContext extensionContext) throws Exception {
+    protected DataSource doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
         Environment environment = EnvironmentResolver.INSTANCE.resolve(extensionContext);
         return environment.getDataSource();
     }

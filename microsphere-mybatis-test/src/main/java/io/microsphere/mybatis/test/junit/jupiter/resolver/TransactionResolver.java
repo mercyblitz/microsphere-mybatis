@@ -39,14 +39,14 @@ public class TransactionResolver extends AbstractComponentResolver<Transaction> 
     public static final TransactionResolver INSTANCE = new TransactionResolver();
 
     @Override
-    protected Transaction doResolve(ExtensionContext extensionContext) throws Exception {
-        Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
-        Connection connection = ConnectionResolver.INSTANCE.resolve(extensionContext);
-        return newTransaction(configuration, connection);
+    public boolean supportsStaticField() {
+        return false;
     }
 
     @Override
-    public boolean supportsStaticField() {
-        return false;
+    protected Transaction doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
+        Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
+        Connection connection = ConnectionResolver.INSTANCE.resolve(extensionContext);
+        return newTransaction(configuration, connection);
     }
 }

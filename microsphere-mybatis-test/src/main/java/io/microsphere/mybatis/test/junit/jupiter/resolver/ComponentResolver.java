@@ -26,7 +26,10 @@ import org.junit.jupiter.api.extension.ParameterContext;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
+import java.util.Objects;
 
+import static io.microsphere.reflect.MemberUtils.isStatic;
 import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 import static org.junit.jupiter.api.extension.ExtensionContext.StoreScope.EXTENSION_CONTEXT;
 
@@ -41,20 +44,39 @@ import static org.junit.jupiter.api.extension.ExtensionContext.StoreScope.EXTENS
 public interface ComponentResolver<T> {
 
     /**
-     * Determine if this resolver supports resolution of the field
+     * Determine if this resolver supports resolution of an argument for the
+     * {@link Parameter} in the supplied {@link ParameterContext} for the supplied
+     * {@link ExtensionContext}.
      *
-     * @param field {@link Field}
-     * @return {@code true} if this resolver supports the field , otherwise {@code false}
+     * @param parameterContext the context for the parameter for which an argument should
+     *                         be resolved; never {@code null}
+     * @param extensionContext the extension context for the {@code Executable}
+     *                         about to be invoked; never {@code null}
+     * @return {@code true} if this resolver can resolve an argument for the parameter
+     * @see ParameterContext
      */
-    boolean supportsField(Field field, ExtensionContext extensionContext);
+    default boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        Parameter parameter = parameterContext.getParameter();
+        Class<?> parameterType = parameter.getType();
+        return isMyBatisRuntime(parameter) && isComponentType(extensionContext, parameterType);
+    }
 
     /**
-     * Get the MyBatis component type
+     * Determine if this resolver supports resolution of the field
      *
-     * @return non-null
+     * @param extensionContext {@link ExtensionContext}
+     * @param field            {@link Field}
+     * @return {@code true} if this resolver supports the field , otherwise {@code false}
      */
-    @Nonnull
-    Class<T> getComponentType();
+    default boolean supportsField(ExtensionContext extensionContext, Field field) {
+        if (isMyBatisRuntime(field) && isComponentType(extensionContext, field.getType())) {
+            if (isStatic(field)) {
+                return supportsStaticField();
+            }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Determine if this resolver supports resolution of the static field
@@ -66,13 +88,44 @@ public interface ComponentResolver<T> {
     }
 
     /**
+     * Get the MyBatis component type
+     *
+     * @return non-null
+     */
+    @Nonnull
+    Class<T> getComponentType();
+
+    /**
+     * Determine if the requested component type is the same as the MyBatis component type
+     *
+     * @param extensionContext       {@link ExtensionContext}
+     * @param requestedComponentType requested MyBatis component type
+     * @return {@code true} if the requested component type is the MyBatis component type , otherwise {@code false}
+     */
+    default boolean isComponentType(ExtensionContext extensionContext, Class<?> requestedComponentType) {
+        return Objects.equals(getComponentType(), requestedComponentType);
+    }
+
+    /**
      * Resolve the MyBatis component
      *
      * @param extensionContext {@link ExtensionContext}
      * @return the MyBatis component
      * @throws Exception
      */
-    T resolve(ExtensionContext extensionContext) throws Exception;
+    default T resolve(ExtensionContext extensionContext) throws Exception {
+        return resolve(extensionContext, getComponentType());
+    }
+
+    /**
+     * Resolve the MyBatis component by component type
+     *
+     * @param extensionContext       {@link ExtensionContext}
+     * @param requestedComponentType the requested component type
+     * @return the MyBatis component
+     * @throws Exception
+     */
+    T resolve(ExtensionContext extensionContext, Class<?> requestedComponentType) throws Exception;
 
     static boolean isMyBatisRuntime(AnnotatedElement annotatedElement) {
         return annotatedElement.isAnnotationPresent(MyBatisRuntime.class);

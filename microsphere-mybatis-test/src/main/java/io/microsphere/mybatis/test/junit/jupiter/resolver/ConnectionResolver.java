@@ -34,13 +34,13 @@ public class ConnectionResolver extends AbstractComponentResolver<Connection> {
     public static final ConnectionResolver INSTANCE = new ConnectionResolver();
 
     @Override
-    protected Connection doResolve(ExtensionContext extensionContext) throws Exception {
-        SqlSession sqlSession = SqlSessionResolver.INSTANCE.resolve(extensionContext);
-        return sqlSession.getConnection();
+    public boolean supportsStaticField() {
+        return false;
     }
 
     @Override
-    public boolean supportsStaticField() {
-        return false;
+    protected Connection doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
+        SqlSession sqlSession = SqlSessionResolver.INSTANCE.resolve(extensionContext);
+        return sqlSession.getConnection();
     }
 }

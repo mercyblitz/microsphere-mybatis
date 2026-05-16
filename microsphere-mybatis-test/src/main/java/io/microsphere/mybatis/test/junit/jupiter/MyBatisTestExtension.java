@@ -23,17 +23,12 @@ import io.microsphere.mybatis.test.junit.jupiter.resolver.ConnectionResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.DataSourceResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.EnvironmentResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.ExecutorResolver;
+import io.microsphere.mybatis.test.junit.jupiter.resolver.MapperComponentResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.PropertiesResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.SqlSessionFactoryResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.SqlSessionResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.TransactionResolver;
 import io.microsphere.reflect.MemberUtils;
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -45,22 +40,17 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
-import java.sql.Connection;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Properties;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static io.microsphere.collection.Maps.ofMap;
+import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.get;
-import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.isMyBatisRuntime;
 import static io.microsphere.reflect.FieldUtils.findAllDeclaredFields;
 import static io.microsphere.reflect.FieldUtils.setFieldValue;
+import static java.util.Objects.nonNull;
 
 /**
  * The JUnit Jupiter Test {@link Extension} of MyBatis
@@ -73,16 +63,17 @@ import static io.microsphere.reflect.FieldUtils.setFieldValue;
 public class MyBatisTestExtension implements BeforeAllCallback, AfterAllCallback, AfterEachCallback,
         TestInstancePostProcessor, ParameterResolver {
 
-    private final static Map<Class<?>, ComponentResolver> componentResolversMap = ofMap(
-            Configuration.class, ConfigurationResolver.INSTANCE,
-            Environment.class, EnvironmentResolver.INSTANCE,
-            SqlSessionFactory.class, SqlSessionFactoryResolver.INSTANCE,
-            DataSource.class, DataSourceResolver.INSTANCE,
-            Properties.class, PropertiesResolver.INSTANCE,
-            SqlSession.class, SqlSessionResolver.INSTANCE,
-            Transaction.class, TransactionResolver.INSTANCE,
-            Executor.class, ExecutorResolver.INSTANCE,
-            Connection.class, ConnectionResolver.INSTANCE
+    private static final List<ComponentResolver> componentResolvers = ofList(
+            ConfigurationResolver.INSTANCE,
+            EnvironmentResolver.INSTANCE,
+            SqlSessionFactoryResolver.INSTANCE,
+            DataSourceResolver.INSTANCE,
+            PropertiesResolver.INSTANCE,
+            SqlSessionResolver.INSTANCE,
+            TransactionResolver.INSTANCE,
+            ExecutorResolver.INSTANCE,
+            ConnectionResolver.INSTANCE,
+            MapperComponentResolver.INSTANCE
     );
 
     @Override
@@ -108,16 +99,13 @@ public class MyBatisTestExtension implements BeforeAllCallback, AfterAllCallback
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        Parameter parameter = parameterContext.getParameter();
-        return isMyBatisRuntime(parameter)
-                && getComponent(extensionContext, parameter.getType()) != null;
+        return nonNull(getComponentResolver(parameterContext, extensionContext));
     }
 
     @Override
     public @Nullable Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        Parameter parameter = parameterContext.getParameter();
-        Class<?> type = parameter.getType();
-        return getComponent(extensionContext, type);
+        ComponentResolver componentResolver = getComponentResolver(parameterContext, extensionContext);
+        return resolveComponent(componentResolver, extensionContext, parameterContext.getParameter().getType());
     }
 
     private void injectFields(ExtensionContext extensionContext, @Nullable Object testInstance) {
@@ -126,26 +114,40 @@ public class MyBatisTestExtension implements BeforeAllCallback, AfterAllCallback
         boolean isStatic = testInstance == null;
 
         Predicate<Field> predicate = isStatic ? MemberUtils::isStatic : MemberUtils::isNonStatic;
-        predicate = predicate.and(ComponentResolver::isMyBatisRuntime);
 
         Set<Field> allFields = findAllDeclaredFields(testClass, predicate);
         for (Field field : allFields) {
-            Class<?> fieldType = field.getType();
-            ComponentResolver resolver = getComponentResolver(fieldType);
-            Object component = null;
-            if (resolver == null) {
-                if (!isStatic) {
-                    component = getMapper(extensionContext, fieldType);
-                }
-            } else if (resolver.supportsField(field, extensionContext)) {
-                component = resolveComponent(extensionContext, resolver);
+            ComponentResolver resolver = getComponentResolver(extensionContext, field);
+            Object component = resolveComponent(resolver, extensionContext, field.getType());
+            if (component != null) {
+                setFieldValue(testInstance, field, component);
             }
-            setFieldValue(testInstance, field, component);
         }
     }
 
-    private void close(ExtensionContext context, boolean forAll) throws Exception {
-        Collection<ComponentResolver> componentResolvers = componentResolversMap.values();
+    static ComponentResolver getComponentResolver(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        for (ComponentResolver componentResolver : componentResolvers) {
+            if (componentResolver.supportsParameter(parameterContext, extensionContext)) {
+                return componentResolver;
+            }
+        }
+        return null;
+    }
+
+    static ComponentResolver getComponentResolver(ExtensionContext extensionContext, Field field) {
+        for (ComponentResolver componentResolver : componentResolvers) {
+            if (componentResolver.supportsField(extensionContext, field)) {
+                return componentResolver;
+            }
+        }
+        return null;
+    }
+
+    static <T> T resolveComponent(ComponentResolver resolver, ExtensionContext context, Class<?> requestedComponentType) {
+        return resolver == null ? null : execute(() -> (T) resolver.resolve(context, requestedComponentType));
+    }
+
+    static void close(ExtensionContext context, boolean forAll) throws Exception {
         for (ComponentResolver componentResolver : componentResolvers) {
             Class componentType = componentResolver.getComponentType();
             Object component = null;
@@ -156,34 +158,5 @@ public class MyBatisTestExtension implements BeforeAllCallback, AfterAllCallback
                 closeable.close();
             }
         }
-    }
-
-    static ComponentResolver getComponentResolver(Class<?> componentType) {
-        return componentResolversMap.get(componentType);
-    }
-
-    static <T> T getComponent(ExtensionContext context, Class<T> type) {
-        T component = resolveComponent(context, type);
-        return component == null ? getMapper(context, type) : component;
-    }
-
-    static <T> T resolveComponent(ExtensionContext context, Class<T> type) {
-        ComponentResolver resolver = componentResolversMap.get(type);
-        return resolver == null ? null : resolveComponent(context, resolver);
-    }
-
-    static <T> T resolveComponent(ExtensionContext context, ComponentResolver resolver) {
-        return execute(() -> (T) resolver.resolve(context));
-    }
-
-    static <T> T getMapper(ExtensionContext context, Class<T> type) {
-        return execute(() -> {
-            SqlSession sqlSession = SqlSessionResolver.INSTANCE.resolve(context);
-            return sqlSession.getMapper(type);
-        });
-    }
-
-    public static boolean isComponentType(Class<?> type) {
-        return componentResolversMap.containsKey(type);
     }
 }
