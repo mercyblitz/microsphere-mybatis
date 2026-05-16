@@ -19,15 +19,6 @@ package io.microsphere.mybatis.test.junit.jupiter;
 
 import io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.ConfigurationResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.ConnectionResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.DataSourceResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.EnvironmentResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.ExecutorResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.MapperComponentResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.PropertiesResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.SqlSessionFactoryResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.SqlSessionResolver;
-import io.microsphere.mybatis.test.junit.jupiter.resolver.TransactionResolver;
 import io.microsphere.reflect.MemberUtils;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.extension.AfterAllCallback;
@@ -45,11 +36,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static io.microsphere.collection.Lists.ofList;
 import static io.microsphere.lang.function.ThrowableSupplier.execute;
 import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.get;
 import static io.microsphere.reflect.FieldUtils.findAllDeclaredFields;
 import static io.microsphere.reflect.FieldUtils.setFieldValue;
+import static io.microsphere.util.ServiceLoaderUtils.loadServicesList;
 import static java.util.Objects.nonNull;
 
 /**
@@ -63,18 +54,7 @@ import static java.util.Objects.nonNull;
 public class MyBatisTestExtension implements BeforeAllCallback, AfterAllCallback, AfterEachCallback,
         TestInstancePostProcessor, ParameterResolver {
 
-    private static final List<ComponentResolver> componentResolvers = ofList(
-            ConfigurationResolver.INSTANCE,
-            EnvironmentResolver.INSTANCE,
-            SqlSessionFactoryResolver.INSTANCE,
-            DataSourceResolver.INSTANCE,
-            PropertiesResolver.INSTANCE,
-            SqlSessionResolver.INSTANCE,
-            TransactionResolver.INSTANCE,
-            ExecutorResolver.INSTANCE,
-            ConnectionResolver.INSTANCE,
-            MapperComponentResolver.INSTANCE
-    );
+    private static final List<ComponentResolver> componentResolvers = loadServicesList(ComponentResolver.class);
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {

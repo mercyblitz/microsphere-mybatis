@@ -127,15 +127,36 @@ public interface ComponentResolver<T> {
      */
     T resolve(ExtensionContext extensionContext, Class<?> requestedComponentType) throws Exception;
 
+    /**
+     * Determine if the {@link AnnotatedElement} is annotated with {@link MyBatisRuntime}
+     *
+     * @param annotatedElement {@link AnnotatedElement}
+     * @return {@code true} if the {@link AnnotatedElement} is annotated with {@link MyBatisRuntime} , otherwise {@code false}
+     */
     static boolean isMyBatisRuntime(AnnotatedElement annotatedElement) {
         return annotatedElement.isAnnotationPresent(MyBatisRuntime.class);
     }
 
+    /**
+     * Store the MyBatis component
+     *
+     * @param context   {@link ExtensionContext}
+     * @param component the MyBatis component
+     * @param forAll    {@code true} if the component is for all test methods , otherwise {@code false}
+     */
     static void store(ExtensionContext context, Object component, boolean forAll) {
         Store store = getStore(context, forAll);
         store.put(component.getClass(), component);
     }
 
+    /**
+     * Get the MyBatis component by component type
+     *
+     * @param context       {@link ExtensionContext}
+     * @param componentType the MyBatis component type
+     * @param <T>           the type of MyBatis component
+     * @return the MyBatis component , if not found , return {@code null}
+     */
     static <T> T get(ExtensionContext context, Class<T> componentType) {
         T component = get(context, componentType, false, false);
         if (component == null) {
@@ -144,11 +165,28 @@ public interface ComponentResolver<T> {
         return component;
     }
 
+    /**
+     * Get the MyBatis component by component type
+     *
+     * @param context       {@link ExtensionContext}
+     * @param componentType the MyBatis component type
+     * @param forAll        {@code true} if the component is for all test methods , otherwise {@code false}
+     * @param forRemoval    {@code true} if the component is for removal , otherwise {@code false}
+     * @param <T>           the type of MyBatis component
+     * @return the MyBatis component , if not found , return {@code null}
+     */
     static <T> T get(ExtensionContext context, Class<T> componentType, boolean forAll, boolean forRemoval) {
         Store store = getStore(context, forAll);
         return forRemoval ? store.remove(componentType, componentType) : store.get(componentType, componentType);
     }
 
+    /**
+     * Get the {@link Store} by {@link ExtensionContext} and forAll flag
+     *
+     * @param context {@link ExtensionContext}
+     * @param forAll  {@code true} if the component is for all test methods , otherwise {@code false}
+     * @return non-null
+     */
     static Store getStore(ExtensionContext context, boolean forAll) {
         Class<?> testClass = context.getRequiredTestClass();
         Namespace namespace = forAll ? create("FOR_ALL", testClass) : create("FOR_EACH", testClass);
