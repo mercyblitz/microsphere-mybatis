@@ -18,6 +18,8 @@
 package io.microsphere.mybatis.test.junit.jupiter;
 
 
+import io.microsphere.mybatis.test.mapper.ChildMapper;
+import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.Environment;
@@ -30,8 +32,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 
+import static io.microsphere.mybatis.test.AbstractExecutorTest.assertExecutor;
+import static io.microsphere.mybatis.test.AbstractMapperTest.assertChildMapper;
+import static io.microsphere.mybatis.test.AbstractMapperTest.assertFatherMapper;
+import static io.microsphere.mybatis.test.AbstractMapperTest.assertUserMapper;
+import static io.microsphere.mybatis.test.AbstractMyBatisTest.assertConfiguration;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.DESTROY_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.INIT_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.util.MyBatisUtils.runScript;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -77,10 +89,24 @@ class MyBatisTestExtensionTest {
         @MyBatisRuntime
         private UserMapper userMapper;
 
+        @MyBatisRuntime
+        private ChildMapper childMapper;
+
+        @MyBatisRuntime
+        FatherMapper fatherMapper;
+
         @Test
-        void test() {
+        void test() throws SQLException, IOException {
             assertAll(configuration, environment, sqlSessionFactory, dataSource, properties, sqlSession, transaction,
                     executor, userMapper);
+
+            runScript(dataSource, INIT_DB_SCRIPT_RESOURCE_NAME);
+            assertConfiguration(configuration);
+            assertExecutor(configuration, executor);
+            assertUserMapper(userMapper);
+            assertChildMapper(childMapper);
+            assertFatherMapper(fatherMapper);
+            runScript(dataSource, DESTROY_DB_SCRIPT_RESOURCE_NAME);
         }
     }
 
