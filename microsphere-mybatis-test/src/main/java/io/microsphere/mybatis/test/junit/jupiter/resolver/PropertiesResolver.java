@@ -35,7 +35,7 @@ public class PropertiesResolver extends AbstractComponentResolver<Properties> {
     public static final PropertiesResolver INSTANCE = new PropertiesResolver();
 
     @Override
-    public Properties doResolve(ExtensionContext extensionContext) throws Exception {
+    public Properties doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
         return get(extensionContext, Properties.class);
     }
 }

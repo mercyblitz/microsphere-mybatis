@@ -17,18 +17,11 @@
 
 package io.microsphere.mybatis.test.junit.jupiter.resolver;
 
-import io.microsphere.mybatis.test.junit.jupiter.MyBatisRuntime;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
-
-import java.lang.reflect.Field;
 
 import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.get;
-import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.isMyBatisRuntime;
 import static io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver.store;
 import static io.microsphere.reflect.JavaType.from;
-import static io.microsphere.reflect.MemberUtils.isStatic;
-import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
 
 /**
  * Abstract class of {@link ComponentResolver}
@@ -38,8 +31,6 @@ import static org.junit.jupiter.api.extension.ExtensionContext.Namespace.create;
  * @since 1.0.0
  */
 public abstract class AbstractComponentResolver<T> implements ComponentResolver<T> {
-
-    private static final Namespace MYBATIS = create(MyBatisRuntime.class);
 
     private final Class<T> componentType;
 
@@ -51,21 +42,10 @@ public abstract class AbstractComponentResolver<T> implements ComponentResolver<
     }
 
     @Override
-    public boolean supportsField(Field field, ExtensionContext extensionContext) {
-        if (isMyBatisRuntime(field) && isComponentType(field.getType())) {
-            if (isStatic(field)) {
-                return supportsStaticField();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public T resolve(ExtensionContext extensionContext) throws Exception {
-        T component = get(extensionContext, this.componentType);
+    public final T resolve(ExtensionContext extensionContext, Class<?> requestedComponentType) throws Exception {
+        T component = (T) get(extensionContext, requestedComponentType);
         if (component == null) {
-            component = doResolve(extensionContext);
+            component = doResolve(extensionContext, requestedComponentType);
             if (supportsStaticField()) {
                 store(extensionContext, component, true);
             }
@@ -79,9 +59,6 @@ public abstract class AbstractComponentResolver<T> implements ComponentResolver<
         return this.componentType;
     }
 
-    protected abstract T doResolve(ExtensionContext extensionContext) throws Exception;
+    protected abstract T doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception;
 
-    protected boolean isComponentType(Class<?> type) {
-        return this.componentType.equals(type);
-    }
 }

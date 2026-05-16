@@ -33,7 +33,7 @@ public class EnvironmentResolver extends AbstractComponentResolver<Environment> 
     public static final EnvironmentResolver INSTANCE = new EnvironmentResolver();
 
     @Override
-    protected Environment doResolve(ExtensionContext extensionContext) throws Exception {
+    protected Environment doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
         Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
         return configuration.getEnvironment();
     }

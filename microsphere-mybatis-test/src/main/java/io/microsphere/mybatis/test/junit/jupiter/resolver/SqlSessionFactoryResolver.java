@@ -35,7 +35,7 @@ public class SqlSessionFactoryResolver extends AbstractComponentResolver<SqlSess
     public static final SqlSessionFactoryResolver INSTANCE = new SqlSessionFactoryResolver();
 
     @Override
-    protected SqlSessionFactory doResolve(ExtensionContext extensionContext) throws Exception {
+    protected SqlSessionFactory doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
         Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
         return buildSqlSessionFactory(configuration);
     }

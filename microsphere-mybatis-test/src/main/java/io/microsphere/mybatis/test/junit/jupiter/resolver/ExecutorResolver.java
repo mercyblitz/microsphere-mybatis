@@ -37,14 +37,14 @@ public class ExecutorResolver extends AbstractComponentResolver<Executor> {
     public static final ExecutorResolver INSTANCE = new ExecutorResolver();
 
     @Override
-    protected Executor doResolve(ExtensionContext extensionContext) throws Exception {
-        Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
-        Connection connection = ConnectionResolver.INSTANCE.resolve(extensionContext);
-        return newExecutor(configuration, connection);
+    public boolean supportsStaticField() {
+        return false;
     }
 
     @Override
-    public boolean supportsStaticField() {
-        return false;
+    protected Executor doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
+        Configuration configuration = ConfigurationResolver.INSTANCE.resolve(extensionContext);
+        Connection connection = ConnectionResolver.INSTANCE.resolve(extensionContext);
+        return newExecutor(configuration, connection);
     }
 }

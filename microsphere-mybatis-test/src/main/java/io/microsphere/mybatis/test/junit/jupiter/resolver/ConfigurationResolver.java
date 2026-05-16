@@ -39,7 +39,7 @@ public class ConfigurationResolver extends AbstractComponentResolver<Configurati
     public static final ConfigurationResolver INSTANCE = new ConfigurationResolver();
 
     @Override
-    protected Configuration doResolve(ExtensionContext extensionContext) throws Exception {
+    protected Configuration doResolve(ExtensionContext extensionContext, Class<?> componentType) throws Exception {
         MyBatisTest myBatisTest = getMyBatisTest(extensionContext);
         Properties properties = loadProperties(myBatisTest.propertiesResource());
         store(extensionContext, properties, true);
