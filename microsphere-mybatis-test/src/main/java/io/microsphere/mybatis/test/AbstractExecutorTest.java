@@ -45,10 +45,10 @@ public abstract class AbstractExecutorTest extends AbstractSqlSessionTest {
 
     @Test
     public void testExecutor() throws Throwable {
-        doInExecutor(executor -> assertEexecutor(getConfiguration(), executor));
+        doInExecutor(executor -> assertExecutor(getConfiguration(), executor));
     }
 
-    public static void assertEexecutor(Configuration configuration, Executor executor) throws SQLException {
+    public static void assertExecutor(Configuration configuration, Executor executor) throws SQLException {
         MappedStatement ms = configuration.getMappedStatement(MS_ID_SAVE_USER);
         User user = createUser();
 
