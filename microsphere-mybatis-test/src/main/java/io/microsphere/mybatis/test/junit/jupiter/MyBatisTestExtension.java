@@ -17,10 +17,10 @@
 
 package io.microsphere.mybatis.test.junit.jupiter;
 
+import io.microsphere.annotation.Nullable;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.ComponentResolver;
 import io.microsphere.mybatis.test.junit.jupiter.resolver.ConfigurationResolver;
 import io.microsphere.reflect.MemberUtils;
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
