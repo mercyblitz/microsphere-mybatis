@@ -43,4 +43,30 @@ For more details, view the commit history [here](https://example.com/commit-hist
 - Merged main and release branches to maintain consistency. (#a8b5abf, #df70148, #5bdb41c)
 - Auto-bumped version to next patch post release of v0.2.3. (#e2d468c)
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.2.3...0.2.4
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.2.3...0.2.4## v0.2.5
+
+# Release Notes for v0.2.5
+
+## New Features
+- **ComponentResolvers** are now loaded via a service loader. ([514d1c5](https://example.com))
+- Added support for **MapperResolver** in the refactored `ComponentResolver` API. ([ecf5378](https://example.com))
+- Introduced **JUnit5 MyBatis test extension** and utility classes. ([bdc3f31](https://example.com))
+
+## Bug Fixes
+- Removed support for parameter-based resolution to simplify the API. ([9ba36c8](https://example.com))
+
+## Test Improvements
+- Enhanced test coverage for executor assertions. ([69db13f](https://example.com))
+- Updated default environment ID in test setup for better reliability. ([3502f82](https://example.com))
+
+## Build and Workflow Enhancements
+- Added **Maven server credentials** configuration to the workflow. ([0336245](https://example.com))
+- Updated **Maven GitHub Actions workflows** for improved CI/CD. ([488c611](https://example.com))
+
+## Other Changes
+- Various internal **refactoring** and adjustments to improve project structure. 
+- **Chore commits** for merging branches and version bumps.
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.2.4...0.2.5
