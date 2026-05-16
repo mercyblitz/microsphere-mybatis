@@ -53,12 +53,13 @@
     </scm>
 
     <properties>
-        <revision>0.1.5-SNAPSHOT</revision>
+        <revision>0.1.6-SNAPSHOT</revision>
     </properties>
 
     <modules>
         <module>microsphere-mybatis-parent</module>
         <module>microsphere-mybatis-dependencies</module>
+        <module>microsphere-mybatis-utils</module>
         <module>microsphere-mybatis-core</module>
         <module>microsphere-mybatis-test</module>
         <module>microsphere-mybatis-spring</module>

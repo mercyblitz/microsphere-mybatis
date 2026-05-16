@@ -25,34 +25,34 @@ import io.microsphere.mybatis.test.entity.User;
 import io.microsphere.mybatis.test.mapper.ChildMapper;
 import io.microsphere.mybatis.test.mapper.FatherMapper;
 import io.microsphere.mybatis.test.mapper.UserMapper;
+import io.microsphere.mybatis.util.MyBatisUtils;
 import org.apache.ibatis.binding.MapperRegistry;
-import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.Transaction;
-import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.Reader;
 import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Properties;
 
 import static io.microsphere.logging.LoggerFactory.getLogger;
-import static org.apache.ibatis.io.Resources.getResourceAsReader;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.CHILD_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.DESTROY_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.FATHER_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.INIT_DB_SCRIPT_RESOURCE_NAME;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.USER_TYPE_ALIAS;
+import static io.microsphere.mybatis.test.MyBatisTestUtils.buildDefaultSqlSessionFactory;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -68,80 +68,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public abstract class AbstractMyBatisTest {
 
-    public static final String CONFIG_RESOURCE_NAME = "META-INF/mybatis/config.xml";
-
-    public static final String EMPTY_CONFIG_RESOURCE_NAME = "META-INF/mybatis/empty-config.xml";
-
-    public static final String DEVELOPMENT_ID = "development";
-
-    public static final String PROPERTIES_RESOURCE_NAME = "META-INF/mybatis/mybatis.properties";
-
-    public static final String CREATE_DB_SCRIPT_RESOURCE_NAME = "META-INF/sql/create-db.sql";
-
-    public static final String DESTROY_DB_SCRIPT_RESOURCE_NAME = "META-INF/sql/destroy-db.sql";
-
-    public static final String USER_TYPE_ALIAS = "user";
-
-    public static final String CHILD_TYPE_ALIAS = "child";
-
-    public static final String FATHER_TYPE_ALIAS = "father";
-
     private static final SecureRandom random = new SecureRandom();
 
     protected final Logger logger = getLogger(this.getClass());
 
     private SqlSessionFactory sqlSessionFactory;
-
-    public static Properties properties() throws IOException {
-        try (Reader reader = getResourceAsReader(PROPERTIES_RESOURCE_NAME)) {
-            Properties properties = new Properties();
-            properties.load(reader);
-            return properties;
-        }
-    }
-
-    public static Configuration configuration() throws IOException {
-        String resource = CONFIG_RESOURCE_NAME;
-        try (Reader reader = getResourceAsReader(resource)) {
-            XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(reader, DEVELOPMENT_ID, properties());
-            return xmlConfigBuilder.parse();
-        }
-    }
-
-    public static DataSource dataSource() throws IOException {
-        Configuration configuration = configuration();
-        return configuration.getEnvironment().getDataSource();
-    }
-
-    public static SqlSessionFactory buildSqlSessionFactory() throws IOException {
-        Configuration configuration = configuration();
-        return new DefaultSqlSessionFactory(configuration);
-    }
-
-    public static void runCreateDatabaseScript(DataSource ds) throws SQLException, IOException {
-        runScript(ds, CREATE_DB_SCRIPT_RESOURCE_NAME);
-    }
-
-    public static void runDestroyDatabaseScript(DataSource ds) throws SQLException, IOException {
-        runScript(ds, DESTROY_DB_SCRIPT_RESOURCE_NAME);
-    }
-
-    public static void runScript(DataSource ds, String resource) throws IOException, SQLException {
-        try (Connection connection = ds.getConnection()) {
-            ScriptRunner runner = new ScriptRunner(connection);
-            runner.setAutoCommit(true);
-            runner.setStopOnError(false);
-            runner.setLogWriter(null);
-            runner.setErrorLogWriter(null);
-            runScript(runner, resource);
-        }
-    }
-
-    public static void runScript(ScriptRunner runner, String resource) throws IOException {
-        try (Reader reader = getResourceAsReader(resource)) {
-            runner.runScript(reader);
-        }
-    }
 
     @BeforeEach
     public void init() throws Throwable {
@@ -150,7 +81,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     private SqlSessionFactory createBuildSqlSessionFactory() throws IOException {
-        SqlSessionFactory factory = buildSqlSessionFactory();
+        SqlSessionFactory factory = buildDefaultSqlSessionFactory();
         customize(factory);
         customize(factory.getConfiguration());
         return factory;
@@ -172,31 +103,12 @@ public abstract class AbstractMyBatisTest {
     protected void customize(Configuration configuration) {
     }
 
-    private SqlSession openSqlSession() {
-        return this.sqlSessionFactory.openSession();
-    }
-
     private void initData() throws IOException, SQLException {
-        runScript(CREATE_DB_SCRIPT_RESOURCE_NAME);
+        runScript(INIT_DB_SCRIPT_RESOURCE_NAME);
     }
 
     protected void doInExecutor(ThrowableConsumer<Executor> consumer) throws Throwable {
-        doInConnection(connection -> {
-            Configuration configuration = getConfiguration();
-            Environment environment = configuration.getEnvironment();
-            TransactionFactory transactionFactory = environment.getTransactionFactory();
-            Transaction transaction = transactionFactory.newTransaction(connection);
-            Executor executor = configuration.newExecutor(transaction);
-            try {
-                consumer.accept(executor);
-            } finally {
-                executor.close(false);
-            }
-        });
-    }
-
-    protected void doInConnection(ThrowableConsumer<Connection> consumer) throws Throwable {
-        doInSqlSession(sqlSession -> consumer.accept(sqlSession.getConnection()));
+        MyBatisUtils.doInExecutor(getConfiguration(), consumer);
     }
 
     protected <M> void doInMapper(Class<M> mapperClass, ThrowableConsumer<M> mapperConsumer) throws Throwable {
@@ -207,9 +119,7 @@ public abstract class AbstractMyBatisTest {
     }
 
     protected void doInSqlSession(ThrowableConsumer<SqlSession> consumer) throws Throwable {
-        try (SqlSession sqlSession = openSqlSession()) {
-            consumer.accept(sqlSession);
-        }
+        MyBatisUtils.doInSqlSession(getConfiguration(), consumer);
     }
 
     public static User createUser() {
@@ -228,7 +138,7 @@ public abstract class AbstractMyBatisTest {
 
     protected void runScript(String resource) throws IOException, SQLException {
         DataSource dataSource = this.getDataSource();
-        runScript(dataSource, resource);
+        MyBatisUtils.runScript(dataSource, resource);
     }
 
     protected Connection getConnection(Executor executor) throws SQLException {

@@ -22,10 +22,17 @@
 
     <dependencies>
 
-        <!-- Microsphere -->
+        <!-- Microsphere Mybatis Utils -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-java-core</artifactId>
+            <artifactId>microsphere-mybatis-utils</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- Microsphere Java Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-java-test</artifactId>
         </dependency>
 
         <!-- Mybatis -->

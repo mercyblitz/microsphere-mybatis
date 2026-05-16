@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.mybatis.test.executor;
+package io.microsphere.mybatis.executor;
 
 import io.microsphere.logging.Logger;
 import org.apache.ibatis.cache.CacheKey;

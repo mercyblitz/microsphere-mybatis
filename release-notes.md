@@ -46,4 +46,19 @@ For the complete list of changes, please visit the [GitHub repository](https://g
 
 _**Note:** Skipped unrelated merge commits from the list._ 
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.3...0.1.4
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.3...0.1.4## v0.1.5
+
+# Release Notes for Version 0.1.5
+
+## New Features
+- **MyBatis Testing**: Introduced JUnit Jupiter test utilities for MyBatis. ([#52](https://github.com/mercyblitz/dev-1.x))
+
+## Build and Workflow Enhancements
+- **Maven Workflows**: Updated commands and improved caching in CI workflows.
+
+## Other Changes
+- Internal housekeeping: Merged `release-1.x` into `dev-1.x`, and bumped version to 0.1.5 for the next patch. ([skip ci])
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.4...0.1.5
