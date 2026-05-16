@@ -13,23 +13,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-mybatis-core</artifactId>
+    <artifactId>microsphere-mybatis-utils</artifactId>
     <version>${revision}</version>
     <packaging>jar</packaging>
 
-    <name>Microsphere :: Mybatis :: Core</name>
-    <description>Microsphere Mybatis Core</description>
+    <name>Microsphere :: Mybatis :: Utils</name>
+    <description>Microsphere Mybatis Utilities</description>
 
     <dependencies>
 
-        <!-- Microsphere Mybatis Utils -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-mybatis-utils</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <!-- Microsphere Java Core -->
+        <!-- Microsphere -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-java-core</artifactId>
@@ -55,6 +48,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Microsphere Java Test -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-java-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Logback -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -66,14 +66,6 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Microsphere Mybatis Test -->
-        <dependency>
-            <groupId>io.github.microsphere-projects</groupId>
-            <artifactId>microsphere-mybatis-test</artifactId>
-            <version>${revision}</version>
             <scope>test</scope>
         </dependency>
 
