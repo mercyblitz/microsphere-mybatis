@@ -61,4 +61,22 @@ _**Note:** Skipped unrelated merge commits from the list._
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.4...0.1.5
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.4...0.1.5## v0.1.6
+
+# Release Notes for Version 0.1.6
+
+## Dependency Updates
+- Bumped `microsphere-spring-cloud` to version **0.1.12**. ([4152bb2](https://example.com))
+
+## Documentation
+- Updated `README.md` for improved clarity and accuracy. ([c6f4c09](https://example.com))
+
+## Build and Workflow Enhancements
+- Merged `release-1.x` into `dev-1.x` to synchronize branches. ([f4bbc3f](https://example.com))
+- Incremented version to `0.1.6` post-release of `0.1.5`. ([49e8e62](https://example.com))
+
+---
+
+**Note:** No significant new features or bug fixes in this release.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.5...0.1.6
