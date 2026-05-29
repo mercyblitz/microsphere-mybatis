@@ -104,7 +104,6 @@ public class InterceptorContext<T> {
         return this;
     }
 
-
     /**
      * Get the start time of the execution.
      *
