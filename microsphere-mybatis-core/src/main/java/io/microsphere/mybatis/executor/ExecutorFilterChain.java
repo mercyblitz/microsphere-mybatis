@@ -115,7 +115,6 @@ public class ExecutorFilterChain {
         return apply(f -> f.getTransaction(this), Executor::getTransaction);
     }
 
-
     public void close(boolean forceRollback) {
         consume(f -> f.close(forceRollback, this), e -> e.close(forceRollback));
     }
