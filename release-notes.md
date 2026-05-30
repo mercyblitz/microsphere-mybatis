@@ -79,4 +79,29 @@ _**Note:** Skipped unrelated merge commits from the list._
 
 **Note:** No significant new features or bug fixes in this release.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.5...0.1.6
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.5...0.1.6## v0.1.7
+
+# Release Notes for v0.1.7
+
+## New Features
+- Enhanced executor interception registration for improved flexibility. [#59](https://github.com/mercyblitz/dev-1.x)
+
+## Documentation
+- Removed outdated `zread` and `isitmaintained` badges from the `README`. [32efa50](https://github.com/mercyblitz/dev-1.x/commit/32efa50)
+- Updated branch version details in the `README`. [6491280](https://github.com/mercyblitz/dev-1.x/commit/6491280)
+
+## Dependency Updates
+- Upgraded `microsphere-spring-cloud` to v0.1.14. [ecdc2e3](https://github.com/mercyblitz/dev-1.x/commit/ecdc2e3)
+
+## Build and Workflow Enhancements
+- Merged `release-1.x` into `dev-1.x` branch to sync changes. [f08e4dc](https://github.com/mercyblitz/dev-1.x/commit/f08e4dc)
+- Bumped the version to prepare for the next patch release. [e649d65](https://github.com/mercyblitz/dev-1.x/commit/e649d65)
+
+## Other Changes
+- Cleaned up whitespace: consolidated blank lines and removed trailing spaces across 50 Java files for better code readability. [df9e8b6](https://github.com/mercyblitz/dev-1.x/commit/df9e8b6) 
+
+---
+
+**Full Changelog**: [v0.1.6...v0.1.7](https://github.com/mercyblitz/dev-1.x/compare/v0.1.6...v0.1.7)
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.6...0.1.7
