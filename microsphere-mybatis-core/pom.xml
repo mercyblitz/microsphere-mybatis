@@ -35,6 +35,7 @@
             <artifactId>microsphere-java-core</artifactId>
         </dependency>
 
+        <!-- Microsphere Annotation Processor -->
         <dependency>
             <groupId>io.github.microsphere-projects</groupId>
             <artifactId>microsphere-annotation-processor</artifactId>
