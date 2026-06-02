@@ -104,4 +104,16 @@ _**Note:** Skipped unrelated merge commits from the list._
 
 **Full Changelog**: [v0.1.6...v0.1.7](https://github.com/mercyblitz/dev-1.x/compare/v0.1.6...v0.1.7)
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.6...0.1.7
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.6...0.1.7## v0.1.8
+
+# Release Notes - Version 0.1.8
+
+## Dependency Updates
+- Bumped `microsphere-spring-cloud` to version `0.1.15`. ([6d02ba3](#))
+
+## Other Changes
+- Consolidated bean registration logic via `registerBeans`. ([b04285f](#))
+- Merged `release-1.x` into `dev-1.x`. ([716d63f](#))
+- Bumped version to next patch after publishing 0.1.7. ([f2a95f2](#))
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.7...0.1.8
