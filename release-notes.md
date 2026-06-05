@@ -116,4 +116,21 @@ _**Note:** Skipped unrelated merge commits from the list._
 - Merged `release-1.x` into `dev-1.x`. ([716d63f](#))
 - Bumped version to next patch after publishing 0.1.7. ([f2a95f2](#))
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.7...0.1.8
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.7...0.1.8## v0.1.9
+
+# Release Notes - Version 0.1.9
+
+## Build and Workflow Enhancements
+- Bumped Microsphere parent to `0.1.16`. ([227a1ee](https://example.com))
+- Merged `release-1.x` updates into `dev-1.x`. ([4c16603](https://example.com))
+
+## New Features
+- Simplified executor bean registration for improved performance. ([5a8e8e1](https://example.com))
+
+## Documentation
+- Updated project documentation. ([227a1ee](https://example.com))
+
+## Other Changes
+- Prepared for the next patch version after publishing `0.1.8`. ([efd464e](https://example.com))
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.8...0.1.9
