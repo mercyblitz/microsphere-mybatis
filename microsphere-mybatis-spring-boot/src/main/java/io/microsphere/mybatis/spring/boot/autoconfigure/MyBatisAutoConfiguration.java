@@ -17,8 +17,8 @@
 
 package io.microsphere.mybatis.spring.boot.autoconfigure;
 
-import io.microsphere.mybatis.spring.annotation.EnableMyBatis;
-import io.microsphere.mybatis.spring.boot.autoconfigure.condition.ConditionalOnMyBatisEnabled;
+import io.microsphere.mybatis.spring.annotation.EnableMyBatisExtension;
+import io.microsphere.mybatis.spring.boot.autoconfigure.condition.ConditionalOnMyBatisAvailable;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,8 +46,8 @@ import org.springframework.context.annotation.Configuration;
  * @see org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
  * @since 1.0.0
  */
-@EnableMyBatis
-@ConditionalOnMyBatisEnabled
+@ConditionalOnMyBatisAvailable
+@EnableMyBatisExtension
 @AutoConfigureAfter(name = {
         "org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration"
 })
