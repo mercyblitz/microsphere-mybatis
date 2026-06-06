@@ -29,9 +29,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.INTERCEPTING_EXECUTOR_INTERCEPTOR_BEAN_NAME;
 import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.SQL_SESSION_FACTORY_BEAN_NAME;
 import static io.microsphere.mybatis.spring.annotation.MyBatisBeanDefinitionRegistrar.SQL_SESSION_TEMPLATE_BEAN_NAME;
+import static io.microsphere.mybatis.spring.annotation.MyBatisExtensionBeanDefinitionRegistrar.INTERCEPTING_EXECUTOR_INTERCEPTOR_BEAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
