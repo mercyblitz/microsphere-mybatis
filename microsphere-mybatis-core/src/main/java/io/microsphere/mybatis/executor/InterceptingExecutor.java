@@ -174,18 +174,38 @@ public class InterceptingExecutor implements Executor {
         delegate.setExecutorWrapper(interceptingExecutor);
     }
 
+    /**
+     * Build a new {@link ExecutorFilterChain} for a single invocation.
+     *
+     * @return a fresh {@link ExecutorFilterChain} wrapping the delegate and filters
+     */
     ExecutorFilterChain buildChain() {
         return new ExecutorFilterChain(this.delegate, this.properties, this.executorFilters);
     }
 
+    /**
+     * Get the underlying delegate {@link Executor}.
+     *
+     * @return the delegate {@link Executor}; never {@code null}
+     */
     public Executor getDelegate() {
         return delegate;
     }
 
+    /**
+     * Get the {@link Properties} associated with this executor.
+     *
+     * @return the {@link Properties}; may be {@code null} if none were set
+     */
     public Properties getProperties() {
         return properties;
     }
 
+    /**
+     * Get the array of {@link ExecutorFilter} instances applied by this executor.
+     *
+     * @return the {@link ExecutorFilter} array; never {@code null}
+     */
     public ExecutorFilter[] getExecutorFilters() {
         return executorFilters;
     }

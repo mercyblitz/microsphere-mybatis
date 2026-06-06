@@ -133,4 +133,20 @@ _**Note:** Skipped unrelated merge commits from the list._
 ## Other Changes
 - Prepared for the next patch version after publishing `0.1.8`. ([efd464e](https://example.com))
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.8...0.1.9
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.8...0.1.9## v0.1.10
+
+# Release Notes for Version 0.1.10
+
+## New Features
+- **MyBatis Enhancements**:  
+  - Added `ConditionalOnMyBatisAvailable` annotation to improve conditional configuration support.  
+  - Introduced MyBatis extension registrar for better modularity and flexibility.
+
+## Build and Workflow Enhancements
+- Merged `release-1.x` into `dev-1.x` to keep branches aligned.  
+- Bumped version to `0.1.10` post-release of `0.1.9`.
+
+## Other Changes
+- Dependency versions updated to maintain compatibility and improve stability.
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.9...0.1.10
