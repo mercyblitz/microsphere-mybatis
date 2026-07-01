@@ -49,7 +49,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * }</pre>
  *
  * @see ConditionalOnMyBatisEnabled
- * @see ConditionalOnClass
+ * @see org.springframework.boot.autoconfigure.condition.ConditionalOnClass
  */
 @Target(TYPE)
 @Retention(RUNTIME)

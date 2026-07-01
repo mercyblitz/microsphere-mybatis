@@ -18,6 +18,7 @@
 package io.microsphere.mybatis.spring.annotation;
 
 import io.microsphere.spring.context.annotation.BeanCapableImportCandidate;
+import io.microsphere.spring.core.annotation.ResolvablePlaceholderAnnotationAttributes;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
@@ -31,10 +32,9 @@ import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -45,24 +45,13 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.AnnotationMetadata;
 
 import javax.sql.DataSource;
-import java.util.Objects;
 import java.util.Properties;
-import java.util.StringJoiner;
-import java.util.stream.Stream;
 
-import static io.microsphere.constants.SeparatorConstants.LINE_SEPARATOR;
-import static io.microsphere.constants.SymbolConstants.EQUAL;
-import static io.microsphere.constants.SymbolConstants.WILDCARD;
 import static io.microsphere.mybatis.spring.annotation.MyBatisConfigurationBeanDefintionRegistrar.CONFIGURATION_BEAN_NAME;
-import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
 import static io.microsphere.spring.core.env.PropertySourcesUtils.getPropertyNames;
 import static io.microsphere.text.FormatUtils.format;
-import static io.microsphere.util.ArrayUtils.arrayToString;
-import static io.microsphere.util.ArrayUtils.length;
 import static io.microsphere.util.Assert.assertTrue;
 import static io.microsphere.util.StringUtils.isBlank;
-import static io.microsphere.util.StringUtils.split;
-import static io.microsphere.util.StringUtils.trimAllWhitespace;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 
 /**
@@ -102,13 +91,15 @@ public class MyBatisBeanDefinitionRegistrar extends MyBatisImportBeanDefinitionR
     public static final String SQL_SESSION_TEMPLATE_BEAN_NAME = "sqlSessionTemplate";
 
     @Override
-    protected void registerBeanDefinitions(AnnotationAttributes attributes, AnnotationMetadata metadata, BeanDefinitionRegistry registry) {
+    protected void registerBeanDefinitions(AnnotationMetadata metadata, BeanDefinitionRegistry registry,
+                                           BeanNameGenerator importBeanNameGenerator,
+                                           ResolvablePlaceholderAnnotationAttributes<EnableMyBatis> annotationAttributes) {
 
         // Register the BeanDefinition of SqlSessionFactoryBean if absent
-        registerSqlSessionFactoryBeanIfAbsent(attributes, registry);
+        registerSqlSessionFactoryBeanIfAbsent(annotationAttributes, registry);
 
         // Register the BeanDefinition of SqlSessionTemplate if absent
-        registerSqlSessionTemplateIfAbsent(attributes, registry);
+        registerSqlSessionTemplateIfAbsent(annotationAttributes, registry);
     }
 
     /**
@@ -252,4 +243,5 @@ public class MyBatisBeanDefinitionRegistrar extends MyBatisImportBeanDefinitionR
         properties.putAll(stringArrayToProperties(configurationProperties));
         return properties;
     }
+
 }
