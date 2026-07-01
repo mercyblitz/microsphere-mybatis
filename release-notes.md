@@ -149,4 +149,26 @@ _**Note:** Skipped unrelated merge commits from the list._
 ## Other Changes
 - Dependency versions updated to maintain compatibility and improve stability.
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.9...0.1.10
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.9...0.1.10## v0.1.11
+
+# Release Notes - Version 0.1.11
+
+## New Features
+- Moved MyBatis Cloud features to YAML configuration for streamlined setup. (#213353a)
+
+## Refactor
+- Refactored MyBatis import registrars API for improved flexibility. (#17ca7c2)
+
+## Documentation
+- Updated README with branch version table for better clarity. (#243af25)
+
+## Dependency Updates
+- Bumped Microsphere Spring Cloud Parent to version 0.1.21. (#912c7cc)
+
+## Build and Workflow Enhancements
+- Merged `release-1.x` into `dev-1.x` branch for alignment. (#a985bbf)  
+- Bumped version to next patch after publishing 0.1.10. (#71e2050)
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.10...0.1.11
