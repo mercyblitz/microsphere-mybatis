@@ -171,4 +171,23 @@ _**Note:** Skipped unrelated merge commits from the list._
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.10...0.1.11
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.10...0.1.11## v0.1.12
+
+# Release Notes - Version 0.1.12
+
+## Bug Fixes
+- Fix YAML mapping for named condition entry. (#30fc970)
+
+## Documentation
+- Update version numbers in `README.md`. (#5021f32)
+
+## Build and Workflow Enhancements
+- Merge `release-1.x` into `dev-1.x`. (#424104)
+- Prepare version bump post-0.1.11 release. (#ce281b6)
+
+## Other Changes
+- Merge `dev-1.x` branch updates. (#c8688ac) 
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.11...0.1.12
