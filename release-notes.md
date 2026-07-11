@@ -190,4 +190,30 @@ _**Note:** Skipped unrelated merge commits from the list._
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.11...0.1.12
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.11...0.1.12## v0.1.13
+
+# Release Notes for v0.1.13
+
+## New Features
+- Refined MyBatis auto-configuration conditions for better modularity. (#59c2468, #61880ad)
+
+## Dependency Updates
+- Upgraded Microsphere Spring Cloud to version 0.1.23. (#f15990b)
+- Adjusted Maven dependencies across MyBatis modules. (#bddddbb)
+
+## Documentation
+- Updated `README` to reflect correct branch version numbers. (#f65067e)
+
+## Test Improvements
+- Switched to using the `spring-boot-starter-test` artifact for testing. (#808a10c)
+- Separated and enhanced test coverage for MyBatis condition logic. (#61880ad)
+
+## Build and Workflow Enhancements
+- Merged changes from `release-1.x` into `dev-1.x`. (#d4dc8b6)
+- Automated version bump to prepare for post-0.1.12 development. (#ae7f76e)
+
+---
+
+For details on all changes, refer to the [Full Changelog](#).
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.12...0.1.13
