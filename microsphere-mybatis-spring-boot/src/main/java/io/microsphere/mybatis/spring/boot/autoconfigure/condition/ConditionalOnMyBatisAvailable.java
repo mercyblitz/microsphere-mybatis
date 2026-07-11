@@ -55,6 +55,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @ConditionalOnMyBatisEnabled
 @ConditionalOnClass(name = {
+        "org.apache.ibatis.session.SqlSession",                     // MyBatis Core API
         "org.apache.ibatis.session.SqlSessionFactory"               // MyBatis Spring API
 })
 public @interface ConditionalOnMyBatisAvailable {
