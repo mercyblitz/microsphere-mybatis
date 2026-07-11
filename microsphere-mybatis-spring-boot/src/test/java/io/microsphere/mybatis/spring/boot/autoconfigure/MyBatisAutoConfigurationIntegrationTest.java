@@ -35,7 +35,7 @@ import static io.microsphere.mybatis.spring.annotation.MyBatisExtensionBeanDefin
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * {@link MyBatisAutoConfiguration} Test
+ * {@link MyBatisAutoConfiguration} Integration Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see MyBatisAutoConfiguration
@@ -45,10 +45,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(classes = {
         LoggingExecutorFilter.class,
         LoggingExecutorInterceptor.class,
-        MyBatisAutoConfigurationTest.class
+        MyBatisAutoConfigurationIntegrationTest.class
 })
 @EnableAutoConfiguration
-class MyBatisAutoConfigurationTest {
+class MyBatisAutoConfigurationIntegrationTest {
 
     @Autowired
     @Qualifier(SQL_SESSION_FACTORY_BEAN_NAME)
