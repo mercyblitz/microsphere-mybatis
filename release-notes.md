@@ -216,4 +216,22 @@ _**Note:** Skipped unrelated merge commits from the list._
 
 For details on all changes, refer to the [Full Changelog](#).
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.12...0.1.13
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.12...0.1.13## v0.1.14
+
+# Release Notes - Version 0.1.14
+
+## Build and Workflow Enhancements
+- Merged `release-1.x` into `dev-1.x` branch. (0f16236)
+
+## Dependency Updates
+- Bumped parent version to `0.1.24` and marked `core` dependency as optional. (fe6f54c)
+
+## Documentation
+- Updated README to reflect branch version numbers. (61165c7)
+
+## Other Changes
+- Bumped version to `0.1.14` post publishing `0.1.13`. (8aef4a6)
+
+---
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.13...0.1.14
