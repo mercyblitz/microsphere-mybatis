@@ -20,11 +20,12 @@
 
     <properties>
         <!-- BOM versions -->
-        <microsphere-spring-cloud.version>0.1.21</microsphere-spring-cloud.version>
+        <microsphere-spring-cloud.version>0.1.23</microsphere-spring-cloud.version>
         <!-- Libraries -->
         <mybatis.version>3.5.19</mybatis.version>
         <mybatis-spring.version>2.1.2</mybatis-spring.version>
         <mybatis-spring-boot.version>2.1.2</mybatis-spring-boot.version>
+        <cglib.version>3.3.0</cglib.version>
     </properties>
 
     <dependencyManagement>
