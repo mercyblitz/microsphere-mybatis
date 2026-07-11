@@ -44,18 +44,18 @@ pom.xml:
 ```xml
 
 <dependencyManagement>
-  <dependencies>
-    ...
-    <!-- Microsphere MyBatis Dependencies -->
-    <dependency>
-      <groupId>io.github.microsphere-projects</groupId>
-      <artifactId>microsphere-mybatis-dependencies</artifactId>
-      <version>${microsphere-mybatis.version}</version>
-      <type>pom</type>
-      <scope>import</scope>
-    </dependency>
-    ...
-  </dependencies>
+    <dependencies>
+        ...
+        <!-- Microsphere MyBatis Dependencies -->
+        <dependency>
+            <groupId>io.github.microsphere-projects</groupId>
+            <artifactId>microsphere-mybatis-dependencies</artifactId>
+            <version>${microsphere-mybatis.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        ...
+    </dependencies>
 </dependencyManagement>
 ```
 
@@ -73,11 +73,11 @@ Then add the specific modules you need.
 ```xml
 
 <dependencies>
-  <!-- Microsphere MyBatis Core -->
-  <dependency>
-    <groupId>io.github.microsphere-projects</groupId>
-    <artifactId>microsphere-mybatis-core</artifactId>
-  </dependency>
+    <!-- Microsphere MyBatis Core -->
+    <dependency>
+        <groupId>io.github.microsphere-projects</groupId>
+        <artifactId>microsphere-mybatis-core</artifactId>
+    </dependency>
 </dependencies>
 ```
 
