@@ -234,4 +234,18 @@ For details on all changes, refer to the [Full Changelog](#).
 
 ---
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.13...0.1.14
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.13...0.1.14## v0.1.15
+
+_Release notes generation failed. Raw commits since 0.1.14:_
+
+```
+8eef9b8 Update README.md
+0c546da Merge pull request #77 from mercyblitz/dev-1.x
+b96e77c Use ConstructorUtils for proxy factory instantiation
+ddaa337 Force reflective access for private fields
+a9a0269 Bump microsphere-spring-cloud to 0.1.25
+e1c8bab chore: merge release-1.x into dev-1.x [skip ci]
+cb27daa chore: bump version to next patch after publishing 0.1.14
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.14...0.1.15
