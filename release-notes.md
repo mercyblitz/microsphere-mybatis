@@ -248,4 +248,17 @@ e1c8bab chore: merge release-1.x into dev-1.x [skip ci]
 cb27daa chore: bump version to next patch after publishing 0.1.14
 ```
 
-**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.14...0.1.15
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.14...0.1.15## v0.1.16
+
+_Release notes generation failed. Raw commits since 0.1.15:_
+
+```
+4056d41 Merge pull request #79 from mercyblitz/dev-1.x
+16c69b9 Update version numbers in README.md
+1d5d5ad Bump microsphere-spring-cloud to 0.1.26
+4a783e6 Add workflow to sync branches from upstream repository
+f45eacb chore: merge release-1.x into dev-1.x [skip ci]
+a877707 chore: bump version to next patch after publishing 0.1.15
+```
+
+**Full Changelog**: https://github.com/microsphere-projects/microsphere-mybatis/compare/0.1.15...0.1.16
